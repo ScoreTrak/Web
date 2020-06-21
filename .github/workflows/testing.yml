@@ -24,4 +24,4 @@ jobs:
       - run: sudo mv buffalo /usr/local/bin/buffalo
       - run: buffalo pop create -a
       - run: buffalo pop migrate
-      - 
+      - run: buffalo test
