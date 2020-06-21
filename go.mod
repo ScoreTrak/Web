@@ -3,10 +3,12 @@ module scoretrak
 go 1.14
 
 require (
+	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200621061837-89a6c48797b2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gobuffalo/buffalo v0.15.5
 	github.com/gobuffalo/buffalo-pop/v2 v2.0.6
 	github.com/gobuffalo/envy v1.9.0
+	github.com/gobuffalo/flect v0.2.1 // indirect
 	github.com/gobuffalo/mw-csrf v1.0.0
 	github.com/gobuffalo/mw-forcessl v0.0.0-20180802152810-73921ae7a130
 	github.com/gobuffalo/mw-i18n v0.0.0-20190129204410-552713a3ebb4
@@ -26,6 +28,4 @@ require (
 	github.com/spf13/cobra v1.0.0 // indirect
 	github.com/unrolled/secure v0.0.0-20190103195806-76e6d4e9b90c
 	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79
-	golang.org/x/net v0.0.0-20200505041828-1ed23360d12c // indirect
-	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
 )
