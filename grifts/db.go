@@ -1,9 +1,9 @@
 package grifts
 
 import (
+	"github.com/L1ghtman2k/ScoreTrakWeb/constants"
+	"github.com/L1ghtman2k/ScoreTrakWeb/models"
 	. "github.com/markbates/grift/grift"
-	"scoretrak/constants"
-	"scoretrak/models"
 )
 
 var _ = Namespace("create", func() {

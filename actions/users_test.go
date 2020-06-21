@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"scoretrak/models"
+	"github.com/L1ghtman2k/ScoreTrakWeb/models"
 )
 
 func (as *ActionSuite) Test_Users_New() {

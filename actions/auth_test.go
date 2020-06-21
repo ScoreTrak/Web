@@ -1,8 +1,8 @@
 package actions
 
 import (
+	"github.com/L1ghtman2k/ScoreTrakWeb/models"
 	"net/http"
-	"scoretrak/models"
 )
 
 func (as *ActionSuite) createUser() (*models.User, error) {

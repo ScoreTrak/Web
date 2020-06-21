@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"scoretrak/constants"
+	"github.com/L1ghtman2k/ScoreTrakWeb/constants"
 	"strings"
 	"time"
 

@@ -1,7 +1,7 @@
 package grifts
 
 import (
-	"scoretrak/actions"
+	"github.com/L1ghtman2k/ScoreTrakWeb/actions"
 
 	"github.com/gobuffalo/buffalo"
 )

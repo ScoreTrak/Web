@@ -2,14 +2,14 @@ package actions
 
 import (
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrakWeb/constants"
+	"github.com/L1ghtman2k/ScoreTrakWeb/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/x/responder"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"net/http"
-	"scoretrak/constants"
-	"scoretrak/models"
 )
 
 func UsersList(c buffalo.Context) error {

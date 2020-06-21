@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"scoretrak/actions"
+	"github.com/L1ghtman2k/ScoreTrakWeb/actions"
 )
 
 // main is the starting point for your Buffalo application.

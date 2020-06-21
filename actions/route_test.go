@@ -1,6 +1,6 @@
 package actions
 
-import "scoretrak/models"
+import "github.com/L1ghtman2k/ScoreTrakWeb/models"
 
 func (as *ActionSuite) Test_RouteHandler() {
 	res := as.HTML("/").Get()

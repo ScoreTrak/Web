@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"scoretrak/models"
+	"github.com/L1ghtman2k/ScoreTrakWeb/models"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
