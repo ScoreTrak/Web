@@ -1,25 +1,26 @@
 package gin
 
 import (
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
-
 func NewRouter() *gin.Engine {
+	if config.GetStaticConfig().Prod {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	return gin.Default()
 }
 
 func (ds *dserver) MapRoutes() {
-	ds.router.GET("/", ReadResource)
-}
 
-func ReadResource(c *gin.Context) {
-	c.JSON(200, "Test!")
+	ds.router.Use(static.Serve("/", static.LocalFile("./views", true)))
+
+	api := ds.router.Group("/api")
+	api.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 }

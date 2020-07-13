@@ -12,6 +12,7 @@ type StaticConfig struct {
 	ScoreTrakPort string `default:"33333"`
 	Token         string `default:""`
 	ScoreTrakURL  string `default:"http://scoretrak/"`
+	Prod          bool   `default:"false"`
 }
 
 var staticConfig StaticConfig
