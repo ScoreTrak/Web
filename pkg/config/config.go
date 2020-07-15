@@ -1,27 +1,29 @@
 package config
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 	"github.com/jinzhu/configor"
 )
 
 type StaticConfig struct {
-	DB            config.DB
-	Logger        config.Logger
+	DB            storage.Config
+	Logger        logger.Config
 	Port          string `default:"44444"`
 	ScoreTrakPort string `default:"33333"`
 	Token         string `default:""`
 	ScoreTrakURL  string `default:"http://scoretrak/"`
 	Prod          bool   `default:"false"`
+	Secret        string `default:"changeme"`
 }
 
 var staticConfig StaticConfig
 
-func GetLoggerConfig() config.Logger {
+func GetLoggerConfig() logger.Config {
 	return staticConfig.Logger
 }
 
-func GetDBConfig() config.DB {
+func GetDBConfig() storage.Config {
 	return staticConfig.DB
 }
 

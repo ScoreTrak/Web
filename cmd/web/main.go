@@ -5,9 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/api/server/gin"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/di"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/server/gin"
 	"os"
 )
 
@@ -26,8 +26,8 @@ func main() {
 		l = log
 	})
 	svr := gin.NewServer(r, d, l)
-	svr.MapRoutes()
 	handleErr(svr.SetupDB())
+	handleErr(svr.MapRoutes())
 	handleErr(svr.Start())
 }
 
