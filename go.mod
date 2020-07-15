@@ -13,6 +13,7 @@ require (
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/nosurf v0.0.0-20150415101651-45adcfcaf706
 	github.com/go-ldap/ldap/v3 v3.2.2 // indirect
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect

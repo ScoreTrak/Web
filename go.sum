@@ -98,6 +98,8 @@ github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607/go.mod h1:iqneQ2
 github.com/gin-gonic/gin v1.4.0/go.mod h1:OW2EZn3DO8Ln9oIKOvM++LBO+5UPHJJDH72/q/3rZdM=
 github.com/gin-gonic/gin v1.6.3 h1:ahKqKTFpO5KTPHxWZjEdPScmYaGtLo8Y4DMHoEsnp14=
 github.com/gin-gonic/gin v1.6.3/go.mod h1:75u5sXoLsGZoRN5Sgbi1eraJ4GU3++wFwWzhwvtwp4M=
+github.com/gin-gonic/nosurf v0.0.0-20150415101651-45adcfcaf706 h1:aUxSiSoH3vZzRYRcEvH2o+cYP5zZ/2KaxUnJ+Kvi/Dw=
+github.com/gin-gonic/nosurf v0.0.0-20150415101651-45adcfcaf706/go.mod h1:J3v28vnZME+RWbvCiJiZjXggtgP0dI3VgcWSp/JElXI=
 github.com/go-asn1-ber/asn1-ber v1.3.1 h1:gvPdv/Hr++TRFCl0UbPFHC54P9N9jgsRPnmnr419Uck=
 github.com/go-asn1-ber/asn1-ber v1.3.1/go.mod h1:hEBeB/ic+5LoWskz+yKT7vGhhPYkProFKoKdwZRWMe0=
 github.com/go-asn1-ber/asn1-ber v1.5.1 h1:pDbRAunXzIUXfx4CB2QJFv5IuPiuoW+sWvr/Us009o8=

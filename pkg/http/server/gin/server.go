@@ -1,9 +1,7 @@
 package gin
 
 import (
-	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/image"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
@@ -39,11 +37,4 @@ func (ds *dserver) SetupDB() error {
 	db.AutoMigrate(&user.User{})
 	db.AutoMigrate(&image.Image{})
 	return nil
-}
-
-// Start start serving the application
-func (ds *dserver) Start() error {
-	var cfg config.StaticConfig
-	ds.cont.Invoke(func(c config.StaticConfig) { cfg = c })
-	return ds.router.Run(fmt.Sprintf(":%s", cfg.Port))
 }

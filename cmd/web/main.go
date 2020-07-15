@@ -27,8 +27,7 @@ func main() {
 	})
 	svr := gin.NewServer(r, d, l)
 	handleErr(svr.SetupDB())
-	handleErr(svr.MapRoutes())
-	handleErr(svr.Start())
+	handleErr(svr.MapRoutesAndStart())
 }
 
 func configExists(f string) bool {

@@ -38,4 +38,4 @@ func (u *userController) Store(c *gin.Context) {
 	}
 }
 
-//TODO: ON password update invalidate JWT. https://stackoverflow.com/questions/28759590/best-practices-to-invalidate-jwt-while-changing-passwords-and-logout-in-node-js
+//TODO: ON password update invalidate JWT(HAshing via password?). https://stackoverflow.com/questions/28759590/best-practices-to-invalidate-jwt-while-changing-passwords-and-logout-in-node-js
