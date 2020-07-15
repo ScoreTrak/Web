@@ -10,11 +10,9 @@ import (
 	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/nosurf"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 func NewRouter() *gin.Engine {
@@ -32,12 +30,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		ds.logger.Error(err)
 		return err
 	}
-	csrf := nosurf.New(ds.router)
-	csrf.SetFailureHandler(http.HandlerFunc(csrfFailHandler))
 
-	ds.router.GET("/login", func(c *gin.Context) {
-		c.JSON(200, gin.H{"csrf_token": nosurf.Token(c.Request)})
-	})
 	ds.router.POST("/login", authMiddleware.LoginHandler)
 	ds.router.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
@@ -60,7 +53,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 	var cfg config.StaticConfig
 	ds.cont.Invoke(func(c config.StaticConfig) { cfg = c })
-	return http.ListenAndServe(":"+cfg.Port, csrf)
+	return ds.router.Run(fmt.Sprintf(":%s", cfg.Port))
 }
 
 func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
@@ -98,8 +91,4 @@ func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
 		return nil, err
 	}
 	return authMiddleware, nil
-}
-
-func csrfFailHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s\n", nosurf.Reason(r))
 }
