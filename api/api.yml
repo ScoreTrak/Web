@@ -105,7 +105,7 @@ paths:
         "403":
           description: "access denied"
           
-  /teams:
+  /team:
     get:
       tags:
       - "Teams"
@@ -143,7 +143,7 @@ paths:
         "405":
           description: "Invalid input"
   
-  /teams/{id}:
+  /team/{id}:
     get:
       tags:
         - "Teams"
