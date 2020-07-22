@@ -229,6 +229,42 @@ paths:
         default:
           description: "successful operation"
           
+  /host_group:
+    get:
+      tags:
+        - "Host Group"
+      summary: "Retreive all properties"
+      description: "Orders scoring engine to return all properties"
+      operationId: "GetHostGroups"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Host_Group"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
   /user/createWithArray:
     post:
       tags:
@@ -431,6 +467,30 @@ definitions:
         type: "boolean"
     description: "Team model represents internal team model of the scoring engine."
     example:
+      id: 0
+      enabled: true
+      
+  Host_Group:
+    type: "object"
+    required:
+      - "name"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "Web"
+      enabled:
+        type: "boolean"
+        description: "Enables or disables scoring for a given host group. In case\
+          \ you want to stop scoring a set of simalar hosts, you can set this property\
+          \ to false"
+    description: "Host Group model represents a set of hosts that have a common purpose,\
+      \ but are in different teams. For instance team 1 web, and team 2 web would\
+      \ bellong to a host group Web"
+    example:
+      name: "Web"
       id: 0
       enabled: true
       
