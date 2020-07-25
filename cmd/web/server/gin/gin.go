@@ -5,7 +5,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/rbac"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	"github.com/appleboy/gin-jwt/v2"
@@ -118,15 +117,14 @@ func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = us.Store(&user.User{ID: 1, Username: "admin", PasswordHash: string(hashedPassword)})
+	err = us.Store(&user.User{ID: 1, Username: "admin", Role: "admin", PasswordHash: string(hashedPassword)})
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if !ok || serr.Code != "23505" {
 			return nil, err
 		}
 	}
-	r := rbac.NewRBAC(adapter, "configs/rbac_model.conf")
-	authCtrl := handler.NewAuthController(ds.logger, us, r)
+	authCtrl := handler.NewAuthController(ds.logger, us)
 	authMiddleware, err := authCtrl.JWTMiddleware()
 	if err != nil {
 		return nil, err
