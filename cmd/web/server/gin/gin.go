@@ -3,7 +3,6 @@ package gin
 import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
@@ -70,7 +69,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 			teamRoute.POST("/", tctrl.Store)
 			teamRoute.GET("/:id", tctrl.GetByID)
 			teamRoute.PATCH("/:id", tctrl.Update)
-			teamRoute.DELETE("/:id", tctrl.Update)
+			teamRoute.DELETE("/:id", tctrl.Delete)
 		}
 
 		userRoute := api.Group("/user")
@@ -87,31 +86,22 @@ func (ds *dserver) MapRoutesAndStart() error {
 			userRoute.POST("/", uctrl.Store)
 			userRoute.GET("/:id", uctrl.GetByID)
 			userRoute.PATCH("/:id", uctrl.Update)
-			userRoute.DELETE("/:id", uctrl.Update)
+			userRoute.DELETE("/:id", uctrl.Delete)
 		}
 
 		serviceRoute := api.Group("/service")
 		{
-			var usvc service.Serv
-			err := ds.cont.Invoke(func(svc service.Serv) {
-				usvc = svc
-			})
-			if err != nil {
-				return err
-			}
-			uctrl := handler.NewServiceController(ds.logger, usvc)
+			scli := client.NewServiceClient(c)
+			uctrl := handler.NewServiceController(ds.logger, scli)
 			serviceRoute.GET("/", uctrl.GetAll)
 			serviceRoute.POST("/", uctrl.Store)
 			serviceRoute.GET("/:id", uctrl.GetByID)
 			serviceRoute.PATCH("/:id", uctrl.Update)
-			serviceRoute.DELETE("/:id", uctrl.Update)
+			serviceRoute.DELETE("/:id", uctrl.Delete)
 		}
 
 	}
-
-	var cfg config.StaticConfig
-	ds.cont.Invoke(func(c config.StaticConfig) { cfg = c })
-	return ds.router.Run(fmt.Sprintf(":%s", cfg.WebPort))
+	return ds.router.Run(fmt.Sprintf(":%s", conf.WebPort))
 }
 
 func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
