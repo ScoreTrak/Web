@@ -29,7 +29,7 @@ func (u *teamController) Store(c *gin.Context) {
 		return
 	}
 
-	err = u.teamClient.Store(&sTeam.Team{Name: us.Name, Enabled: us.Enabled})
+	err = u.teamClient.Store(&sTeam.Team{ID: us.ID, Name: us.Name, Enabled: us.Enabled})
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
