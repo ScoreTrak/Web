@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
@@ -21,7 +22,7 @@ func NewAuthController(l logger.LogInfoFormat, u user.Serv) *authController {
 
 func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 
-	identityKey := "id"
+	identityKey := "username"
 	type login struct {
 		Username string `form:"username" json:"username" binding:"required"`
 		Password string `form:"password" json:"password" binding:"required"`
@@ -35,6 +36,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*user.User); ok {
+				fmt.Println(v)
 				return jwt.MapClaims{
 					identityKey: v.Username,
 					"team_id":   v.TeamID,
@@ -45,9 +47,10 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
+			tID := claims["team_id"].(float64)
 			return &user.User{
 				Username: claims[identityKey].(string),
-				TeamID:   claims["team_id"].(uint64),
+				TeamID:   uint64(tID),
 				Role:     claims["role"].(string),
 			}
 		},
@@ -66,6 +69,8 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 			}
 			return &user.User{
 				Username: loginVals.Username,
+				TeamID:   usr.TeamID,
+				Role:     usr.Role,
 			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {

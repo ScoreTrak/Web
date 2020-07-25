@@ -3,12 +3,12 @@ package gin
 import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	"github.com/appleboy/gin-jwt/v2"
-	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgconn"
@@ -90,6 +90,23 @@ func (ds *dserver) MapRoutesAndStart() error {
 			userRoute.DELETE("/:id", uctrl.Update)
 		}
 
+		serviceRoute := api.Group("/service")
+		{
+			var usvc service.Serv
+			err := ds.cont.Invoke(func(svc service.Serv) {
+				usvc = svc
+			})
+			if err != nil {
+				return err
+			}
+			uctrl := handler.NewServiceController(ds.logger, usvc)
+			serviceRoute.GET("/", uctrl.GetAll)
+			serviceRoute.POST("/", uctrl.Store)
+			serviceRoute.GET("/:id", uctrl.GetByID)
+			serviceRoute.PATCH("/:id", uctrl.Update)
+			serviceRoute.DELETE("/:id", uctrl.Update)
+		}
+
 	}
 
 	var cfg config.StaticConfig
@@ -102,28 +119,49 @@ func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
 	err := ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
 	})
+
 	if err != nil {
 		return nil, err
 	}
-	adapter, err := gormadapter.NewAdapterByDBUsePrefix(db, "cas_")
-	if err != nil {
-		return nil, err
-	}
-	var us user.Serv
-	err = ds.cont.Invoke(func(u user.Serv) {
-		us = u
+
+	var ts team.Serv
+	err = ds.cont.Invoke(func(u team.Serv) {
+		ts = u
 	})
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
+
 	if err != nil {
 		return nil, err
 	}
-	err = us.Store(&user.User{ID: 1, Username: "admin", Role: "admin", PasswordHash: string(hashedPassword)})
+
+	err = ts.Store(&team.Team{ID: 1, Name: "Black Team"})
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if !ok || serr.Code != "23505" {
 			return nil, err
 		}
 	}
+
+	var us user.Serv
+	err = ds.cont.Invoke(func(u user.Serv) {
+		us = u
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	err = us.Store(&user.User{ID: 1, TeamID: 1, Username: "admin", Role: "admin", PasswordHash: string(hashedPassword)})
+	if err != nil {
+		serr, ok := err.(*pgconn.PgError)
+		if !ok || serr.Code != "23505" {
+			return nil, err
+		}
+	}
+
 	authCtrl := handler.NewAuthController(ds.logger, us)
 	authMiddleware, err := authCtrl.JWTMiddleware()
 	if err != nil {

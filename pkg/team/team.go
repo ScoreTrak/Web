@@ -9,5 +9,5 @@ type Team struct {
 
 	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID" json:"-"`
 
-	Enabled *bool `json:"enabled" gorm:"-"`
+	Enabled *bool `json:"enabled,omitempty" gorm:"-"`
 }

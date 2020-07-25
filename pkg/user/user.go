@@ -7,5 +7,5 @@ type User struct {
 	TeamID               uint64 `json:"team_id,omitempty"`
 	Password             string `json:"password" gorm:"-"`
 	PasswordConfirmation string `json:"password_confirmation" gorm:"-"`
-	Role                 string `json:"role" gorm:"default: 'blue'"`
+	Role                 string `json:"role" gorm:"default:'blue'"`
 }
