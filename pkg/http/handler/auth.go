@@ -89,12 +89,11 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			var username string
-			if v, ok := data.(*user.User); ok {
-				username = v.Username
-			} else {
-				username = "anonymous"
+			v, ok := data.(*user.User)
+			if !ok {
+				return false
 			}
+
 			var act string
 			if strings.ToLower(c.Request.Method) == "get" {
 				act = "read"
@@ -102,11 +101,10 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 			if strings.ToLower(c.Request.Method) == "post" || strings.ToLower(c.Request.Method) == "patch" || strings.ToLower(c.Request.Method) == "put" {
 				act = "write"
 			}
-			fmt.Println(username)
-			ok, err := a.enforce(username, c.HandlerName(), act) //#TODO: Revisit
+			ok, err := a.enforce(v.Username, c.HandlerName(), act) //#TODO: Revisit
 			if err != nil || !ok {
 				return false
-			}
+			} //#TODO: Ship application in 2 ways (Static rules, and Dynamic Rules)
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {

@@ -8,8 +8,6 @@ type Team struct {
 	Name string `json:"name" gorm:"unique;not null;default:null" valid:"required,alphanum"`
 
 	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID" json:"-"`
-}
 
-func (Team) TableName() string {
-	return "scoretrak_teams"
+	Enabled *bool `json:"enabled" gorm:"-"`
 }

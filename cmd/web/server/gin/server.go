@@ -6,8 +6,8 @@ import (
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"go.uber.org/dig"
+	"gorm.io/gorm"
 )
 
 type dserver struct {
@@ -29,12 +29,20 @@ func (ds *dserver) SetupDB() error {
 	err := ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
 	})
-	//TODO: For gorm v2 Implement in Scoretrak Table prefixes
 	if err != nil {
 		return err
 	}
-	db.AutoMigrate(&team.Team{})
-	db.AutoMigrate(&user.User{})
-	db.AutoMigrate(&image.Image{})
+	err = db.AutoMigrate(&team.Team{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&user.User{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&image.Image{})
+	if err != nil {
+		return err
+	}
 	return nil
 }

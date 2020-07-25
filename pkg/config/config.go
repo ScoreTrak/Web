@@ -7,14 +7,15 @@ import (
 )
 
 type StaticConfig struct {
-	DB            storage.Config
-	Logger        logger.Config
-	Port          string `default:"44444"`
-	ScoreTrakPort string `default:"33333"`
-	Token         string `default:""`
-	ScoreTrakURL  string `default:"http://scoretrak/"`
-	Prod          bool   `default:"false"`
-	Secret        string `default:"changeme"`
+	DB              storage.Config
+	Logger          logger.Config
+	WebPort         string `default:"44444"`
+	ScoreTrakPort   string `default:"33333"`
+	Token           string `default:""`
+	ScoreTrakHost   string `default:"scoretrak"`
+	ScoreTrakScheme string `default:"http"`
+	Prod            bool   `default:"false"`
+	Secret          string `default:"changeme"`
 }
 
 var staticConfig StaticConfig

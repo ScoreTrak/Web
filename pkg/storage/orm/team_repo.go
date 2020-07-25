@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type teamRepo struct {
@@ -41,18 +41,18 @@ func (h *teamRepo) GetAll() ([]*team.Team, error) {
 
 func (h *teamRepo) GetByID(id uint64) (*team.Team, error) {
 	h.log.Debugf("get team details by id : %h", id)
-	usr := &team.Team{}
-	err := h.db.Where("id = ?", id).First(usr).Error
+	tm := &team.Team{}
+	err := h.db.Where("id = ?", id).First(tm).Error
 	if err != nil {
 		h.log.Errorf("team not found with id : %h, reason : %v", id, err)
 		return nil, err
 	}
-	return usr, nil
+	return tm, nil
 }
 
-func (h *teamRepo) Store(usr *team.Team) error {
-	h.log.Debugf("creating the team with id : %v", usr.ID)
-	err := h.db.Create(usr).Error
+func (h *teamRepo) Store(tm *team.Team) error {
+	h.log.Debugf("creating the team with id : %v", tm.ID)
+	err := h.db.Create(tm).Error
 	if err != nil {
 		h.log.Errorf("error while creating the team, reason : %v", err)
 		return err
@@ -60,9 +60,9 @@ func (h *teamRepo) Store(usr *team.Team) error {
 	return nil
 }
 
-func (h *teamRepo) Update(usr *team.Team) error {
-	h.log.Debugf("updating the team, id : %v", usr.ID)
-	err := h.db.Model(usr).Updates(team.Team{}).Error //TODO: Adjust Casbin rules on TeamID, change
+func (h *teamRepo) Update(tm *team.Team) error {
+	h.log.Debugf("updating the team, id : %v", tm.ID)
+	err := h.db.Model(tm).Updates(team.Team{Name: tm.Name, Enabled: tm.Enabled}).Error //TODO: Adjust Casbin rules on TeamID, change
 	if err != nil {
 		h.log.Errorf("error while updating the team, reason : %v", err)
 		return err
