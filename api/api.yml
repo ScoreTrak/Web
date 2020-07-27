@@ -105,7 +105,7 @@ paths:
         "403":
           description: "access denied"
           
-  /team:
+  api/team:
     get:
       tags:
       - "Teams"
@@ -143,7 +143,7 @@ paths:
         "405":
           description: "Invalid input"
   
-  /team/{id}:
+  api/team/{id}:
     get:
       tags:
         - "Teams"
@@ -206,6 +206,180 @@ paths:
               type: "string"
         "404":
           description: "Team not found"
+  
+  api/team/{id}/hosts:
+    get:
+      tags:
+      - "Teams"
+      summary: "Get all hosts for a given team"
+      operationId: "getHostsForTeam"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "External ID of team"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "id"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/host"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+  
+  api/team/{teamID}/host/{hostID}:
+    get:
+      tags:
+      - "Teams"
+      summary: Get a single host given a team
+      operationId: "GetHostFromTeam"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "teamID"
+        in: "path"
+        description: "External ID of team"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "teamID"
+      - name: "hostID"
+        in: "path"
+        description: "ID of Host to retrieve"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "hostID"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/host"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Host not found"
+    patch:
+      tags:
+      - "Teams"
+      summary: Update host information
+      operationId: "UpdateHostByTeam"
+      parameters:
+      - name: "teamID"
+        in: "path"
+        description: "External ID of team"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "teamID"
+      - name: "hostID"
+        in: "path"
+        description: "ID of Host to retrieve"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "hostID"
+      - name: "hostInfo"
+        in: "body"
+        description: "Update host information"
+        required: true
+        schema:
+          $ref: "#/definitions/host"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Host not found"
+  
+  api/team/{teamID}/services:
+    get:
+      tags:
+      - "Teams"
+      summary: "Get all services given a team"
+      operationId: "getServicesByTeam"
+      parameters:
+      - name: "teamID"
+        in: "path"
+        description: "External ID of team"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "teamID"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/service"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+    
+  api/team/{teamID}/service/{serviceID}:
+    get:
+      tags:
+      - "Teams"
+      summary: "Get services for a given team"
+      operationId: "getServiceFromTeam"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "teamID"
+        in: "path"
+        description: "External ID of team"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "teamID"
+      - name: "serviceID"
+        in: "path"
+        description: "External ID of service"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "serviceID"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/service"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service not found"
+
+        
+      
     
   
   /user:
@@ -216,7 +390,6 @@ paths:
       description: "This can only be done by the logged in user."
       operationId: "createUser"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
       - in: "body"
@@ -229,6 +402,8 @@ paths:
         default:
           description: "successful operation"
           
+          
+  
   /host_group:
     get:
       tags:
@@ -431,18 +606,7 @@ paths:
           description: "Invalid username supplied"
         "404":
           description: "User not found"
-securityDefinitions:
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-    flow: "implicit"
-    scopes:
-      write:pets: "modify pets in your account"
-      read:pets: "read your pets"
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
+
 definitions:
   Config:
     type: "object"
@@ -453,7 +617,7 @@ definitions:
       enabled:
         type: "boolean"
         default: false
-  
+
   Team:
     type: "object"
     required:
@@ -494,6 +658,104 @@ definitions:
       id: 0
       enabled: true
       
+  host:
+    type: "object"
+    required:
+      - "address"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      address:
+        type: "string"
+      host_group_id:
+        type: "integer"
+        format: "int64"
+        description: "The ID of a host group that the host belongs to."
+      team_name:
+        type: "string"
+        description: "The Name of a team that this host belongs too. This parameter\
+          \ is optional, however is needed to appear on the scoring engine."
+      enabled:
+        type: "boolean"
+        description: "Enables or disables scoring for a single host"
+      edit_host:
+        type: "boolean"
+        example: true
+        description: "Enables to Edit the hostname. If a single host needs to be eddited\
+          \ for one service, and kept only visible for other service, you can make\
+          \ 2 services that point to same address, and have different edit_host properties."
+    description: "Host model represents a single machine. This could be an IP address\
+      \ or a resolvable hostname"
+    example:
+      address: "address"
+      host_group_id: 6
+      id: 0
+      team_id: 1
+      edit_host: true
+      enabled: true
+  
+  service:
+    type: "object"
+    required:
+      - "host_id"
+      - "name"
+      - "points"
+      - "service_group_id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "FTP"
+      display_name:
+        type: "string"
+        example: "FTP Windows 10"
+      points:
+        type: "integer"
+        format: "int64"
+        example: 20
+        description: "Points granted for a successful check"
+      round_units:
+        type: "integer"
+        format: "int64"
+        example: 5
+        description: "The frequency of a service check. If round_units is 5 and round_delay\
+          \ is 0, then service checks will happen on every 5th round. (5,10, etc)"
+      round_delay:
+        type: "integer"
+        format: "int64"
+        example: 2
+        description: "The frequency of a service check. If round_units is 7 and round_delay\
+          \ is 3, then service checks will happen on every 7th round with an offset\
+          \ of 3. (10,17, etc)"
+      service_group_id:
+        type: "integer"
+        format: "int64"
+        example: 333
+        description: "ID of a service group the service belongs to"
+      host_id:
+        type: "integer"
+        format: "int64"
+        example: 444
+        description: "ID of a host the service belongs to"
+      enabled:
+        type: "boolean"
+        description: "Enables or Disables the service"
+        default: true
+    description: "Service Model represents a service that is being scored for a given\
+      \ host"
+    example:
+      round_delay: 2
+      name: "FTP Windows"
+      round_units: 5
+      id: 0
+      service_group_id: 333
+      host_id: 444
+      enabled: true
+      points: 20
+      
   User:
     type: "object"
     properties:
@@ -518,6 +780,7 @@ definitions:
         description: "User Status"
     xml:
       name: "User"
+  
   Tag:
     type: "object"
     properties:
