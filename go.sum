@@ -34,6 +34,10 @@ github.com/L1ghtman2k/ScoreTrak v0.0.0-20200721183939-5dfb015d1774 h1:FqB6SpCgKH
 github.com/L1ghtman2k/ScoreTrak v0.0.0-20200721183939-5dfb015d1774/go.mod h1:DN3yZOhO3YgNBBFq8pduA4XaYCiGpUcZOONkgGpJjoA=
 github.com/L1ghtman2k/ScoreTrak v0.0.0-20200722163147-5b318dbcdcc5 h1:gH8PZaWshO/u1HK+p8EqrVZooJkSGSKef9U4gd+a6u0=
 github.com/L1ghtman2k/ScoreTrak v0.0.0-20200722163147-5b318dbcdcc5/go.mod h1:Ux3A/xFoWtAmU7hdIF1d/58hLOgcdrQnUXvkAgr1/to=
+github.com/L1ghtman2k/ScoreTrak v0.0.0-20200727013705-157bf5034355 h1:Svz4FVjK6LZTN3Mshne0eq6IbEvo3w+gv7nydKFQEcA=
+github.com/L1ghtman2k/ScoreTrak v0.0.0-20200727013705-157bf5034355/go.mod h1:Ux3A/xFoWtAmU7hdIF1d/58hLOgcdrQnUXvkAgr1/to=
+github.com/L1ghtman2k/ScoreTrak v0.0.0-20200727020145-087d7d7de769 h1:yqpD/OP/429v4KQX7L59VAcdVGg1/BDbRbjiv1oDRJU=
+github.com/L1ghtman2k/ScoreTrak v0.0.0-20200727020145-087d7d7de769/go.mod h1:Ux3A/xFoWtAmU7hdIF1d/58hLOgcdrQnUXvkAgr1/to=
 github.com/Microsoft/go-winio v0.4.14/go.mod h1:qXqCSQ3Xa7+6tgxaGTIe4Kpcdsi+P8jBhyzoq1bpyYA=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=

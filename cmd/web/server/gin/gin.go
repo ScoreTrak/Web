@@ -92,12 +92,81 @@ func (ds *dserver) MapRoutesAndStart() error {
 		serviceRoute := api.Group("/service")
 		{
 			scli := client.NewServiceClient(c)
-			uctrl := handler.NewServiceController(ds.logger, scli)
-			serviceRoute.GET("/", uctrl.GetAll)
-			serviceRoute.POST("/", uctrl.Store)
-			serviceRoute.GET("/:id", uctrl.GetByID)
-			serviceRoute.PATCH("/:id", uctrl.Update)
-			serviceRoute.DELETE("/:id", uctrl.Delete)
+			sctrl := handler.NewServiceController(ds.logger, scli)
+			serviceRoute.GET("/", sctrl.GetAll)
+			serviceRoute.POST("/", sctrl.Store)
+			serviceRoute.GET("/:id", sctrl.GetByID)
+			serviceRoute.PATCH("/:id", sctrl.Update)
+			serviceRoute.DELETE("/:id", sctrl.Delete)
+		}
+
+		roundRote := api.Group("/round")
+		{
+			rcli := client.NewRoundClient(c)
+			rctrl := handler.NewRoundController(ds.logger, rcli)
+			roundRote.GET("/", rctrl.GetAll)
+			roundRote.GET("/:id", rctrl.GetByID)
+			roundRote.GET("/last_non_elapsing", rctrl.GetLastNonElapsingRound)
+		}
+
+		serviceGroupRoute := api.Group("/service_group")
+		{
+			scli := client.NewServiceGroupClient(c)
+			sctrl := handler.NewServiceGroupController(ds.logger, scli)
+			serviceGroupRoute.GET("/", sctrl.GetAll)
+			serviceGroupRoute.POST("/", sctrl.Store)
+			serviceGroupRoute.GET("/:id", sctrl.GetByID)
+			serviceGroupRoute.PATCH("/:id", sctrl.Update)
+			serviceGroupRoute.DELETE("/:id", sctrl.Delete)
+		}
+
+		hostGroupRoute := api.Group("/host_group")
+		{
+			hcli := client.NewHostGroupClient(c)
+			hctrl := handler.NewHostGroupController(ds.logger, hcli)
+			hostGroupRoute.GET("/", hctrl.GetAll)
+			hostGroupRoute.POST("/", hctrl.Store)
+			hostGroupRoute.GET("/:id", hctrl.GetByID)
+			hostGroupRoute.PATCH("/:id", hctrl.Update)
+			hostGroupRoute.DELETE("/:id", hctrl.Delete)
+		}
+
+		hostRoute := api.Group("/host")
+		{
+			hcli := client.NewHostClient(c)
+			hctrl := handler.NewHostController(ds.logger, hcli)
+			hostRoute.GET("/", hctrl.GetAll)
+			hostRoute.POST("/", hctrl.Store)
+			hostRoute.GET("/:id", hctrl.GetByID)
+			hostRoute.PATCH("/:id", hctrl.Update)
+			hostRoute.DELETE("/:id", hctrl.Delete)
+		}
+
+		checkRoute := api.Group("/check")
+		{
+			hcli := client.NewCheckClient(c)
+			hctrl := handler.NewCheckController(ds.logger, hcli)
+			checkRoute.GET("/:RoundID/:ServiceID", hctrl.GetByRoundServiceID)
+			checkRoute.GET("/:id", hctrl.GetAllByRoundID)
+		}
+
+		configRoute := api.Group("/config")
+		{
+			hcli := client.NewConfigClient(c)
+			hctrl := handler.NewConfigController(ds.logger, hcli)
+			configRoute.GET("/", hctrl.Get)
+			configRoute.PATCH("/", hctrl.Update)
+		}
+
+		propertyRoute := api.Group("/property")
+		{
+			hcli := client.NewPropertyClient(c)
+			hctrl := handler.NewPropertyController(ds.logger, hcli)
+			propertyRoute.GET("/", hctrl.GetAll)
+			propertyRoute.POST("/", hctrl.Store)
+			propertyRoute.GET("/:id", hctrl.GetByID)
+			propertyRoute.PATCH("/:id", hctrl.Update)
+			propertyRoute.DELETE("/:id", hctrl.Delete)
 		}
 
 	}

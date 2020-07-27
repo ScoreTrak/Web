@@ -4,11 +4,11 @@ go 1.14
 
 require (
 	github.com/ChrisTrenkamp/goxpath v0.0.0-20190607011252-c5096ec8773d // indirect
-	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200722163147-5b318dbcdcc5
+	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200727020145-087d7d7de769
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
-	github.com/casbin/casbin/v2 v2.8.6
-	github.com/casbin/gorm-adapter/v3 v3.0.1
+	github.com/casbin/casbin/v2 v2.8.6 // indirect
+	github.com/casbin/gorm-adapter/v3 v3.0.1 // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20200620013148-b91950f658ec // indirect
 	github.com/emersion/go-imap v1.0.5 // indirect
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
