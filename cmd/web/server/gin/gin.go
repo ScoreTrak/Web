@@ -32,6 +32,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		ds.logger.Error(err)
 		return err
 	}
+
 	ds.router.Use(static.Serve("/", static.LocalFile("./views", true)))
 	ds.router.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
@@ -99,14 +100,20 @@ func (ds *dserver) MapRoutesAndStart() error {
 			serviceRoute.PATCH("/:id", sctrl.Update)
 			serviceRoute.DELETE("/:id", sctrl.Delete)
 		}
-
-		roundRote := api.Group("/round")
+		
+		
 		{
+
+			roundRoute := api.Group("/round")
 			rcli := client.NewRoundClient(c)
 			rctrl := handler.NewRoundController(ds.logger, rcli)
-			roundRote.GET("/", rctrl.GetAll)
-			roundRote.GET("/:id", rctrl.GetByID)
-			roundRote.GET("/last_non_elapsing", rctrl.GetLastNonElapsingRound)
+			roundRoute.GET("/", rctrl.GetAll)
+			roundRoute.GET("/:id", rctrl.GetByID)
+			
+			//https://github.com/gin-gonic/gin/issues/1681
+			lastRoundRoute := api.Group("/last_non_elapsing")
+			lastRoundRoute.GET("/", rctrl.GetLastNonElapsingRound)
+			
 		}
 
 		serviceGroupRoute := api.Group("/service_group")
@@ -142,12 +149,16 @@ func (ds *dserver) MapRoutesAndStart() error {
 			hostRoute.DELETE("/:id", hctrl.Delete)
 		}
 
-		checkRoute := api.Group("/check")
+
 		{
 			hcli := client.NewCheckClient(c)
 			hctrl := handler.NewCheckController(ds.logger, hcli)
-			checkRoute.GET("/:RoundID/:ServiceID", hctrl.GetByRoundServiceID)
-			checkRoute.GET("/:id", hctrl.GetAllByRoundID)
+
+			//https://github.com/gin-gonic/gin/issues/1681
+			checkSpecificRoute := api.Group("/check")
+			checkSpecificRoute.GET("/:RoundID/:ServiceID", hctrl.GetByRoundServiceID)
+			checkAllRoute := api.Group("/check_all")
+			checkAllRoute.GET("/:id", hctrl.GetAllByRoundID)
 		}
 
 		configRoute := api.Group("/config")
