@@ -4,48 +4,25 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/rbac"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"strings"
 	"time"
 )
 
 type authController struct {
 	log         logger.LogInfoFormat
 	userService user.Serv
-	rbac        rbac.RBAC
 }
 
-func NewAuthController(l logger.LogInfoFormat, u user.Serv, rbac rbac.RBAC) *authController {
-	return &authController{l, u, rbac}
-}
-
-func (a *authController) enforce(sub string, obj string, act string) (bool, error) {
-	enforcer, err := casbin.NewEnforcer(a.rbac.ConfigPath, a.rbac.Adapter)
-	if err != nil {
-		a.log.Error(err)
-		return false, fmt.Errorf("failed to create casbin enforcer: %w", err)
-	}
-	err = enforcer.LoadPolicy()
-	if err != nil {
-		a.log.Error(err)
-		return false, fmt.Errorf("failed to load policy from DB: %w", err)
-	}
-
-	ok, err := enforcer.Enforce(sub, obj, act)
-	if err != nil {
-		a.log.Error(err)
-	}
-	return ok, err
+func NewAuthController(l logger.LogInfoFormat, u user.Serv) *authController {
+	return &authController{l, u}
 }
 
 func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 
-	identityKey := "id"
+	identityKey := "username"
 	type login struct {
 		Username string `form:"username" json:"username" binding:"required"`
 		Password string `form:"password" json:"password" binding:"required"`
@@ -59,16 +36,22 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*user.User); ok {
+				fmt.Println(v)
 				return jwt.MapClaims{
 					identityKey: v.Username,
+					"team_id":   v.TeamID,
+					"role":      v.Role,
 				}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
+			tID := claims["team_id"].(float64)
 			return &user.User{
 				Username: claims[identityKey].(string),
+				TeamID:   uint64(tID),
+				Role:     claims["role"].(string),
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -86,28 +69,16 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 			}
 			return &user.User{
 				Username: loginVals.Username,
+				TeamID:   usr.TeamID,
+				Role:     usr.Role,
 			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			var username string
-			if v, ok := data.(*user.User); ok {
-				username = v.Username
-			} else {
-				username = "anonymous"
+			if v, ok := data.(*user.User); ok && v.Role == "admin" {
+				return true
 			}
-			var act string
-			if strings.ToLower(c.Request.Method) == "get" {
-				act = "read"
-			}
-			if strings.ToLower(c.Request.Method) == "post" || strings.ToLower(c.Request.Method) == "patch" || strings.ToLower(c.Request.Method) == "put" {
-				act = "write"
-			}
-			fmt.Println(username)
-			ok, err := a.enforce(username, c.HandlerName(), act) //#TODO: Revisit
-			if err != nil || !ok {
-				return false
-			}
-			return true
+
+			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{

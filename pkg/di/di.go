@@ -6,6 +6,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/storage/orm"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	"go.uber.org/dig"
 )
@@ -18,7 +19,8 @@ func BuildMasterContainer() (*dig.Container, error) {
 	ctr = append(ctr,
 		config.GetStaticConfig, config.GetDBConfig, config.GetLoggerConfig,
 		storage.LoadDB, logger.NewLogger, handler.NewAuthController,
-		user.NewUserServ, orm.NewUserRepo, orm.NewTeamRepo,
+		user.NewUserServ, orm.NewUserRepo,
+		team.NewTeamServ, orm.NewTeamRepo,
 	)
 	for _, i := range ctr {
 		err := container.Provide(i)
