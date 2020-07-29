@@ -106,12 +106,18 @@ func (u *userController) Update(c *gin.Context) {
 		return
 	}
 	us := &user.User{}
-	err = c.BindJSON(us)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
+	val, ok := c.Get("filtered")
+	if ok {
+		us = val.(*user.User)
+	} else {
+		err = c.BindJSON(us)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+			return
+		}
 	}
 	us.ID = id
+
 	if us.Password != "" {
 		if us.Password != us.PasswordConfirmation {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "password and password confirmation did not match"})

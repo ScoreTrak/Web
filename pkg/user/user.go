@@ -5,7 +5,7 @@ type User struct {
 	Username             string `json:"username" gorm:"unique,not null;default:null" valid:"required,alphanum"`
 	PasswordHash         string `json:"-" gorm:"not null;default: null"`
 	TeamID               uint64 `json:"team_id,omitempty"`
-	Password             string `json:"password" gorm:"-"`
-	PasswordConfirmation string `json:"password_confirmation" gorm:"-"`
+	Password             string `json:"password,omitempty" gorm:"-"`
+	PasswordConfirmation string `json:"password_confirmation,omitempty" gorm:"-"`
 	Role                 string `json:"role" gorm:"default:'blue'"`
 }

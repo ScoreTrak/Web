@@ -16,19 +16,16 @@ func NewRoundController(log logger.LogInfoFormat, tc round.Serv) *roundControlle
 }
 
 func (u *roundController) GetLastNonElapsingRound(c *gin.Context) {
-	us := &round.Round{}
-	genericStore(c, "GetLastNonElapsingRound", u.roundClient, us, u.log)
+	genericGet(c, "GetLastNonElapsingRound", u.roundClient, u.log)
 
 }
 
 func (u *roundController) GetAll(c *gin.Context) {
-	us := &round.Round{}
-	genericStore(c, "GetAll", u.roundClient, us, u.log)
+	genericGet(c, "GetAll", u.roundClient, u.log)
 
 }
 
 func (u *roundController) GetByID(c *gin.Context) {
-	us := &round.Round{}
-	genericStore(c, "GetByID", u.roundClient, us, u.log)
+	genericGetByID(c, "GetByID", u.roundClient, u.log)
 
 }

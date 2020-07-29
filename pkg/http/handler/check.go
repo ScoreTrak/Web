@@ -6,7 +6,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 type checkController struct {
@@ -19,15 +18,13 @@ func NewCheckController(log logger.LogInfoFormat, tc check.Serv) *checkControlle
 }
 
 func (u *checkController) GetByRoundServiceID(c *gin.Context) {
-	srid := c.Param("RoundID")
-	rid, err := strconv.ParseUint(srid, 10, 64)
+	rid, err := IdResolver(c, "RoundID")
 	if err != nil {
 		u.log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ssid := c.Param("ServiceID")
-	sid, err := strconv.ParseUint(ssid, 10, 64)
+	sid, err := IdResolver(c, "ServiceID")
 	if err != nil {
 		u.log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})

@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/ChrisTrenkamp/goxpath v0.0.0-20190607011252-c5096ec8773d // indirect
-	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200727020145-087d7d7de769
+	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200729022029-e7b962abfd45
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
 	github.com/casbin/casbin/v2 v2.8.6 // indirect
@@ -25,7 +25,7 @@ require (
 	github.com/jackc/pgconn v1.6.3
 	github.com/jackc/pgx/v4 v4.8.0 // indirect
 	github.com/jinzhu/configor v1.2.0
-	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a // indirect
+	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jinzhu/gorm v1.9.14 // indirect
 	github.com/jlaffaye/ftp v0.0.0-20200708175026-55bbb372b87e // indirect
 	github.com/json-iterator/go v1.1.10 // indirect

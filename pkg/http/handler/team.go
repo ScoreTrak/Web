@@ -34,10 +34,11 @@ func (u *teamController) Store(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
+	savedTeam, _ := u.teamClient.GetByID(us.ID)
+	us.ID = savedTeam.ID
 	err = u.serv.Store(us)
 	if err != nil {
-		_ = u.teamClient.DeleteByName(us.Name)
+		_ = u.teamClient.Delete(us.ID)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -61,7 +62,7 @@ func (u *teamController) Delete(c *gin.Context) {
 		}
 		return
 	}
-	err = u.teamClient.DeleteByName(t.Name)
+	err = u.teamClient.Delete(t.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -80,7 +81,7 @@ func (u *teamController) GetByID(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	t, err := u.serv.GetByID(id)
+	t, err := u.teamClient.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -90,11 +91,12 @@ func (u *teamController) GetByID(c *gin.Context) {
 		}
 		return
 	}
+
 	c.JSON(200, t)
 }
 
 func (u *teamController) GetAll(c *gin.Context) {
-	t, err := u.serv.GetAll()
+	t, err := u.teamClient.GetAll()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -122,18 +124,8 @@ func (u *teamController) Update(c *gin.Context) {
 		return
 	}
 	us.ID = id
-	t, err := u.serv.GetByID(id)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			u.log.Error(err)
-		}
-		return
-	}
 
-	ts, err := u.teamClient.GetByName(t.Name)
+	ts, err := u.teamClient.GetByID(us.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

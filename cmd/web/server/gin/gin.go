@@ -27,7 +27,23 @@ func NewRouter() *gin.Engine {
 }
 
 func (ds *dserver) MapRoutesAndStart() error {
-	authMiddleware, err := ds.authBootstrap()
+	conf := config.GetStaticConfig()
+	c := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%s", conf.ScoreTrakPort), Scheme: conf.ScoreTrakScheme}, conf.Token, http.DefaultClient)
+
+	cStore := handler.ClientStore{
+		ConfigClient:       client.NewConfigClient(c),
+		TeamClient:         client.NewTeamClient(c),
+		HostClient:         client.NewHostClient(c),
+		ServiceClient:      client.NewServiceClient(c),
+		ServiceGroupClient: client.NewServiceGroupClient(c),
+		HostGroupClient:    client.NewHostGroupClient(c),
+		PropertyClient:     client.NewPropertyClient(c),
+		RoundClient:        client.NewRoundClient(c),
+		CheckClient:        client.NewCheckClient(c),
+		ReportClient:       client.NewReportClient(c),
+	}
+
+	authMiddleware, err := ds.authBootstrap(cStore)
 	if err != nil {
 		ds.logger.Error(err)
 		return err
@@ -43,11 +59,9 @@ func (ds *dserver) MapRoutesAndStart() error {
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.POST("/login", authMiddleware.LoginHandler)
 	api := ds.router.Group("/api")
-	conf := config.GetStaticConfig()
-	c := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%s", conf.ScoreTrakPort), Scheme: conf.ScoreTrakScheme}, conf.Token, http.DefaultClient)
+
 	api.Use(authMiddleware.MiddlewareFunc())
 	{
-
 		api.GET("/", func(c *gin.Context) {
 			c.JSON(200, gin.H{
 				"message": "pong",
@@ -60,12 +74,10 @@ func (ds *dserver) MapRoutesAndStart() error {
 			err := ds.cont.Invoke(func(svc team.Serv) {
 				tsvc = svc
 			})
-
-			tcli := client.NewTeamClient(c)
 			if err != nil {
 				return err
 			}
-			tctrl := handler.NewTeamController(ds.logger, tsvc, tcli)
+			tctrl := handler.NewTeamController(ds.logger, tsvc, cStore.TeamClient)
 			teamRoute.GET("/", tctrl.GetAll)
 			teamRoute.POST("/", tctrl.Store)
 			teamRoute.GET("/:id", tctrl.GetByID)
@@ -92,34 +104,28 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		serviceRoute := api.Group("/service")
 		{
-			scli := client.NewServiceClient(c)
-			sctrl := handler.NewServiceController(ds.logger, scli)
+			sctrl := handler.NewServiceController(ds.logger, cStore.ServiceClient)
 			serviceRoute.GET("/", sctrl.GetAll)
 			serviceRoute.POST("/", sctrl.Store)
 			serviceRoute.GET("/:id", sctrl.GetByID)
 			serviceRoute.PATCH("/:id", sctrl.Update)
 			serviceRoute.DELETE("/:id", sctrl.Delete)
 		}
-		
-		
+
 		{
 
 			roundRoute := api.Group("/round")
-			rcli := client.NewRoundClient(c)
-			rctrl := handler.NewRoundController(ds.logger, rcli)
+			rctrl := handler.NewRoundController(ds.logger, cStore.RoundClient)
 			roundRoute.GET("/", rctrl.GetAll)
 			roundRoute.GET("/:id", rctrl.GetByID)
-			
-			//https://github.com/gin-gonic/gin/issues/1681
 			lastRoundRoute := api.Group("/last_non_elapsing")
 			lastRoundRoute.GET("/", rctrl.GetLastNonElapsingRound)
-			
+
 		}
 
 		serviceGroupRoute := api.Group("/service_group")
 		{
-			scli := client.NewServiceGroupClient(c)
-			sctrl := handler.NewServiceGroupController(ds.logger, scli)
+			sctrl := handler.NewServiceGroupController(ds.logger, cStore.ServiceGroupClient)
 			serviceGroupRoute.GET("/", sctrl.GetAll)
 			serviceGroupRoute.POST("/", sctrl.Store)
 			serviceGroupRoute.GET("/:id", sctrl.GetByID)
@@ -129,8 +135,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		hostGroupRoute := api.Group("/host_group")
 		{
-			hcli := client.NewHostGroupClient(c)
-			hctrl := handler.NewHostGroupController(ds.logger, hcli)
+			hctrl := handler.NewHostGroupController(ds.logger, cStore.HostGroupClient)
 			hostGroupRoute.GET("/", hctrl.GetAll)
 			hostGroupRoute.POST("/", hctrl.Store)
 			hostGroupRoute.GET("/:id", hctrl.GetByID)
@@ -140,8 +145,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		hostRoute := api.Group("/host")
 		{
-			hcli := client.NewHostClient(c)
-			hctrl := handler.NewHostController(ds.logger, hcli)
+			hctrl := handler.NewHostController(ds.logger, cStore.HostClient)
 			hostRoute.GET("/", hctrl.GetAll)
 			hostRoute.POST("/", hctrl.Store)
 			hostRoute.GET("/:id", hctrl.GetByID)
@@ -149,30 +153,22 @@ func (ds *dserver) MapRoutesAndStart() error {
 			hostRoute.DELETE("/:id", hctrl.Delete)
 		}
 
-
 		{
-			hcli := client.NewCheckClient(c)
-			hctrl := handler.NewCheckController(ds.logger, hcli)
-
-			//https://github.com/gin-gonic/gin/issues/1681
-			checkSpecificRoute := api.Group("/check")
-			checkSpecificRoute.GET("/:RoundID/:ServiceID", hctrl.GetByRoundServiceID)
-			checkAllRoute := api.Group("/check_all")
-			checkAllRoute.GET("/:id", hctrl.GetAllByRoundID)
+			hctrl := handler.NewCheckController(ds.logger, cStore.CheckClient)
+			api.GET("/check/:RoundID/:ServiceID", hctrl.GetByRoundServiceID)
+			api.GET("/check_all/:id", hctrl.GetAllByRoundID)
 		}
 
 		configRoute := api.Group("/config")
 		{
-			hcli := client.NewConfigClient(c)
-			hctrl := handler.NewConfigController(ds.logger, hcli)
+			hctrl := handler.NewConfigController(ds.logger, cStore.ConfigClient)
 			configRoute.GET("/", hctrl.Get)
 			configRoute.PATCH("/", hctrl.Update)
 		}
 
 		propertyRoute := api.Group("/property")
 		{
-			hcli := client.NewPropertyClient(c)
-			hctrl := handler.NewPropertyController(ds.logger, hcli)
+			hctrl := handler.NewPropertyController(ds.logger, cStore.PropertyClient)
 			propertyRoute.GET("/", hctrl.GetAll)
 			propertyRoute.POST("/", hctrl.Store)
 			propertyRoute.GET("/:id", hctrl.GetByID)
@@ -180,11 +176,18 @@ func (ds *dserver) MapRoutesAndStart() error {
 			propertyRoute.DELETE("/:id", hctrl.Delete)
 		}
 
+		reportRoute := api.Group("/report")
+		{
+			hctrl := NewReportController(ds.logger, cStore.ReportClient, cStore.ConfigClient, cStore.RoundClient)
+			reportRoute.GET("/", hctrl.Get)
+			go hctrl.LazyUpdate(c)
+		}
+
 	}
 	return ds.router.Run(fmt.Sprintf(":%s", conf.WebPort))
 }
 
-func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
+func (ds *dserver) authBootstrap(clientStore handler.ClientStore) (*jwt.GinJWTMiddleware, error) {
 	var db *gorm.DB
 	err := ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
@@ -224,7 +227,7 @@ func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = us.Store(&user.User{ID: 1, TeamID: 1, Username: "admin", Role: "admin", PasswordHash: string(hashedPassword)})
+	err = us.Store(&user.User{ID: 1, TeamID: 1, Username: "admin", Role: "black", PasswordHash: string(hashedPassword)})
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if !ok || serr.Code != "23505" {
@@ -232,7 +235,7 @@ func (ds *dserver) authBootstrap() (*jwt.GinJWTMiddleware, error) {
 		}
 	}
 
-	authCtrl := handler.NewAuthController(ds.logger, us)
+	authCtrl := NewAuthController(ds.logger, us, clientStore)
 	authMiddleware, err := authCtrl.JWTMiddleware()
 	if err != nil {
 		return nil, err

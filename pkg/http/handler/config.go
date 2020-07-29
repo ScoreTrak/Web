@@ -4,6 +4,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type configController struct {
@@ -20,5 +21,16 @@ func (u *configController) Get(c *gin.Context) {
 
 func (u *configController) Update(c *gin.Context) {
 	us := &config.DynamicConfig{}
-	genericUpdate(c, "Update", u.configClient, us, u.log)
+	err := c.BindJSON(us)
+	if err != nil {
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	err = u.configClient.Update(us)
+	if err != nil {
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
 }
