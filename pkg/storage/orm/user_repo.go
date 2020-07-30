@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewUserRepo(db *gorm.DB, log logger.LogInfoFormat) user.Repo {
 	return &userRepo{db, log}
 }
 
-func (h *userRepo) Delete(id uint64) error {
+func (h *userRepo) Delete(id uuid.UUID) error {
 	h.log.Debugf("deleting the user with id : %h", id)
 	result := h.db.Delete(&user.User{}, "id = ?", id)
 	if result.Error != nil {
@@ -39,7 +40,7 @@ func (h *userRepo) GetAll() ([]*user.User, error) {
 	return users, nil
 }
 
-func (h *userRepo) GetByID(id uint64) (*user.User, error) {
+func (h *userRepo) GetByID(id uuid.UUID) (*user.User, error) {
 	h.log.Debugf("get user details by id : %h", id)
 	usr := &user.User{}
 	err := h.db.Where("id = ?", id).First(usr).Error
@@ -61,8 +62,7 @@ func (h *userRepo) GetByUsername(username string) (*user.User, error) {
 	return usr, nil
 }
 
-func (h *userRepo) Store(usr *user.User) error {
-	h.log.Debugf("creating the user with id : %v", usr.ID)
+func (h *userRepo) Store(usr []*user.User) error {
 	err := h.db.Create(usr).Error
 	if err != nil {
 		h.log.Errorf("error while creating the user, reason : %v", err)
@@ -73,7 +73,7 @@ func (h *userRepo) Store(usr *user.User) error {
 
 func (h *userRepo) Update(usr *user.User) error {
 	h.log.Debugf("updating the user, id : %v", usr.ID)
-	err := h.db.Model(usr).Updates(user.User{PasswordHash: usr.PasswordHash, Username: usr.Username, TeamID: usr.TeamID}).Error //TODO: Adjust Casbin rules on TeamID, change
+	err := h.db.Model(usr).Updates(user.User{PasswordHash: usr.PasswordHash, Username: usr.Username, TeamID: usr.TeamID}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the user, reason : %v", err)
 		return err

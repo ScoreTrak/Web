@@ -1,10 +1,12 @@
 package team
 
+import "github.com/gofrs/uuid"
+
 type Serv interface {
 	GetAll() ([]*Team, error)
-	GetByID(id uint64) (*Team, error)
-	Delete(id uint64) error
-	Store(u *Team) error
+	GetByID(id uuid.UUID) (*Team, error)
+	Delete(id uuid.UUID) error
+	Store(u []*Team) error
 	Update(u *Team) error
 }
 
@@ -18,12 +20,12 @@ func NewTeamServ(repo Repo) Serv {
 	}
 }
 
-func (svc *teamServ) Delete(id uint64) error { return svc.repo.Delete(id) }
+func (svc *teamServ) Delete(id uuid.UUID) error { return svc.repo.Delete(id) }
 
 func (svc *teamServ) GetAll() ([]*Team, error) { return svc.repo.GetAll() }
 
-func (svc *teamServ) GetByID(id uint64) (*Team, error) { return svc.repo.GetByID(id) }
+func (svc *teamServ) GetByID(id uuid.UUID) (*Team, error) { return svc.repo.GetByID(id) }
 
-func (svc *teamServ) Store(u *Team) error { return svc.repo.Store(u) }
+func (svc *teamServ) Store(u []*Team) error { return svc.repo.Store(u) }
 
 func (svc *teamServ) Update(u *Team) error { return svc.repo.Update(u) }

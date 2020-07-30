@@ -10,6 +10,7 @@ import (
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -205,8 +206,8 @@ func (ds *dserver) authBootstrap(clientStore handler.ClientStore) (*jwt.GinJWTMi
 	if err != nil {
 		return nil, err
 	}
-
-	err = ts.Store(&team.Team{ID: 1, Name: "Black Team"})
+	uuid1 := uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
+	err = ts.Store([]*team.Team{{ID: uuid1, Name: "Black Team"}})
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if !ok || serr.Code != "23505" {
@@ -227,7 +228,7 @@ func (ds *dserver) authBootstrap(clientStore handler.ClientStore) (*jwt.GinJWTMi
 	if err != nil {
 		return nil, err
 	}
-	err = us.Store(&user.User{ID: 1, TeamID: 1, Username: "admin", Role: "black", PasswordHash: string(hashedPassword)})
+	err = us.Store([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: "black", PasswordHash: string(hashedPassword)}})
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if !ok || serr.Code != "23505" {

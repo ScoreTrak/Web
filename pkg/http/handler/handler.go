@@ -17,6 +17,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -61,7 +62,7 @@ func genericGetByID(c *gin.Context, m string, svc interface{}, log logger.LogInf
 		c.JSON(200, v)
 		return
 	}
-	id, err := IdResolver(c, "id")
+	id, err := UuidResolver(c, "id")
 	if err != nil {
 		log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -81,7 +82,7 @@ func genericGetByID(c *gin.Context, m string, svc interface{}, log logger.LogInf
 }
 
 func genericDelete(c *gin.Context, m string, svc interface{}, log logger.LogInfoFormat) {
-	id, err := IdResolver(c, "id")
+	id, err := UuidResolver(c, "id")
 	if err != nil {
 		log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -100,14 +101,12 @@ func genericDelete(c *gin.Context, m string, svc interface{}, log logger.LogInfo
 }
 
 func genericUpdate(c *gin.Context, m string, svc interface{}, g interface{}, log logger.LogInfoFormat) {
-
-	id, err := IdResolver(c, "id")
+	id, err := UuidResolver(c, "id")
 	if err != nil {
 		log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	val, ok := c.Get("filtered")
 	if ok {
 		g = val
@@ -119,7 +118,6 @@ func genericUpdate(c *gin.Context, m string, svc interface{}, g interface{}, log
 			return
 		}
 	}
-
 	v := reflect.ValueOf(g).Elem()
 	f := reflect.ValueOf(id)
 	v.FieldByName("ID").Set(f)
@@ -135,13 +133,22 @@ func genericUpdate(c *gin.Context, m string, svc interface{}, g interface{}, log
 	}
 }
 
-func IdResolver(c *gin.Context, param string) (id uint64, err error) {
+func UintResolver(c *gin.Context, param string) (id uint, err error) {
 	idParam := c.Param(param)
 	if idParam == "" {
 		return 0, errors.New(fmt.Sprintf("%s parameter was not identified", param))
 	}
-	id, err = strconv.ParseUint(idParam, 10, 64)
+	id32, err := strconv.ParseUint(idParam, 10, 32)
+	id = uint(id32)
 	return
+}
+
+func UuidResolver(c *gin.Context, param string) (uuid.UUID, error) {
+	idParam := c.Param(param)
+	if idParam == "" {
+		return uuid.Nil, errors.New(fmt.Sprintf("%s parameter was not identified", param))
+	}
+	return uuid.FromString(idParam)
 }
 
 type ClientStore struct {

@@ -37,9 +37,9 @@ func (u *reportController) Get(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	var tID uint64
+	var tID uint32
 	if val, ok := c.Get("team_id"); ok && val != nil {
-		tID, _ = val.(uint64)
+		tID, _ = val.(uint32)
 	}
 	simpleReport := &report.SimpleReport{}
 	err = json.Unmarshal([]byte(lr.Cache), simpleReport)
@@ -47,7 +47,6 @@ func (u *reportController) Get(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(tID)
 	if tID != 0 {
 		for t := range simpleReport.Teams {
 			if t != tID {

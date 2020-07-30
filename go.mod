@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/ChrisTrenkamp/goxpath v0.0.0-20190607011252-c5096ec8773d // indirect
-	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200729022029-e7b962abfd45
+	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200730185915-e5e533d8e474
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
 	github.com/casbin/casbin/v2 v2.8.6 // indirect
@@ -17,7 +17,7 @@ require (
 	github.com/gin-gonic/nosurf v0.0.0-20150415101651-45adcfcaf706 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.2 // indirect
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
-	github.com/gofrs/uuid v3.3.0+incompatible // indirect
+	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/gorilla/sessions v1.2.0 // indirect
@@ -44,5 +44,5 @@ require (
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gorm.io/driver/mysql v0.3.1 // indirect
 	gorm.io/driver/sqlserver v0.2.5 // indirect
-	gorm.io/gorm v0.2.24
+	gorm.io/gorm v0.2.25
 )

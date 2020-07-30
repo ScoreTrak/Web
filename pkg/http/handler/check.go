@@ -18,13 +18,13 @@ func NewCheckController(log logger.LogInfoFormat, tc check.Serv) *checkControlle
 }
 
 func (u *checkController) GetByRoundServiceID(c *gin.Context) {
-	rid, err := IdResolver(c, "RoundID")
+	rid, err := UintResolver(c, "RoundID")
 	if err != nil {
 		u.log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	sid, err := IdResolver(c, "ServiceID")
+	sid, err := UuidResolver(c, "ServiceID")
 	if err != nil {
 		u.log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})

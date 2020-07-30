@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type propertyController struct {
@@ -16,8 +18,23 @@ func NewPropertyController(log logger.LogInfoFormat, tc property.Serv) *property
 }
 
 func (u *propertyController) Store(c *gin.Context) {
-	us := &property.Property{}
-	genericStore(c, "Store", u.propertyClient, us, u.log)
+	var us []*property.Property
+	err := c.BindJSON(&us)
+	if err != nil {
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	err = u.propertyClient.Store(us)
+	if err != nil {
+		u.log.Error(err.Error())
+		if serr, ok := err.(*client.InvalidResponse); ok {
+			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
+		} else {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
 
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
 	"time"
@@ -28,7 +29,7 @@ func NewAuthController(l logger.LogInfoFormat, u user.Serv, c handler.ClientStor
 
 func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 
-	identityKey := "username"
+	identityKey := "id"
 	type login struct {
 		Username string `form:"username" json:"username" binding:"required"`
 		Password string `form:"password" json:"password" binding:"required"`
@@ -43,8 +44,8 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*user.User); ok {
 				return jwt.MapClaims{
-					"id":        v.ID,
-					identityKey: v.Username,
+					identityKey: v.ID,
+					"username":  v.Username,
 					"team_id":   v.TeamID,
 					"role":      v.Role,
 				}
@@ -53,12 +54,10 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			tID := claims["team_id"].(float64)
-			id := claims["id"].(float64)
 			return &user.User{
-				ID:       uint64(id),
+				ID:       uuid.FromStringOrNil(claims["id"].(string)),
 				Username: claims[identityKey].(string),
-				TeamID:   uint64(tID),
+				TeamID:   uuid.FromStringOrNil(claims["team_id"].(string)),
 				Role:     claims["role"].(string),
 			}
 		},
@@ -92,7 +91,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 					if ok {
 						switch pre {
 						case "/api/property/":
-							id, err := handler.IdResolver(c, "id")
+							id, err := handler.UuidResolver(c, "id")
 							if err == nil {
 								tID, prop, err := a.teamIDFromProperty(id)
 								if err == nil && prop != nil && tID == v.TeamID && prop.Status != property.Hide {
@@ -101,7 +100,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 								}
 							}
 						case "/api/service/":
-							id, err := handler.IdResolver(c, "id")
+							id, err := handler.UuidResolver(c, "id")
 							if err == nil {
 								tID, serv, err := a.teamIDFromService(id)
 								if err == nil && serv != nil && tID == v.TeamID {
@@ -110,7 +109,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 								}
 							}
 						case "/api/host/":
-							id, err := handler.IdResolver(c, "id")
+							id, err := handler.UuidResolver(c, "id")
 							if err == nil {
 								tID, serv, err := a.teamIDFromHost(id)
 								if err == nil && serv != nil && tID == v.TeamID {
@@ -119,8 +118,8 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 								}
 							}
 						case "/api/check/":
-							rid, err := handler.IdResolver(c, "RoundID")
-							sid, err2 := handler.IdResolver(c, "ServiceID")
+							rid, err := handler.UintResolver(c, "RoundID")
+							sid, err2 := handler.UuidResolver(c, "ServiceID")
 							if err == nil && err2 == nil {
 								tID, ck, err := a.teamIDFromCheck(rid, sid)
 								if err == nil && ck != nil && tID == v.TeamID {
@@ -137,7 +136,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 					}
 				} else if c.Request.Method == "PATCH" {
 					if strings.HasPrefix(c.Request.URL.String(), "/api/property/") {
-						id, err := handler.IdResolver(c, "id")
+						id, err := handler.UuidResolver(c, "id")
 						if err == nil {
 							tID, p, err := a.teamIDFromProperty(id)
 							if err == nil && p != nil && tID == v.TeamID && p.Status == property.Edit {
@@ -151,18 +150,18 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 						}
 					}
 					if strings.HasPrefix(c.Request.URL.String(), "/api/user/") {
-						id, err := handler.IdResolver(c, "id")
+						id, err := handler.UuidResolver(c, "id")
 						if err == nil && v.ID == id {
 							us := &user.User{}
 							err = c.BindJSON(us)
 							if err == nil {
-								c.Set("filtered", &user.User{ID: us.ID, Username: us.Username, Password: us.Password, PasswordConfirmation: us.PasswordConfirmation})
+								c.Set("filtered", &user.User{ID: us.ID, Username: us.Username, Password: us.Password})
 								return true
 							}
 						}
 					}
 					if strings.HasPrefix(c.Request.URL.String(), "/api/host/") {
-						id, err := handler.IdResolver(c, "id")
+						id, err := handler.UuidResolver(c, "id")
 						if err == nil {
 							tID, p, err := a.teamIDFromHost(id)
 							if err == nil && p != nil && tID == v.TeamID && p.EditHost != nil && *p.EditHost == true {
@@ -200,7 +199,7 @@ func containsPrefix(s string, prefix []string) (string, bool) {
 	return "", false
 }
 
-func (a *authController) teamIDFromProperty(propertyID uint64) (teamID uint64, property *property.Property, err error) {
+func (a *authController) teamIDFromProperty(propertyID uuid.UUID) (teamID uuid.UUID, property *property.Property, err error) {
 	property, err = a.ClientStore.PropertyClient.GetByID(propertyID)
 	if err != nil || property == nil {
 		return
@@ -209,7 +208,7 @@ func (a *authController) teamIDFromProperty(propertyID uint64) (teamID uint64, p
 	return
 }
 
-func (a *authController) teamIDFromCheck(roundID uint64, serviceID uint64) (teamID uint64, check *check.Check, err error) {
+func (a *authController) teamIDFromCheck(roundID uint, serviceID uuid.UUID) (teamID uuid.UUID, check *check.Check, err error) {
 	check, err = a.ClientStore.CheckClient.GetByRoundServiceID(roundID, serviceID)
 	if err != nil || check == nil {
 		return
@@ -218,7 +217,7 @@ func (a *authController) teamIDFromCheck(roundID uint64, serviceID uint64) (team
 	return
 }
 
-func (a *authController) teamIDFromService(serviceID uint64) (teamID uint64, service *service.Service, err error) {
+func (a *authController) teamIDFromService(serviceID uuid.UUID) (teamID uuid.UUID, service *service.Service, err error) {
 	service, err = a.ClientStore.ServiceClient.GetByID(serviceID)
 	if err != nil || service == nil {
 		return
@@ -227,7 +226,7 @@ func (a *authController) teamIDFromService(serviceID uint64) (teamID uint64, ser
 	return
 }
 
-func (a *authController) teamIDFromHost(hostID uint64) (teamID uint64, host *host.Host, err error) {
+func (a *authController) teamIDFromHost(hostID uuid.UUID) (teamID uuid.UUID, host *host.Host, err error) {
 	host, err = a.ClientStore.HostClient.GetByID(hostID)
 	if err != nil || host == nil {
 		return

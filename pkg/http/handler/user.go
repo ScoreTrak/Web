@@ -8,7 +8,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"net/http"
-	"strconv"
 )
 
 type userController struct {
@@ -21,23 +20,22 @@ func NewUserController(log logger.LogInfoFormat, svc user.Serv) *userController 
 }
 
 func (u *userController) Store(c *gin.Context) {
-	us := &user.User{}
-	err := c.BindJSON(us)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-		return
+	var us []*user.User
+	err := c.BindJSON(&us)
+	for i, _ := range us {
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+			return
+		}
+		password := []byte(us[i].Password)
+		hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		us[i].PasswordHash = string(hashedPassword)
 	}
-	if us.Password != us.PasswordConfirmation {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "password and password confirmation did not match"})
-		return
-	}
-	password := []byte(us.Password)
-	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	us.PasswordHash = string(hashedPassword)
+
 	err = u.serv.Store(us)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -46,13 +44,12 @@ func (u *userController) Store(c *gin.Context) {
 }
 
 func (u *userController) GetByID(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.ParseUint(idParam, 10, 64)
+	idParam, err := UuidResolver(c, "id")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	t, err := u.serv.GetByID(id)
+	t, err := u.serv.GetByID(idParam)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -80,13 +77,12 @@ func (u *userController) GetAll(c *gin.Context) {
 }
 
 func (u *userController) Delete(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.ParseUint(idParam, 10, 64)
+	idParam, err := UuidResolver(c, "id")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err = u.serv.Delete(id)
+	err = u.serv.Delete(idParam)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -99,8 +95,7 @@ func (u *userController) Delete(c *gin.Context) {
 }
 
 func (u *userController) Update(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.ParseUint(idParam, 10, 64)
+	idParam, err := UuidResolver(c, "id")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -116,13 +111,8 @@ func (u *userController) Update(c *gin.Context) {
 			return
 		}
 	}
-	us.ID = id
-
+	us.ID = idParam
 	if us.Password != "" {
-		if us.Password != us.PasswordConfirmation {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "password and password confirmation did not match"})
-			return
-		}
 		password := []byte(us.Password)
 		hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 		if err != nil {

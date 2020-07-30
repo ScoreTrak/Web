@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
-	"strconv"
 )
 
 type teamController struct {
@@ -22,38 +21,45 @@ func NewTeamController(log logger.LogInfoFormat, svc team.Serv, tc sTeam.Serv) *
 }
 
 func (u *teamController) Store(c *gin.Context) {
-	us := &team.Team{}
-	err := c.BindJSON(us)
+	var us []*team.Team
+	err := c.BindJSON(&us)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		u.log.Error(err)
 		return
 	}
 
-	err = u.teamClient.Store(&sTeam.Team{ID: us.ID, Name: us.Name, Enabled: us.Enabled})
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	savedTeam, _ := u.teamClient.GetByID(us.ID)
-	us.ID = savedTeam.ID
 	err = u.serv.Store(us)
 	if err != nil {
-		_ = u.teamClient.Delete(us.ID)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		u.log.Error(err)
 		return
 	}
+
+	var usCopy []*sTeam.Team
+	for i, _ := range us {
+		usCopy = append(usCopy, &sTeam.Team{ID: us[i].ID, Name: us[i].Name, Enabled: us[i].Enabled})
+	}
+	err = u.teamClient.Store(usCopy)
+	if err != nil {
+		for i, _ := range us {
+			_ = u.serv.Delete(us[i].ID)
+		}
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		u.log.Error(err)
+		return
+	}
+
 }
 
 func (u *teamController) Delete(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.ParseUint(idParam, 10, 64)
+	idParam, err := UuidResolver(c, "id")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	t, err := u.serv.GetByID(id)
+	t, err := u.serv.GetByID(idParam)
 	if err != nil {
-
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
@@ -67,7 +73,7 @@ func (u *teamController) Delete(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	err = u.serv.Delete(id)
+	err = u.serv.Delete(idParam)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -75,13 +81,12 @@ func (u *teamController) Delete(c *gin.Context) {
 }
 
 func (u *teamController) GetByID(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.ParseUint(idParam, 10, 64)
+	idParam, err := UuidResolver(c, "id")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	t, err := u.teamClient.GetByID(id)
+	t, err := u.teamClient.GetByID(idParam)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -91,7 +96,6 @@ func (u *teamController) GetByID(c *gin.Context) {
 		}
 		return
 	}
-
 	c.JSON(200, t)
 }
 
@@ -110,8 +114,7 @@ func (u *teamController) GetAll(c *gin.Context) {
 }
 
 func (u *teamController) Update(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := strconv.ParseUint(idParam, 10, 64)
+	idParam, err := UuidResolver(c, "id")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -123,7 +126,7 @@ func (u *teamController) Update(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	us.ID = id
+	us.ID = idParam
 
 	ts, err := u.teamClient.GetByID(us.ID)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewTeamRepo(db *gorm.DB, log logger.LogInfoFormat) team.Repo {
 	return &teamRepo{db, log}
 }
 
-func (h *teamRepo) Delete(id uint64) error {
+func (h *teamRepo) Delete(id uuid.UUID) error {
 	h.log.Debugf("deleting the team with id : %h", id)
 	result := h.db.Delete(&team.Team{}, "id = ?", id)
 	if result.Error != nil {
@@ -39,7 +40,7 @@ func (h *teamRepo) GetAll() ([]*team.Team, error) {
 	return teams, nil
 }
 
-func (h *teamRepo) GetByID(id uint64) (*team.Team, error) {
+func (h *teamRepo) GetByID(id uuid.UUID) (*team.Team, error) {
 	h.log.Debugf("get team details by id : %h", id)
 	tm := &team.Team{}
 	err := h.db.Where("id = ?", id).First(tm).Error
@@ -50,8 +51,7 @@ func (h *teamRepo) GetByID(id uint64) (*team.Team, error) {
 	return tm, nil
 }
 
-func (h *teamRepo) Store(tm *team.Team) error {
-	h.log.Debugf("creating the team with id : %v", tm.ID)
+func (h *teamRepo) Store(tm []*team.Team) error {
 	err := h.db.Create(tm).Error
 	if err != nil {
 		h.log.Errorf("error while creating the team, reason : %v", err)
