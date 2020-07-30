@@ -8,6 +8,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -82,94 +83,96 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*user.User); ok && v.Role == "black" {
-				return true
-			} else if v.Role == "blue" {
-				if c.Request.Method == "GET" {
-					rts := []string{"/api/property/", "/api/service/", "/api/host/", "/api/check/", "/api/last_non_elapsing/", "/api/report/"}
-					pre, ok := containsPrefix(c.Request.URL.String(), rts)
-					if ok {
-						switch pre {
-						case "/api/property/":
-							id, err := handler.UuidResolver(c, "id")
-							if err == nil {
-								tID, prop, err := a.teamIDFromProperty(id)
-								if err == nil && prop != nil && tID == v.TeamID && prop.Status != property.Hide {
-									c.Set("shortcut", prop)
-									return true
-								}
-							}
-						case "/api/service/":
-							id, err := handler.UuidResolver(c, "id")
-							if err == nil {
-								tID, serv, err := a.teamIDFromService(id)
-								if err == nil && serv != nil && tID == v.TeamID {
-									c.Set("shortcut", serv)
-									return true
-								}
-							}
-						case "/api/host/":
-							id, err := handler.UuidResolver(c, "id")
-							if err == nil {
-								tID, serv, err := a.teamIDFromHost(id)
-								if err == nil && serv != nil && tID == v.TeamID {
-									c.Set("shortcut", serv)
-									return true
-								}
-							}
-						case "/api/check/":
-							rid, err := handler.UintResolver(c, "RoundID")
-							sid, err2 := handler.UuidResolver(c, "ServiceID")
-							if err == nil && err2 == nil {
-								tID, ck, err := a.teamIDFromCheck(rid, sid)
-								if err == nil && ck != nil && tID == v.TeamID {
-									c.Set("shortcut", ck)
-									return true
-								}
-							}
-						case "/api/last_non_elapsing/":
-							return true
-						case "/api/report/":
-							c.Set("team_id", v.TeamID)
-							return true
-						}
-					}
-				} else if c.Request.Method == "PATCH" {
-					if strings.HasPrefix(c.Request.URL.String(), "/api/property/") {
-						id, err := handler.UuidResolver(c, "id")
-						if err == nil {
-							tID, p, err := a.teamIDFromProperty(id)
-							if err == nil && p != nil && tID == v.TeamID && p.Status == property.Edit {
-								us := &property.Property{}
-								err = c.BindJSON(us)
+			v, ok := data.(*user.User)
+			if ok {
+				c.Set("team_id", v.TeamID)
+				c.Set("role", v.Role)
+				if v.Role == role.Black {
+					return true
+				} else if v.Role == role.Blue {
+					if c.Request.Method == "GET" {
+						rts := []string{"/api/property/", "/api/service/", "/api/host/", "/api/check/", "/api/last_non_elapsing/", "/api/report/"}
+						pre, ok := containsPrefix(c.Request.URL.String(), rts)
+						if ok {
+							switch pre {
+							case "/api/property/":
+								id, err := handler.UuidResolver(c, "id")
 								if err == nil {
-									c.Set("filtered", &property.Property{ID: us.ID, Value: us.Value})
-									return true
+									tID, prop, err := a.teamIDFromProperty(id)
+									if err == nil && prop != nil && tID == v.TeamID && prop.Status != property.Hide {
+										c.Set("shortcut", prop)
+										return true
+									}
 								}
-							}
-						}
-					}
-					if strings.HasPrefix(c.Request.URL.String(), "/api/user/") {
-						id, err := handler.UuidResolver(c, "id")
-						if err == nil && v.ID == id {
-							us := &user.User{}
-							err = c.BindJSON(us)
-							if err == nil {
-								c.Set("filtered", &user.User{ID: us.ID, Username: us.Username, Password: us.Password})
+							case "/api/service/":
+								id, err := handler.UuidResolver(c, "id")
+								if err == nil {
+									tID, serv, err := a.teamIDFromService(id)
+									if err == nil && serv != nil && tID == v.TeamID {
+										c.Set("shortcut", serv)
+										return true
+									}
+								}
+							case "/api/host/":
+								id, err := handler.UuidResolver(c, "id")
+								if err == nil {
+									tID, serv, err := a.teamIDFromHost(id)
+									if err == nil && serv != nil && tID == v.TeamID {
+										c.Set("shortcut", serv)
+										return true
+									}
+								}
+							case "/api/check/":
+								rid, err := handler.UintResolver(c, "RoundID")
+								sid, err2 := handler.UuidResolver(c, "ServiceID")
+								if err == nil && err2 == nil {
+									tID, ck, err := a.teamIDFromCheck(rid, sid)
+									if err == nil && ck != nil && tID == v.TeamID {
+										c.Set("shortcut", ck)
+										return true
+									}
+								}
+							case "/api/last_non_elapsing/":
 								return true
 							}
 						}
-					}
-					if strings.HasPrefix(c.Request.URL.String(), "/api/host/") {
-						id, err := handler.UuidResolver(c, "id")
-						if err == nil {
-							tID, p, err := a.teamIDFromHost(id)
-							if err == nil && p != nil && tID == v.TeamID && p.EditHost != nil && *p.EditHost == true {
-								us := &host.Host{}
+					} else if c.Request.Method == "PATCH" {
+						if strings.HasPrefix(c.Request.URL.String(), "/api/property/") {
+							id, err := handler.UuidResolver(c, "id")
+							if err == nil {
+								tID, p, err := a.teamIDFromProperty(id)
+								if err == nil && p != nil && tID == v.TeamID && p.Status == property.Edit {
+									us := &property.Property{}
+									err = c.BindJSON(us)
+									if err == nil {
+										c.Set("filtered", &property.Property{ID: us.ID, Value: us.Value})
+										return true
+									}
+								}
+							}
+						}
+						if strings.HasPrefix(c.Request.URL.String(), "/api/user/") {
+							id, err := handler.UuidResolver(c, "id")
+							if err == nil && v.ID == id {
+								us := &user.User{}
 								err = c.BindJSON(us)
 								if err == nil {
-									c.Set("filtered", &host.Host{ID: us.ID, Address: us.Address})
+									c.Set("filtered", &user.User{ID: us.ID, Username: us.Username, Password: us.Password})
 									return true
+								}
+							}
+						}
+						if strings.HasPrefix(c.Request.URL.String(), "/api/host/") {
+							id, err := handler.UuidResolver(c, "id")
+							if err == nil {
+								tID, p, err := a.teamIDFromHost(id)
+								if err == nil && p != nil && tID == v.TeamID && p.EditHost != nil && *p.EditHost == true {
+									us := &host.Host{}
+									err = c.BindJSON(us)
+									if err == nil {
+										c.Set("filtered", &host.Host{ID: us.ID, Address: us.Address})
+										return true
+									}
 								}
 							}
 						}

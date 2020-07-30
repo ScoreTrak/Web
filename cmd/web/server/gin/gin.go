@@ -5,6 +5,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	"github.com/appleboy/gin-jwt/v2"
@@ -228,7 +229,7 @@ func (ds *dserver) authBootstrap(clientStore handler.ClientStore) (*jwt.GinJWTMi
 	if err != nil {
 		return nil, err
 	}
-	err = us.Store([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: "black", PasswordHash: string(hashedPassword)}})
+	err = us.Store([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: role.Black, PasswordHash: string(hashedPassword)}})
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if !ok || serr.Code != "23505" {

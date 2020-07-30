@@ -8,7 +8,9 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 	"github.com/jinzhu/copier"
 	"math"
 	"net/http"
@@ -37,30 +39,39 @@ func (u *reportController) Get(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	var tID uint32
-	if val, ok := c.Get("team_id"); ok && val != nil {
-		tID, _ = val.(uint32)
+	var tID uuid.UUID
+	var r string
+
+	if val, ok := c.Get("role"); ok && val != nil {
+		r, _ = val.(string)
 	}
-	simpleReport := &report.SimpleReport{}
-	err = json.Unmarshal([]byte(lr.Cache), simpleReport)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	if tID != 0 {
-		for t := range simpleReport.Teams {
-			if t != tID {
-				for h := range simpleReport.Teams[t].Hosts {
-					for s := range simpleReport.Teams[t].Hosts[h].Services {
-						simpleReport.Teams[t].Hosts[h].Services[s].Err = ""
-						simpleReport.Teams[t].Hosts[h].Services[s].Log = ""
-						simpleReport.Teams[t].Hosts[h].Services[s].Properties = map[string]string{}
+
+	if r == role.Black || r == role.Blue {
+		if val, ok := c.Get("team_id"); ok && val != nil {
+			tID, _ = val.(uuid.UUID)
+		}
+		simpleReport := &report.SimpleReport{}
+		err = json.Unmarshal([]byte(lr.Cache), simpleReport)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if r == "blue" && tID != uuid.Nil {
+			for t := range simpleReport.Teams {
+				if t != tID {
+					for h := range simpleReport.Teams[t].Hosts {
+						for s := range simpleReport.Teams[t].Hosts[h].Services {
+							simpleReport.Teams[t].Hosts[h].Services[s].Err = ""
+							simpleReport.Teams[t].Hosts[h].Services[s].Log = ""
+							simpleReport.Teams[t].Hosts[h].Services[s].Properties = map[string]string{}
+						}
 					}
 				}
 			}
 		}
+		c.JSON(200, simpleReport)
 	}
-	c.JSON(200, simpleReport)
 }
 
 func (u *reportController) LazyUpdate(client client.ScoretrakClient) {
