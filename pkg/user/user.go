@@ -1,6 +1,8 @@
 package user
 
 import (
+	"errors"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
@@ -14,13 +16,19 @@ type User struct {
 	Role         string    `json:"role" gorm:"default:'blue'"`
 }
 
-func (p *User) BeforeCreate(tx *gorm.DB) (err error) {
-	if p.ID == uuid.Nil {
-		u, err := uuid.NewV4()
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	if u.ID == uuid.Nil {
+		uid, err := uuid.NewV4()
 		if err != nil {
 			return err
 		}
-		p.ID = u
+		u.ID = uid
 	}
 	return nil
+}
+
+func (u User) Validate(db *gorm.DB) {
+	if u.Role != "" && u.Role != role.Black && u.Role != role.Blue {
+		db.AddError(errors.New("you must specify a correct role"))
+	}
 }
