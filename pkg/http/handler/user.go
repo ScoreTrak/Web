@@ -23,6 +23,10 @@ func (u *userController) Store(c *gin.Context) {
 	var us []*user.User
 	err := c.BindJSON(&us)
 	for i, _ := range us {
+		if us[i].Password == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Password is required"})
+			return
+		}
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 			return
