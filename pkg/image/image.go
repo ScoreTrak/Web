@@ -6,7 +6,7 @@ import (
 )
 
 type Image struct {
-	ID           uuid.UUID `json:"id,omitempty"`
+	ID           uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 	Image        []byte    `json:"image,omitempty"`
 	ImageType    string    `json:"image_type,omitempty"`
 	EncodedImage string    `gorm:"-"`
