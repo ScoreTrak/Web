@@ -5,6 +5,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/policy"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
@@ -32,7 +33,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 	conf := config.GetStaticConfig()
 	c := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%s", conf.ScoreTrakPort), Scheme: conf.ScoreTrakScheme}, conf.Token, http.DefaultClient)
 
-	cStore := handler.ClientStore{
+	cStore := &handler.ClientStore{
 		ConfigClient:       client.NewConfigClient(c),
 		TeamClient:         client.NewTeamClient(c),
 		HostClient:         client.NewHostClient(c),
@@ -45,13 +46,19 @@ func (ds *dserver) MapRoutesAndStart() error {
 		ReportClient:       client.NewReportClient(c),
 	}
 
-	authMiddleware, err := ds.authBootstrap(cStore)
+	authCtrl, err := ds.authBootstrap(cStore)
+	if err != nil {
+		ds.logger.Error(err)
+		return err
+	}
+	authMiddleware, err := authCtrl.JWTMiddleware()
 	if err != nil {
 		ds.logger.Error(err)
 		return err
 	}
 
 	ds.router.Use(static.Serve("/", static.LocalFile("./views", true)))
+
 	ds.router.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		ds.logger.Info(claims)
@@ -61,7 +68,6 @@ func (ds *dserver) MapRoutesAndStart() error {
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.POST("/login", authMiddleware.LoginHandler)
 	api := ds.router.Group("/api")
-
 	api.Use(authMiddleware.MiddlewareFunc())
 	{
 		api.GET("/", func(c *gin.Context) {
@@ -79,7 +85,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 			if err != nil {
 				return err
 			}
-			tctrl := handler.NewTeamController(ds.logger, tsvc, cStore.TeamClient)
+			tctrl := handler.NewTeamController(ds.logger, tsvc, cStore)
 			teamRoute.GET("/", tctrl.GetAll)
 			teamRoute.POST("/", tctrl.Store)
 			teamRoute.GET("/:id", tctrl.GetByID)
@@ -106,7 +112,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		serviceRoute := api.Group("/service")
 		{
-			sctrl := handler.NewServiceController(ds.logger, cStore.ServiceClient)
+			sctrl := handler.NewServiceController(ds.logger, cStore)
 			serviceRoute.GET("/", sctrl.GetAll)
 			serviceRoute.POST("/", sctrl.Store)
 			serviceRoute.GET("/:id", sctrl.GetByID)
@@ -117,7 +123,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		{
 
 			roundRoute := api.Group("/round")
-			rctrl := handler.NewRoundController(ds.logger, cStore.RoundClient)
+			rctrl := handler.NewRoundController(ds.logger, cStore)
 			roundRoute.GET("/", rctrl.GetAll)
 			roundRoute.GET("/:id", rctrl.GetByID)
 			lastRoundRoute := api.Group("/last_non_elapsing")
@@ -127,7 +133,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		serviceGroupRoute := api.Group("/service_group")
 		{
-			sctrl := handler.NewServiceGroupController(ds.logger, cStore.ServiceGroupClient)
+			sctrl := handler.NewServiceGroupController(ds.logger, cStore)
 			serviceGroupRoute.GET("/", sctrl.GetAll)
 			serviceGroupRoute.POST("/", sctrl.Store)
 			serviceGroupRoute.GET("/:id", sctrl.GetByID)
@@ -137,7 +143,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		hostGroupRoute := api.Group("/host_group")
 		{
-			hctrl := handler.NewHostGroupController(ds.logger, cStore.HostGroupClient)
+			hctrl := handler.NewHostGroupController(ds.logger, cStore)
 			hostGroupRoute.GET("/", hctrl.GetAll)
 			hostGroupRoute.POST("/", hctrl.Store)
 			hostGroupRoute.GET("/:id", hctrl.GetByID)
@@ -147,7 +153,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		hostRoute := api.Group("/host")
 		{
-			hctrl := handler.NewHostController(ds.logger, cStore.HostClient)
+			hctrl := handler.NewHostController(ds.logger, cStore)
 			hostRoute.GET("/", hctrl.GetAll)
 			hostRoute.POST("/", hctrl.Store)
 			hostRoute.GET("/:id", hctrl.GetByID)
@@ -156,21 +162,21 @@ func (ds *dserver) MapRoutesAndStart() error {
 		}
 
 		{
-			hctrl := handler.NewCheckController(ds.logger, cStore.CheckClient)
+			hctrl := handler.NewCheckController(ds.logger, cStore)
 			api.GET("/check/:RoundID/:ServiceID", hctrl.GetByRoundServiceID)
 			api.GET("/check_all/:id", hctrl.GetAllByRoundID)
 		}
 
 		configRoute := api.Group("/config")
 		{
-			hctrl := handler.NewConfigController(ds.logger, cStore.ConfigClient)
+			hctrl := handler.NewConfigController(ds.logger, cStore)
 			configRoute.GET("/", hctrl.Get)
 			configRoute.PATCH("/", hctrl.Update)
 		}
 
 		propertyRoute := api.Group("/property")
 		{
-			hctrl := handler.NewPropertyController(ds.logger, cStore.PropertyClient)
+			hctrl := handler.NewPropertyController(ds.logger, cStore)
 			propertyRoute.GET("/", hctrl.GetAll)
 			propertyRoute.POST("/", hctrl.Store)
 			propertyRoute.GET("/:id", hctrl.GetByID)
@@ -180,16 +186,30 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		reportRoute := api.Group("/report")
 		{
-			hctrl := NewReportController(ds.logger, cStore.ReportClient, cStore.ConfigClient, cStore.RoundClient)
+			hctrl := handler.NewReportController(ds.logger, cStore)
 			reportRoute.GET("/", hctrl.Get)
-			go hctrl.LazyUpdate(c)
+			reportRoute.GET("/:id", hctrl.GetByTeamID)
+			go hctrl.LazyReportLoader(c)
+		}
+		policyRoute := api.Group("/policy")
+		{
+			var psvc policy.Serv
+			err := ds.cont.Invoke(func(svc policy.Serv) {
+				psvc = svc
+			})
+			if err != nil {
+				return err
+			}
+			pctrl := handler.NewPolicyController(ds.logger, psvc)
+			policyRoute.GET("/", pctrl.GetPolicy)
+			policyRoute.PATCH("/", pctrl.UpdatePolicy)
 		}
 
 	}
 	return ds.router.Run(fmt.Sprintf(":%s", conf.WebPort))
 }
 
-func (ds *dserver) authBootstrap(clientStore handler.ClientStore) (*jwt.GinJWTMiddleware, error) {
+func (ds *dserver) authBootstrap(clientStore *handler.ClientStore) (*authController, error) {
 	var db *gorm.DB
 	err := ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
@@ -220,11 +240,9 @@ func (ds *dserver) authBootstrap(clientStore handler.ClientStore) (*jwt.GinJWTMi
 	err = ds.cont.Invoke(func(u user.Serv) {
 		us = u
 	})
-
 	if err != nil {
 		return nil, err
 	}
-
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -237,10 +255,26 @@ func (ds *dserver) authBootstrap(clientStore handler.ClientStore) (*jwt.GinJWTMi
 		}
 	}
 
-	authCtrl := NewAuthController(ds.logger, us, clientStore)
-	authMiddleware, err := authCtrl.JWTMiddleware()
+	p := &policy.Policy{ID: 1}
+	err = db.Create(p).Error
 	if err != nil {
-		return nil, err
+		serr, ok := err.(*pgconn.PgError)
+		if !ok {
+			if serr.Code != "23505" {
+				panic(err)
+			} else {
+				db.Take(p)
+			}
+		}
 	}
-	return authMiddleware, nil
+	var policyRepo policy.Repo
+	err = ds.cont.Invoke(func(u policy.Repo) {
+		policyRepo = u
+	})
+
+	clientStore.PolicyClient = policy.NewPolicyClient(p, policyRepo)
+	authCtrl := NewAuthController(ds.logger, us, clientStore)
+	go clientStore.PolicyClient.LazyPolicyLoader()
+	return authCtrl, nil
+
 }

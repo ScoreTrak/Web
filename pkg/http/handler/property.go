@@ -9,12 +9,12 @@ import (
 )
 
 type propertyController struct {
-	log            logger.LogInfoFormat
-	propertyClient property.Serv
+	log    logger.LogInfoFormat
+	client *ClientStore
 }
 
-func NewPropertyController(log logger.LogInfoFormat, tc property.Serv) *propertyController {
-	return &propertyController{log, tc}
+func NewPropertyController(log logger.LogInfoFormat, client *ClientStore) *propertyController {
+	return &propertyController{log, client}
 }
 
 func (u *propertyController) Store(c *gin.Context) {
@@ -25,7 +25,7 @@ func (u *propertyController) Store(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	err = u.propertyClient.Store(us)
+	err = u.client.PropertyClient.Store(us)
 	if err != nil {
 		u.log.Error(err.Error())
 		if serr, ok := err.(*client.InvalidResponse); ok {
@@ -39,18 +39,65 @@ func (u *propertyController) Store(c *gin.Context) {
 }
 
 func (u *propertyController) Delete(c *gin.Context) {
-	genericDelete(c, "Delete", u.propertyClient, u.log)
+	genericDelete(c, "Delete", u.client.PropertyClient, u.log)
 }
 
 func (u *propertyController) GetByID(c *gin.Context) {
-	genericGetByID(c, "GetByID", u.propertyClient, u.log)
+	id, _ := UuidResolver(c, "id")
+	role := roleResolver(c)
+	TeamID := teamIDResolver(c)
+	if role == "blue" {
+		tID, prop, err := teamIDFromProperty(u.client, id)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if tID != TeamID || prop.Status == property.Hide {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not access this object"})
+			return
+		}
+		c.Set("shortcut", prop)
+	}
+	genericGetByID(c, "GetByID", u.client.PropertyClient, u.log)
 }
 
 func (u *propertyController) GetAll(c *gin.Context) {
-	genericGet(c, "GetAll", u.propertyClient, u.log)
+	genericGet(c, "GetAll", u.client.PropertyClient, u.log)
 }
 
 func (u *propertyController) Update(c *gin.Context) {
 	us := &property.Property{}
-	genericUpdate(c, "Update", u.propertyClient, us, u.log)
+	id, _ := UuidResolver(c, "id")
+	role := roleResolver(c)
+	TeamID := teamIDResolver(c)
+	err := c.BindJSON(us)
+	if err != nil {
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	if role == "blue" {
+		tID, prop, err := teamIDFromProperty(u.client, id)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if tID != TeamID || prop.Status != property.Edit {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not edit this object"})
+			return
+		}
+		us = &property.Property{Value: us.Value}
+	}
+	us.ID = id
+	err = u.client.PropertyClient.Update(us)
+	if err != nil {
+		u.log.Error(err.Error())
+		if serr, ok := err.(*client.InvalidResponse); ok {
+			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
+		} else {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
 }

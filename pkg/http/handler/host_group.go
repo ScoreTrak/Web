@@ -9,12 +9,12 @@ import (
 )
 
 type hostGroupController struct {
-	log             logger.LogInfoFormat
-	hostGroupClient host_group.Serv
+	log    logger.LogInfoFormat
+	client *ClientStore
 }
 
-func NewHostGroupController(log logger.LogInfoFormat, tc host_group.Serv) *hostGroupController {
-	return &hostGroupController{log, tc}
+func NewHostGroupController(log logger.LogInfoFormat, client *ClientStore) *hostGroupController {
+	return &hostGroupController{log, client}
 }
 
 func (u *hostGroupController) Store(c *gin.Context) {
@@ -25,7 +25,7 @@ func (u *hostGroupController) Store(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	err = u.hostGroupClient.Store(us)
+	err = u.client.HostGroupClient.Store(us)
 	if err != nil {
 		u.log.Error(err.Error())
 		if serr, ok := err.(*client.InvalidResponse); ok {
@@ -39,18 +39,18 @@ func (u *hostGroupController) Store(c *gin.Context) {
 }
 
 func (u *hostGroupController) Delete(c *gin.Context) {
-	genericDelete(c, "Delete", u.hostGroupClient, u.log)
+	genericDelete(c, "Delete", u.client.HostGroupClient, u.log)
 }
 
 func (u *hostGroupController) GetByID(c *gin.Context) {
-	genericGetByID(c, "GetByID", u.hostGroupClient, u.log)
+	genericGetByID(c, "GetByID", u.client.HostGroupClient, u.log)
 }
 
 func (u *hostGroupController) GetAll(c *gin.Context) {
-	genericGet(c, "GetAll", u.hostGroupClient, u.log)
+	genericGet(c, "GetAll", u.client.HostGroupClient, u.log)
 }
 
 func (u *hostGroupController) Update(c *gin.Context) {
 	us := &host_group.HostGroup{}
-	genericUpdate(c, "Update", u.hostGroupClient, us, u.log)
+	genericUpdate(c, "Update", u.client.HostGroupClient, us, u.log)
 }

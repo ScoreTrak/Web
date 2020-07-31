@@ -9,12 +9,12 @@ import (
 )
 
 type serviceController struct {
-	log           logger.LogInfoFormat
-	serviceClient service.Serv
+	log    logger.LogInfoFormat
+	client *ClientStore
 }
 
-func NewServiceController(log logger.LogInfoFormat, tc service.Serv) *serviceController {
-	return &serviceController{log, tc}
+func NewServiceController(log logger.LogInfoFormat, client *ClientStore) *serviceController {
+	return &serviceController{log, client}
 }
 
 func (u *serviceController) Store(c *gin.Context) {
@@ -25,7 +25,7 @@ func (u *serviceController) Store(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	err = u.serviceClient.Store(us)
+	err = u.client.ServiceClient.Store(us)
 	if err != nil {
 		u.log.Error(err.Error())
 		if serr, ok := err.(*client.InvalidResponse); ok {
@@ -39,18 +39,35 @@ func (u *serviceController) Store(c *gin.Context) {
 }
 
 func (u *serviceController) Delete(c *gin.Context) {
-	genericDelete(c, "Delete", u.serviceClient, u.log)
+	genericDelete(c, "Delete", u.client.ServiceClient, u.log)
 }
 
 func (u *serviceController) GetByID(c *gin.Context) {
-	genericGetByID(c, "GetByID", u.serviceClient, u.log)
+	id, _ := UuidResolver(c, "id")
+	role := roleResolver(c)
+	TeamID := teamIDResolver(c)
+	if role == "blue" {
+		tID, prop, err := teamIDFromService(u.client, id)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if tID != TeamID {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not access this object"})
+			return
+		}
+		c.Set("shortcut", prop)
+
+	}
+	genericGetByID(c, "GetByID", u.client.ServiceClient, u.log)
 }
 
 func (u *serviceController) GetAll(c *gin.Context) {
-	genericGet(c, "GetAll", u.serviceClient, u.log)
+	genericGet(c, "GetAll", u.client.ServiceClient, u.log)
 }
 
 func (u *serviceController) Update(c *gin.Context) {
 	us := &service.Service{}
-	genericUpdate(c, "Update", u.serviceClient, us, u.log)
+	genericUpdate(c, "Update", u.client.ServiceClient, us, u.log)
 }

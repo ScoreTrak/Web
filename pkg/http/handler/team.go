@@ -11,13 +11,13 @@ import (
 )
 
 type teamController struct {
-	log        logger.LogInfoFormat
-	serv       team.Serv
-	teamClient sTeam.Serv
+	log    logger.LogInfoFormat
+	serv   team.Serv
+	client *ClientStore
 }
 
-func NewTeamController(log logger.LogInfoFormat, svc team.Serv, tc sTeam.Serv) *teamController {
-	return &teamController{log, svc, tc}
+func NewTeamController(log logger.LogInfoFormat, svc team.Serv, client *ClientStore) *teamController {
+	return &teamController{log, svc, client}
 }
 
 func (u *teamController) Store(c *gin.Context) {
@@ -40,7 +40,7 @@ func (u *teamController) Store(c *gin.Context) {
 	for i, _ := range us {
 		usCopy = append(usCopy, &sTeam.Team{ID: us[i].ID, Name: us[i].Name, Enabled: us[i].Enabled})
 	}
-	err = u.teamClient.Store(usCopy)
+	err = u.client.TeamClient.Store(usCopy)
 	if err != nil {
 		for i, _ := range us {
 			_ = u.serv.Delete(us[i].ID)
@@ -68,7 +68,7 @@ func (u *teamController) Delete(c *gin.Context) {
 		}
 		return
 	}
-	err = u.teamClient.Delete(t.ID)
+	err = u.client.TeamClient.Delete(t.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -86,7 +86,7 @@ func (u *teamController) GetByID(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	t, err := u.teamClient.GetByID(idParam)
+	t, err := u.client.TeamClient.GetByID(idParam)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -100,7 +100,7 @@ func (u *teamController) GetByID(c *gin.Context) {
 }
 
 func (u *teamController) GetAll(c *gin.Context) {
-	t, err := u.teamClient.GetAll()
+	t, err := u.client.TeamClient.GetAll()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -128,13 +128,13 @@ func (u *teamController) Update(c *gin.Context) {
 	}
 	us.ID = idParam
 
-	ts, err := u.teamClient.GetByID(us.ID)
+	ts, err := u.client.TeamClient.GetByID(us.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = u.teamClient.Update(&sTeam.Team{ID: ts.ID, Name: us.Name, Enabled: us.Enabled})
+	err = u.client.TeamClient.Update(&sTeam.Team{ID: ts.ID, Name: us.Name, Enabled: us.Enabled})
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

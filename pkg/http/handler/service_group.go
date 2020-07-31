@@ -7,33 +7,33 @@ import (
 )
 
 type serviceGroupController struct {
-	log                logger.LogInfoFormat
-	serviceGroupClient service_group.Serv
+	log    logger.LogInfoFormat
+	client *ClientStore
 }
 
-func NewServiceGroupController(log logger.LogInfoFormat, tc service_group.Serv) *serviceGroupController {
-	return &serviceGroupController{log, tc}
+func NewServiceGroupController(log logger.LogInfoFormat, client *ClientStore) *serviceGroupController {
+	return &serviceGroupController{log, client}
 }
 
 func (u *serviceGroupController) Store(c *gin.Context) {
 	us := &service_group.ServiceGroup{}
-	genericStore(c, "Store", u.serviceGroupClient, us, u.log)
+	genericStore(c, "Store", u.client.ServiceGroupClient, us, u.log)
 
 }
 
 func (u *serviceGroupController) Delete(c *gin.Context) {
-	genericDelete(c, "Delete", u.serviceGroupClient, u.log)
+	genericDelete(c, "Delete", u.client.ServiceGroupClient, u.log)
 }
 
 func (u *serviceGroupController) GetByID(c *gin.Context) {
-	genericGetByID(c, "GetByID", u.serviceGroupClient, u.log)
+	genericGetByID(c, "GetByID", u.client.ServiceGroupClient, u.log)
 }
 
 func (u *serviceGroupController) GetAll(c *gin.Context) {
-	genericGet(c, "GetAll", u.serviceGroupClient, u.log)
+	genericGet(c, "GetAll", u.client.ServiceGroupClient, u.log)
 }
 
 func (u *serviceGroupController) Update(c *gin.Context) {
 	us := &service_group.ServiceGroup{}
-	genericUpdate(c, "Update", u.serviceGroupClient, us, u.log)
+	genericUpdate(c, "Update", u.client.ServiceGroupClient, us, u.log)
 }

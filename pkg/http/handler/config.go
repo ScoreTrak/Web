@@ -8,15 +8,15 @@ import (
 )
 
 type configController struct {
-	log          logger.LogInfoFormat
-	configClient config.Serv
+	log    logger.LogInfoFormat
+	client *ClientStore
 }
 
-func NewConfigController(log logger.LogInfoFormat, tc config.Serv) *configController {
-	return &configController{log, tc}
+func NewConfigController(log logger.LogInfoFormat, client *ClientStore) *configController {
+	return &configController{log, client}
 }
 func (u *configController) Get(c *gin.Context) {
-	genericGet(c, "Get", u.configClient, u.log)
+	genericGet(c, "Get", u.client.ConfigClient, u.log)
 }
 
 func (u *configController) Update(c *gin.Context) {
@@ -27,7 +27,7 @@ func (u *configController) Update(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	err = u.configClient.Update(us)
+	err = u.client.ConfigClient.Update(us)
 	if err != nil {
 		u.log.Error(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})

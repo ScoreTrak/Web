@@ -3,6 +3,7 @@ package gin
 import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/image"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/policy"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,10 @@ func (ds *dserver) SetupDB() error {
 	err := ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
 	})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&policy.Policy{})
 	if err != nil {
 		return err
 	}

@@ -2,35 +2,40 @@ package handler
 
 import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type checkController struct {
-	log         logger.LogInfoFormat
-	checkClient check.Serv
+	log    logger.LogInfoFormat
+	client *ClientStore
 }
 
-func NewCheckController(log logger.LogInfoFormat, tc check.Serv) *checkController {
-	return &checkController{log, tc}
+func NewCheckController(log logger.LogInfoFormat, client *ClientStore) *checkController {
+	return &checkController{log, client}
 }
 
 func (u *checkController) GetByRoundServiceID(c *gin.Context) {
-	rid, err := UintResolver(c, "RoundID")
-	if err != nil {
-		u.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	rid, _ := UintResolver(c, "RoundID")
+	sid, _ := UuidResolver(c, "ServiceID")
+
+	role := roleResolver(c)
+	TeamID := teamIDResolver(c)
+	if role == "blue" {
+		tID, prop, err := teamIDFromCheck(u.client, rid, sid)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if tID != TeamID {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not access this object"})
+			return
+		}
+		c.Set("shortcut", prop)
 	}
-	sid, err := UuidResolver(c, "ServiceID")
-	if err != nil {
-		u.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	sg, err := u.checkClient.GetByRoundServiceID(rid, sid)
+
+	sg, err := u.client.CheckClient.GetByRoundServiceID(rid, sid)
 	if err != nil {
 		u.log.Error(err.Error())
 		if serr, ok := err.(*client.InvalidResponse); ok {
@@ -44,5 +49,5 @@ func (u *checkController) GetByRoundServiceID(c *gin.Context) {
 }
 
 func (u *checkController) GetAllByRoundID(c *gin.Context) {
-	genericGetByID(c, "GetAllByRoundID", u.checkClient, u.log)
+	genericGetByID(c, "GetAllByRoundID", u.client.CheckClient, u.log)
 }

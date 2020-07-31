@@ -1,11 +1,7 @@
 package gin
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
 	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
@@ -14,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -21,11 +18,12 @@ import (
 type authController struct {
 	log         logger.LogInfoFormat
 	userService user.Serv
-	ClientStore handler.ClientStore
+	ClientStore *handler.ClientStore
+	db          *gorm.DB
 }
 
-func NewAuthController(l logger.LogInfoFormat, u user.Serv, c handler.ClientStore) *authController {
-	return &authController{l, u, c}
+func NewAuthController(l logger.LogInfoFormat, u user.Serv, c *handler.ClientStore) *authController {
+	return &authController{log: l, userService: u, ClientStore: c}
 }
 
 func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
@@ -56,8 +54,8 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
 			return &user.User{
-				ID:       uuid.FromStringOrNil(claims["id"].(string)),
-				Username: claims[identityKey].(string),
+				ID:       uuid.FromStringOrNil(claims[identityKey].(string)),
+				Username: claims["username"].(string),
 				TeamID:   uuid.FromStringOrNil(claims["team_id"].(string)),
 				Role:     claims["role"].(string),
 			}
@@ -65,7 +63,12 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals login
 			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
+				return &user.User{
+					ID:       uuid.Nil,
+					Username: role.Anonymous,
+					TeamID:   uuid.Nil,
+					Role:     role.Anonymous,
+				}, nil
 			}
 			usr, err := a.userService.GetByUsername(loginVals.Username)
 			if err != nil {
@@ -96,86 +99,59 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 						if ok {
 							switch pre {
 							case "/api/property/":
-								id, err := handler.UuidResolver(c, "id")
+								_, err := handler.UuidResolver(c, "id")
 								if err == nil {
-									tID, prop, err := a.teamIDFromProperty(id)
-									if err == nil && prop != nil && tID == v.TeamID && prop.Status != property.Hide {
-										c.Set("shortcut", prop)
-										return true
-									}
+									return true
 								}
 							case "/api/service/":
-								id, err := handler.UuidResolver(c, "id")
+								_, err := handler.UuidResolver(c, "id")
 								if err == nil {
-									tID, serv, err := a.teamIDFromService(id)
-									if err == nil && serv != nil && tID == v.TeamID {
-										c.Set("shortcut", serv)
-										return true
-									}
+									return true
 								}
 							case "/api/host/":
-								id, err := handler.UuidResolver(c, "id")
+								_, err := handler.UuidResolver(c, "id")
 								if err == nil {
-									tID, serv, err := a.teamIDFromHost(id)
-									if err == nil && serv != nil && tID == v.TeamID {
-										c.Set("shortcut", serv)
-										return true
-									}
+									return true
 								}
 							case "/api/check/":
-								rid, err := handler.UintResolver(c, "RoundID")
-								sid, err2 := handler.UuidResolver(c, "ServiceID")
+								_, err := handler.UintResolver(c, "RoundID")
+								_, err2 := handler.UuidResolver(c, "ServiceID")
 								if err == nil && err2 == nil {
-									tID, ck, err := a.teamIDFromCheck(rid, sid)
-									if err == nil && ck != nil && tID == v.TeamID {
-										c.Set("shortcut", ck)
-										return true
-									}
+									return true
 								}
 							case "/api/last_non_elapsing/":
+								return true
+							case "/api/report/":
 								return true
 							}
 						}
 					} else if c.Request.Method == "PATCH" {
 						if strings.HasPrefix(c.Request.URL.String(), "/api/property/") {
-							id, err := handler.UuidResolver(c, "id")
+							_, err := handler.UuidResolver(c, "id")
 							if err == nil {
-								tID, p, err := a.teamIDFromProperty(id)
-								if err == nil && p != nil && tID == v.TeamID && p.Status == property.Edit {
-									us := &property.Property{}
-									err = c.BindJSON(us)
-									if err == nil {
-										c.Set("filtered", &property.Property{ID: us.ID, Value: us.Value})
-										return true
-									}
-								}
+								return true
 							}
 						}
 						if strings.HasPrefix(c.Request.URL.String(), "/api/user/") {
-							id, err := handler.UuidResolver(c, "id")
-							if err == nil && v.ID == id {
-								us := &user.User{}
-								err = c.BindJSON(us)
-								if err == nil {
-									c.Set("filtered", &user.User{ID: us.ID, Username: us.Username, Password: us.Password})
+							_, err := handler.UuidResolver(c, "id")
+							if err == nil {
+								p := a.ClientStore.PolicyClient.GetPolicy()
+								if *p.AllowChangingUsernamesAndPasswords {
 									return true
 								}
 							}
 						}
 						if strings.HasPrefix(c.Request.URL.String(), "/api/host/") {
-							id, err := handler.UuidResolver(c, "id")
+							_, err := handler.UuidResolver(c, "id")
 							if err == nil {
-								tID, p, err := a.teamIDFromHost(id)
-								if err == nil && p != nil && tID == v.TeamID && p.EditHost != nil && *p.EditHost == true {
-									us := &host.Host{}
-									err = c.BindJSON(us)
-									if err == nil {
-										c.Set("filtered", &host.Host{ID: us.ID, Address: us.Address})
-										return true
-									}
-								}
+								return true
 							}
 						}
+					}
+				} else if v.Role == role.Anonymous && c.Request.Method == "GET" && c.Request.URL.String() == "/api/report/" {
+					p := a.ClientStore.PolicyClient.GetPolicy()
+					if *p.AllowUnauthenticatedUsers {
+						return true
 					}
 				}
 			}
@@ -201,40 +177,3 @@ func containsPrefix(s string, prefix []string) (string, bool) {
 	}
 	return "", false
 }
-
-func (a *authController) teamIDFromProperty(propertyID uuid.UUID) (teamID uuid.UUID, property *property.Property, err error) {
-	property, err = a.ClientStore.PropertyClient.GetByID(propertyID)
-	if err != nil || property == nil {
-		return
-	}
-	teamID, _, err = a.teamIDFromService(property.ServiceID)
-	return
-}
-
-func (a *authController) teamIDFromCheck(roundID uint, serviceID uuid.UUID) (teamID uuid.UUID, check *check.Check, err error) {
-	check, err = a.ClientStore.CheckClient.GetByRoundServiceID(roundID, serviceID)
-	if err != nil || check == nil {
-		return
-	}
-	teamID, _, err = a.teamIDFromService(check.ServiceID)
-	return
-}
-
-func (a *authController) teamIDFromService(serviceID uuid.UUID) (teamID uuid.UUID, service *service.Service, err error) {
-	service, err = a.ClientStore.ServiceClient.GetByID(serviceID)
-	if err != nil || service == nil {
-		return
-	}
-	teamID, _, err = a.teamIDFromHost(service.HostID)
-	return
-}
-
-func (a *authController) teamIDFromHost(hostID uuid.UUID) (teamID uuid.UUID, host *host.Host, err error) {
-	host, err = a.ClientStore.HostClient.GetByID(hostID)
-	if err != nil || host == nil {
-		return
-	}
-	return host.TeamID, host, err
-}
-
-//TODO: Make sure patching of properties, hosts, etc only changes certain fields instead of everything

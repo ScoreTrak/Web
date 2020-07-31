@@ -99,23 +99,23 @@ func (u *userController) Delete(c *gin.Context) {
 }
 
 func (u *userController) Update(c *gin.Context) {
-	idParam, err := UuidResolver(c, "id")
+	us := &user.User{}
+	id, _ := UuidResolver(c, "id")
+	role := roleResolver(c)
+	err := c.BindJSON(us)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	us := &user.User{}
-	val, ok := c.Get("filtered")
-	if ok {
-		us = val.(*user.User)
-	} else {
-		err = c.BindJSON(us)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+	if role == "blue" {
+		if id != us.ID {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not edit this object"})
 			return
 		}
+		us = &user.User{Username: us.Username, Password: us.Password}
 	}
-	us.ID = idParam
+	us.ID = id
 	if us.Password != "" {
 		password := []byte(us.Password)
 		hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)

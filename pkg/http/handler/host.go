@@ -9,12 +9,12 @@ import (
 )
 
 type hostController struct {
-	log        logger.LogInfoFormat
-	hostClient host.Serv
+	log    logger.LogInfoFormat
+	client *ClientStore
 }
 
-func NewHostController(log logger.LogInfoFormat, tc host.Serv) *hostController {
-	return &hostController{log, tc}
+func NewHostController(log logger.LogInfoFormat, client *ClientStore) *hostController {
+	return &hostController{log, client}
 }
 
 func (u *hostController) Store(c *gin.Context) {
@@ -25,7 +25,7 @@ func (u *hostController) Store(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	err = u.hostClient.Store(us)
+	err = u.client.HostClient.Store(us)
 	if err != nil {
 		u.log.Error(err.Error())
 		if serr, ok := err.(*client.InvalidResponse); ok {
@@ -39,18 +39,65 @@ func (u *hostController) Store(c *gin.Context) {
 }
 
 func (u *hostController) Delete(c *gin.Context) {
-	genericDelete(c, "Delete", u.hostClient, u.log)
+	genericDelete(c, "Delete", u.client.HostClient, u.log)
 }
 
 func (u *hostController) GetByID(c *gin.Context) {
-	genericGetByID(c, "GetByID", u.hostClient, u.log)
+	id, _ := UuidResolver(c, "id")
+	role := roleResolver(c)
+	TeamID := teamIDResolver(c)
+	if role == "blue" {
+		tID, prop, err := teamIDFromHost(u.client, id)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if tID != TeamID {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not access this object"})
+			return
+		}
+		c.Set("shortcut", prop)
+	}
+	genericGetByID(c, "GetByID", u.client.HostClient, u.log)
 }
 
 func (u *hostController) GetAll(c *gin.Context) {
-	genericGet(c, "GetAll", u.hostClient, u.log)
+	genericGet(c, "GetAll", u.client.HostClient, u.log)
 }
 
 func (u *hostController) Update(c *gin.Context) {
 	us := &host.Host{}
-	genericUpdate(c, "Update", u.hostClient, us, u.log)
+	id, _ := UuidResolver(c, "id")
+	role := roleResolver(c)
+	TeamID := teamIDResolver(c)
+	err := c.BindJSON(us)
+	if err != nil {
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	if role == "blue" {
+		tID, prop, err := teamIDFromHost(u.client, id)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if tID != TeamID || prop.EditHost != nil && *prop.EditHost == true {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not edit this object"})
+			return
+		}
+		us = &host.Host{Address: us.Address}
+	}
+	us.ID = id
+	err = u.client.HostClient.Update(us)
+	if err != nil {
+		u.log.Error(err.Error())
+		if serr, ok := err.(*client.InvalidResponse); ok {
+			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
+		} else {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
 }

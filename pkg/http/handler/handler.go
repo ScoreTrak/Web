@@ -16,6 +16,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/policy"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	"net/http"
@@ -107,16 +108,11 @@ func genericUpdate(c *gin.Context, m string, svc interface{}, g interface{}, log
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	val, ok := c.Get("filtered")
-	if ok {
-		g = val
-	} else {
-		err = c.BindJSON(g)
-		if err != nil {
-			log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-			return
-		}
+	err = c.BindJSON(g)
+	if err != nil {
+		log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		return
 	}
 	v := reflect.ValueOf(g).Elem()
 	f := reflect.ValueOf(id)
@@ -162,4 +158,54 @@ type ClientStore struct {
 	RoundClient        round.Serv
 	CheckClient        check.Serv
 	ReportClient       report.Serv
+	PolicyClient       *policy.Client
+}
+
+func teamIDFromProperty(c *ClientStore, propertyID uuid.UUID) (teamID uuid.UUID, property *property.Property, err error) {
+	property, err = c.PropertyClient.GetByID(propertyID)
+	if err != nil || property == nil {
+		return
+	}
+	teamID, _, err = teamIDFromService(c, property.ServiceID)
+	return
+}
+
+func teamIDFromCheck(c *ClientStore, roundID uint, serviceID uuid.UUID) (teamID uuid.UUID, check *check.Check, err error) {
+	check, err = c.CheckClient.GetByRoundServiceID(roundID, serviceID)
+	if err != nil || check == nil {
+		return
+	}
+	teamID, _, err = teamIDFromService(c, check.ServiceID)
+	return
+}
+
+func teamIDFromService(c *ClientStore, serviceID uuid.UUID) (teamID uuid.UUID, service *service.Service, err error) {
+	service, err = c.ServiceClient.GetByID(serviceID)
+	if err != nil || service == nil {
+		return
+	}
+	teamID, _, err = teamIDFromHost(c, service.HostID)
+	return
+}
+
+func teamIDFromHost(c *ClientStore, hostID uuid.UUID) (teamID uuid.UUID, host *host.Host, err error) {
+	host, err = c.HostClient.GetByID(hostID)
+	if err != nil || host == nil {
+		return
+	}
+	return host.TeamID, host, err
+}
+
+func roleResolver(c *gin.Context) (role string) {
+	if val, ok := c.Get("role"); ok && val != nil {
+		role, _ = val.(string)
+	}
+	return
+}
+
+func teamIDResolver(c *gin.Context) (teamID uuid.UUID) {
+	if val, ok := c.Get("team_id"); ok && val != nil {
+		teamID, _ = val.(uuid.UUID)
+	}
+	return
 }
