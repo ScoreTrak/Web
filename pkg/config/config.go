@@ -3,12 +3,14 @@ package config
 import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
+	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/policy"
 	"github.com/jinzhu/configor"
 )
 
 type StaticConfig struct {
 	DB              storage.Config
 	Logger          logger.Config
+	Policy          policy.ClientConfig
 	WebPort         string `default:"44444"`
 	ScoreTrakPort   string `default:"33333"`
 	Token           string `default:""`
@@ -26,6 +28,10 @@ func GetLoggerConfig() logger.Config {
 
 func GetDBConfig() storage.Config {
 	return staticConfig.DB
+}
+
+func GetPolicyConfig() policy.ClientConfig {
+	return staticConfig.Policy
 }
 
 func GetToken() string {

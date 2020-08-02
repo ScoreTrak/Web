@@ -272,7 +272,7 @@ func (ds *dserver) authBootstrap(clientStore *handler.ClientStore) (*authControl
 		policyRepo = u
 	})
 
-	clientStore.PolicyClient = policy.NewPolicyClient(p, policyRepo)
+	clientStore.PolicyClient = policy.NewPolicyClient(p, policyRepo, config.GetPolicyConfig())
 	authCtrl := NewAuthController(ds.logger, us, clientStore)
 	go clientStore.PolicyClient.LazyPolicyLoader()
 	return authCtrl, nil
