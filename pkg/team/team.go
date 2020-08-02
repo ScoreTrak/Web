@@ -12,7 +12,7 @@ type Team struct {
 
 	Name string `json:"name" gorm:"unique;not null" valid:"required,alphanum"`
 
-	Index *uint `json:"index" gorm:"unique;not null"`
+	Index *uint `json:"index" gorm:"unique"`
 
 	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID" json:"-"`
 
