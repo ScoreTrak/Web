@@ -1,7 +1,6 @@
 package gin
 
 import (
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	"github.com/ScoreTrak/Web/pkg/config"
 	"github.com/ScoreTrak/Web/pkg/http/handler"
@@ -31,7 +30,7 @@ func NewRouter() *gin.Engine {
 
 func (ds *dserver) MapRoutesAndStart() error {
 	conf := config.GetStaticConfig()
-	c := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%s", conf.ScoreTrakPort), Scheme: conf.ScoreTrakScheme}, conf.Token, http.DefaultClient)
+	c := client.NewScoretrakClient(&url.URL{Host: conf.ScoreTrakHost + ":" + conf.ScoreTrakPort, Scheme: conf.ScoreTrakScheme}, conf.Token, http.DefaultClient)
 
 	cStore := &handler.ClientStore{
 		ConfigClient:       client.NewConfigClient(c),
@@ -206,7 +205,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		}
 
 	}
-	return ds.router.Run(fmt.Sprintf(":%s", conf.WebPort))
+	return ds.router.Run(":" + conf.WebPort)
 }
 
 func (ds *dserver) authBootstrap(clientStore *handler.ClientStore) (*authController, error) {

@@ -8,7 +8,7 @@ import (
 )
 
 type StaticConfig struct {
-	DB              storage.Config
+	WebDB           storage.Config
 	Logger          logger.Config
 	Policy          policy.ClientConfig
 	WebPort         string `default:"44444"`
@@ -27,7 +27,7 @@ func GetLoggerConfig() logger.Config {
 }
 
 func GetDBConfig() storage.Config {
-	return staticConfig.DB
+	return staticConfig.WebDB
 }
 
 func GetPolicyConfig() policy.ClientConfig {
