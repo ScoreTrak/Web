@@ -1,6 +1,7 @@
 FROM golang:latest
 WORKDIR /go/src/github.com/ScoreTrak/Web
 COPY pkg/ pkg/
+COPY views/ views/
 COPY cmd/ cmd/
 COPY go.mod go.mod
 COPY go.sum go.sum
