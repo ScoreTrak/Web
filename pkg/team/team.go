@@ -1,7 +1,7 @@
 package team
 
 import (
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
+	"github.com/ScoreTrak/Web/pkg/user"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

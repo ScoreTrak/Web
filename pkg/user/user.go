@@ -2,7 +2,7 @@ package user
 
 import (
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
+	"github.com/ScoreTrak/Web/pkg/role"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/policy"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
+	"github.com/ScoreTrak/Web/pkg/policy"
 	"github.com/jinzhu/configor"
 )
 

@@ -1,14 +1,14 @@
 package di
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
-	"github.com/L1ghtman2k/ScoreTrakWeb/cmd/web/server/gin"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/policy"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/storage/orm"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
+	"github.com/ScoreTrak/Web/cmd/web/server/gin"
+	"github.com/ScoreTrak/Web/pkg/config"
+	"github.com/ScoreTrak/Web/pkg/policy"
+	"github.com/ScoreTrak/Web/pkg/storage/orm"
+	"github.com/ScoreTrak/Web/pkg/team"
+	"github.com/ScoreTrak/Web/pkg/user"
 	"go.uber.org/dig"
 )
 

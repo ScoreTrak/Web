@@ -2,9 +2,9 @@ package handler
 
 import (
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	sTeam "github.com/L1ghtman2k/ScoreTrak/pkg/team"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	sTeam "github.com/ScoreTrak/ScoreTrak/pkg/team"
+	"github.com/ScoreTrak/Web/pkg/team"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"

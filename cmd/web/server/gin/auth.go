@@ -1,11 +1,11 @@
 package gin
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/http/handler"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/role"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/Web/pkg/config"
+	"github.com/ScoreTrak/Web/pkg/http/handler"
+	"github.com/ScoreTrak/Web/pkg/role"
+	"github.com/ScoreTrak/Web/pkg/user"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"

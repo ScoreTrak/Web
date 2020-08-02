@@ -1,9 +1,9 @@
-module github.com/L1ghtman2k/ScoreTrakWeb
+module github.com/ScoreTrak/Web
 
 go 1.14
 
 require (
-	github.com/L1ghtman2k/ScoreTrak v0.0.0-20200731233117-a683a81aecb5
+	github.com/ScoreTrak/ScoreTrak v0.0.0-20200802031037-889898dabdb1
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.6.3

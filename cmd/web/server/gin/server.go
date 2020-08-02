@@ -1,11 +1,11 @@
 package gin
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/image"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/policy"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/team"
-	"github.com/L1ghtman2k/ScoreTrakWeb/pkg/user"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/Web/pkg/image"
+	"github.com/ScoreTrak/Web/pkg/policy"
+	"github.com/ScoreTrak/Web/pkg/team"
+	"github.com/ScoreTrak/Web/pkg/user"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/dig"
 	"gorm.io/gorm"
