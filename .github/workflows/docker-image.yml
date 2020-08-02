@@ -20,6 +20,6 @@ jobs:
         run: docker login -u $DOCKER_USER -p $DOCKER_TOKEN
       - uses: actions/checkout@v2
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag l1ghtman/scoretrak:latest
+        run: docker build . --file Dockerfile --tag l1ghtman/scoretrakweb:latest
       - name: Push the Docker image
-        run: docker push l1ghtman/scoretrak:latest
+        run: docker push l1ghtman/scoretrakweb:latest
