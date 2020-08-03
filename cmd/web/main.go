@@ -1,23 +1,22 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
+	cutil "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/Web/cmd/web/server/gin"
 	"github.com/ScoreTrak/Web/pkg/config"
 	"github.com/ScoreTrak/Web/pkg/di"
+	"gorm.io/gorm"
 	"os"
 )
 
 func main() {
-	path := flag.String("config", "configs/config.yml", "Please enter a path to config file")
+	flag.String("config", "configs/config.yml", "Please enter a path to config file")
 	flag.Parse()
-	if !configExists(*path) {
-		handleErr(errors.New("you need to provide config"))
-	}
-	handleErr(config.NewStaticConfig(*path))
+	path, err := cutil.ConfigFlagParser()
+	handleErr(config.NewStaticConfig(path))
 	r := gin.NewRouter()
 	d, err := di.BuildMasterContainer()
 	handleErr(err)
@@ -26,16 +25,12 @@ func main() {
 		l = log
 	})
 	svr := gin.NewServer(r, d, l)
-	handleErr(svr.SetupDB())
+	var db *gorm.DB
+	handleErr(d.Invoke(func(d *gorm.DB) {
+		db = d
+	}))
+	handleErr(svr.LoadTables(db))
 	handleErr(svr.MapRoutesAndStart())
-}
-
-func configExists(f string) bool {
-	file, err := os.Stat(f)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !file.IsDir()
 }
 
 func handleErr(err error) {
