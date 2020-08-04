@@ -7,4 +7,5 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 RUN go mod tidy
 RUN go build -o web cmd/web/main.go
-RUN chmod +x web
+RUN go build -o jobs cmd/web/main.go
+RUN chmod +x web jobs

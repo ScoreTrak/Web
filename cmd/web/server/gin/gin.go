@@ -5,15 +5,12 @@ import (
 	"github.com/ScoreTrak/Web/pkg/config"
 	"github.com/ScoreTrak/Web/pkg/http/handler"
 	"github.com/ScoreTrak/Web/pkg/policy"
-	"github.com/ScoreTrak/Web/pkg/role"
+	"github.com/ScoreTrak/Web/pkg/storage/orm/util"
 	"github.com/ScoreTrak/Web/pkg/team"
 	"github.com/ScoreTrak/Web/pkg/user"
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
-	"github.com/jackc/pgconn"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"net/http"
 	"net/url"
@@ -213,28 +210,28 @@ func (ds *dserver) authBootstrap(clientStore *handler.ClientStore) (*authControl
 	err := ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
 	})
-
 	if err != nil {
 		return nil, err
 	}
-
-	var ts team.Serv
-	err = ds.cont.Invoke(func(u team.Serv) {
-		ts = u
+	err = util.CreateBlackTeam(db)
+	if err != nil {
+		return nil, err
+	}
+	err = util.CreateAdminUser(db)
+	if err != nil {
+		return nil, err
+	}
+	p, err := util.CreatePolicy(db)
+	if err != nil {
+		return nil, err
+	}
+	var policyRepo policy.Repo
+	err = ds.cont.Invoke(func(u policy.Repo) {
+		policyRepo = u
 	})
-
 	if err != nil {
 		return nil, err
 	}
-	uuid1 := uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
-	err = ts.Store([]*team.Team{{ID: uuid1, Name: "Black Team"}})
-	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
-		if !ok || serr.Code != "23505" {
-			return nil, err
-		}
-	}
-
 	var us user.Serv
 	err = ds.cont.Invoke(func(u user.Serv) {
 		us = u
@@ -242,35 +239,6 @@ func (ds *dserver) authBootstrap(clientStore *handler.ClientStore) (*authControl
 	if err != nil {
 		return nil, err
 	}
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-	err = us.Store([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: role.Black, PasswordHash: string(hashedPassword)}})
-	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
-		if !ok || serr.Code != "23505" {
-			return nil, err
-		}
-	}
-
-	p := &policy.Policy{ID: 1}
-	err = db.Create(p).Error
-	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
-		if !ok {
-			if serr.Code != "23505" {
-				panic(err)
-			} else {
-				db.Take(p)
-			}
-		}
-	}
-	var policyRepo policy.Repo
-	err = ds.cont.Invoke(func(u policy.Repo) {
-		policyRepo = u
-	})
-
 	clientStore.PolicyClient = policy.NewPolicyClient(p, policyRepo, config.GetPolicyConfig())
 	authCtrl := NewAuthController(ds.logger, us, clientStore)
 	go clientStore.PolicyClient.LazyPolicyLoader()
