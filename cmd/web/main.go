@@ -14,6 +14,7 @@ import (
 
 func main() {
 	flag.String("config", "configs/config.yml", "Please enter a path to config file")
+	flag.String("encoded-config", "", "Please enter encoded config")
 	flag.Parse()
 	path, err := cutil.ConfigFlagParser()
 	handleErr(config.NewStaticConfig(path))

@@ -15,6 +15,7 @@ import (
 
 func main() {
 	flag.String("config", "configs/config.yml", "Please enter a path to config file")
+	flag.String("encoded-config", "", "Please enter encoded config")
 	skipBootstrap := flag.Bool("skip-bootstrap", false, "Specify this flag if you want to skip the setup of tables, users, and teams(This operation is idempotent)")
 	preloadData := flag.Bool("preload-data", false, "Specify this flag if you want to preload sample data into the database. This should be used AFTER preload-data on ScoreTrak")
 	flag.Parse()
