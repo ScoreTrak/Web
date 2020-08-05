@@ -168,6 +168,8 @@ func (ds *dserver) MapRoutesAndStart() error {
 			hctrl := handler.NewConfigController(ds.logger, cStore)
 			configRoute.GET("/", hctrl.Get)
 			configRoute.PATCH("/", hctrl.Update)
+			configRoute.DELETE("/reset_competition", hctrl.ResetCompetition)
+			configRoute.DELETE("/delete_competition", hctrl.DeleteCompetition)
 		}
 
 		propertyRoute := api.Group("/property")

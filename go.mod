@@ -3,7 +3,7 @@ module github.com/ScoreTrak/Web
 go 1.14
 
 require (
-	github.com/ScoreTrak/ScoreTrak v0.0.0-20200803172832-b78069bcdb0e
+	github.com/ScoreTrak/ScoreTrak v0.0.0-20200805145748-a45be76ed89a
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.6.3
