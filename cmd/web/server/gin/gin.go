@@ -8,7 +8,6 @@ import (
 	"github.com/ScoreTrak/Web/pkg/storage/orm/util"
 	"github.com/ScoreTrak/Web/pkg/team"
 	"github.com/ScoreTrak/Web/pkg/user"
-	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -27,7 +26,7 @@ func NewRouter() *gin.Engine {
 
 func (ds *dserver) MapRoutesAndStart() error {
 	conf := config.GetStaticConfig()
-	c := client.NewScoretrakClient(&url.URL{Host: conf.ScoreTrakHost + ":" + conf.ScoreTrakPort, Scheme: conf.ScoreTrakScheme}, conf.Token, http.DefaultClient)
+	c := client.NewScoretrakClient(&url.URL{Host: conf.ScoreTrak.Host + ":" + conf.ScoreTrak.Port, Scheme: conf.ScoreTrak.Scheme}, conf.ScoreTrak.Token, http.DefaultClient)
 
 	cStore := &handler.ClientStore{
 		ConfigClient:       client.NewConfigClient(c),
@@ -53,13 +52,18 @@ func (ds *dserver) MapRoutesAndStart() error {
 		return err
 	}
 
-	ds.router.Use(static.Serve("/", static.LocalFile("./views", true)))
+	ds.router.Use(static.Serve("/", static.LocalFile("./views/build", true)))
 
-	ds.router.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		ds.logger.Info(claims)
-		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+	ds.router.NoRoute(func(c *gin.Context) {
+		c.File("./views/build/index.html")
 	})
+
+	//ds.router.NoRoute(func(c *gin.Context) {
+	//	claims := jwt.ExtractClaims(c)
+	//	ds.logger.Info(claims)
+	//	c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+	//})
+
 	auth := ds.router.Group("/auth")
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.POST("/login", authMiddleware.LoginHandler)
