@@ -8,16 +8,20 @@ import (
 )
 
 type StaticConfig struct {
-	WebDB           storage.Config
-	Logger          logger.Config
-	Policy          policy.ClientConfig
-	WebPort         string `default:"44444"`
-	ScoreTrakPort   string `default:"33333"`
-	Token           string `default:""`
-	ScoreTrakHost   string `default:"scoretrak"`
-	ScoreTrakScheme string `default:"http"`
-	Prod            bool   `default:"false"`
-	Secret          string `default:"changeme"`
+	WebDB     storage.Config
+	Logger    logger.Config
+	Policy    policy.ClientConfig
+	WebPort   string `default:"44444"`
+	ScoreTrak ScoreTrakConfig
+	Prod      bool   `default:"false"`
+	Secret    string `default:"changeme"`
+}
+
+type ScoreTrakConfig struct {
+	Token  string `default:""`
+	Host   string `default:"scoretrak"`
+	Scheme string `default:"http"`
+	Port   string `default:"33333"`
 }
 
 var staticConfig StaticConfig
@@ -35,7 +39,7 @@ func GetPolicyConfig() policy.ClientConfig {
 }
 
 func GetToken() string {
-	return staticConfig.Token
+	return staticConfig.ScoreTrak.Token
 }
 
 func GetStaticConfig() StaticConfig {

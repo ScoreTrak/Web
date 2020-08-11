@@ -29,3 +29,6 @@ cmd/debug_worker
 
 configs/config.yml
 dev-config.yml
+
+#Idea Folder
+.idea/
