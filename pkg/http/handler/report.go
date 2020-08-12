@@ -64,6 +64,9 @@ func (u *reportController) Get(c *gin.Context) {
 						}
 					}
 				}
+				if !*p.ShowAddresses {
+					simpleReport.Teams[t].Hosts[h].Address = ""
+				}
 			}
 		}
 	}
