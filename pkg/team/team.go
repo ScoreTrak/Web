@@ -19,6 +19,10 @@ type Team struct {
 	Enabled *bool `json:"enabled,omitempty" gorm:"-"`
 }
 
+func (Team) TableName() string {
+	return "web_teams"
+}
+
 func (t *Team) BeforeCreate(tx *gorm.DB) (err error) {
 	if t.Name == "" {
 		return errors.New("field Name is a mandatory parameter")
