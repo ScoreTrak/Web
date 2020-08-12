@@ -13,4 +13,4 @@ RUN go mod tidy
 RUN go build -o web cmd/web/main.go
 RUN go build -o jobs cmd/jobs/main.go
 RUN chmod +x web jobs
-RUN cd views && yarn install && yarn build
+RUN cd views && npm install && npm run build
