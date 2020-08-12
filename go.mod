@@ -16,5 +16,5 @@ require (
 	github.com/tidwall/pretty v1.0.1 // indirect
 	go.uber.org/dig v1.10.0
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
-	gorm.io/gorm v0.2.26
+	gorm.io/gorm v0.2.29
 )
