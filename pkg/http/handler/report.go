@@ -3,25 +3,17 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/Web/pkg/role"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
-	"github.com/jinzhu/copier"
-	"math"
 	"net/http"
-	"sync"
-	"time"
 )
 
 type reportController struct {
 	log    logger.LogInfoFormat
 	client *ClientStore
-	mu     sync.RWMutex
-	report *report.Report
 }
 
 func NewReportController(log logger.LogInfoFormat, client *ClientStore) *reportController {
@@ -29,10 +21,7 @@ func NewReportController(log logger.LogInfoFormat, client *ClientStore) *reportC
 }
 
 func (u *reportController) Get(c *gin.Context) {
-	u.mu.RLock()
-	lr := report.Report{}
-	err := copier.Copy(&lr, u.report)
-	u.mu.RUnlock()
+	lr, err := u.client.ReportClient.Get()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		u.log.Error(err)
@@ -83,10 +72,7 @@ func (u *reportController) Get(c *gin.Context) {
 }
 
 func (u *reportController) GetByTeamID(c *gin.Context) {
-	u.mu.RLock()
-	lr := report.Report{}
-	err := copier.Copy(&lr, u.report)
-	u.mu.RUnlock()
+	lr, err := u.client.ReportClient.Get()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		u.log.Error(err)
@@ -126,56 +112,54 @@ func (u *reportController) GetByTeamID(c *gin.Context) {
 	}
 }
 
-func (u *reportController) LazyReportLoader(client client.ScoretrakClient) { //TODO: Consider a case where config is disabled, and a new instance is spawned up mid competition
-	currentScoretrakTime := &time.Time{}
-	err := client.GenericGet(currentScoretrakTime, "/time")
-	if err != nil {
-		panic("failed to retrieve time from scoretrak")
-	}
-	dsync := time.Since(*currentScoretrakTime)
-	if float64(time.Second*2) < math.Abs(float64(dsync)) {
-		panic(fmt.Sprintf("time difference between web host, and scoretrak host is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on web:%s\nTime on master:%s", currentScoretrakTime.String(), time.Now()))
-	}
-
-	var sleep time.Duration
-	for {
-		time.Sleep(sleep)
-		conf, err := u.client.ConfigClient.Get()
-		if err != nil {
-			panic(err)
-		}
-
-		lastRound, err := u.client.RoundClient.GetLastRound()
-		if err != nil {
-			sleep = config.MinRoundDuration
-		} else {
-			nextRoundStart := lastRound.Start.Add(time.Duration(conf.RoundDuration)*time.Second + time.Second*2)
-			if time.Until(nextRoundStart) < config.MinRoundDuration {
-				sleep = time.Until(nextRoundStart)
-			} else {
-				sleep = config.MinRoundDuration
-			}
-		}
-
-		if conf.Enabled == nil || !*conf.Enabled {
-			sleep = config.MinRoundDuration
-			continue
-		}
-		r, err := u.client.ReportClient.Get()
-		if err != nil {
-			panic(err)
-		}
-		u.mu.Lock()
-		u.report = r
-		u.mu.Unlock()
-		nextRoundStart := lastRound.Start.Add(time.Duration(conf.RoundDuration)*time.Second + time.Second*2)
-		if time.Until(nextRoundStart) > 0 && time.Until(nextRoundStart) < config.MinRoundDuration {
-			sleep = time.Until(nextRoundStart)
-		} else {
-			sleep = config.MinRoundDuration
-		}
-
-	}
-}
-
-//TODO: Implement time Desync function between ScoretrakWeb, and Scoretrak
+//func (u *reportController) LazyReportLoader(client client.ScoretrakClient) {
+//	currentScoretrakTime := &time.Time{}
+//	err := client.GenericGet(currentScoretrakTime, "/time")
+//	if err != nil {
+//		panic("failed to retrieve time from scoretrak")
+//	}
+//	dsync := time.Since(*currentScoretrakTime)
+//	if float64(time.Second*2) < math.Abs(float64(dsync)) {
+//		panic(fmt.Sprintf( "time difference between web host, and scoretrak host is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on web:%s\nTime on master:%s", currentScoretrakTime.String(), time.Now()))
+//	}
+//
+//	var sleep time.Duration
+//	for {
+//		time.Sleep(sleep)
+//		conf, err := u.client.ConfigClient.Get()
+//		if err != nil {
+//			panic(err)
+//		}
+//
+//		lastRound, err := u.client.RoundClient.GetLastRound()
+//		if err != nil {
+//			sleep = config.MinRoundDuration
+//		} else {
+//			nextRoundStart := lastRound.Start.Add(time.Duration(conf.RoundDuration)*time.Second + time.Second*2)
+//			if time.Until(nextRoundStart) < config.MinRoundDuration {
+//				sleep = time.Until(nextRoundStart)
+//			} else {
+//				sleep = config.MinRoundDuration
+//			}
+//		}
+//
+//		if conf.Enabled == nil || !*conf.Enabled {
+//			sleep = config.MinRoundDuration
+//			continue
+//		}
+//		r, err := u.client.ReportClient.Get()
+//		if err != nil {
+//			panic(err)
+//		}
+//		u.mu.Lock()
+//		u.report = r
+//		u.mu.Unlock()
+//		nextRoundStart := lastRound.Start.Add(time.Duration(conf.RoundDuration)*time.Second + time.Second*2)
+//		if time.Until(nextRoundStart) > 0 && time.Until(nextRoundStart) < config.MinRoundDuration {
+//			sleep = time.Until(nextRoundStart)
+//		} else {
+//			sleep = config.MinRoundDuration
+//		}
+//
+//	}
+//}

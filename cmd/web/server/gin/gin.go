@@ -191,7 +191,6 @@ func (ds *dserver) MapRoutesAndStart() error {
 			hctrl := handler.NewReportController(ds.logger, cStore)
 			reportRoute.GET("/", hctrl.Get)
 			reportRoute.GET("/:id", hctrl.GetByTeamID)
-			go hctrl.LazyReportLoader(c)
 		}
 		policyRoute := api.Group("/policy")
 		{
