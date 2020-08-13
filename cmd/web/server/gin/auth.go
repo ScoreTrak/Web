@@ -148,7 +148,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 							}
 						}
 					}
-				} else if v.Role == role.Anonymous && c.Request.Method == "GET" && c.Request.URL.String() == "/api/report/" {
+				} else if v.Role == role.Anonymous && c.Request.Method == "GET" && (c.Request.URL.String() == "/api/report/" || c.Request.URL.String() == "/api/last_non_elapsing/") {
 					p := a.ClientStore.PolicyClient.GetPolicy()
 					if *p.AllowUnauthenticatedUsers {
 						return true
