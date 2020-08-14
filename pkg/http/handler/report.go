@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/Web/pkg/role"
@@ -50,7 +49,6 @@ func (u *reportController) Get(c *gin.Context) {
 
 	if r == role.Blue || r == role.Anonymous {
 		p := u.client.PolicyClient.GetPolicy()
-		fmt.Println(p)
 		for t := range simpleReport.Teams {
 			for h := range simpleReport.Teams[t].Hosts {
 				for s := range simpleReport.Teams[t].Hosts[h].Services {
@@ -64,8 +62,10 @@ func (u *reportController) Get(c *gin.Context) {
 						}
 					}
 				}
-				if !*p.ShowAddresses {
-					simpleReport.Teams[t].Hosts[h].Address = ""
+				if t != tID {
+					if !*p.ShowAddresses {
+						simpleReport.Teams[t].Hosts[h].Address = ""
+					}
 				}
 			}
 		}

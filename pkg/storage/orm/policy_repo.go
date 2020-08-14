@@ -25,7 +25,8 @@ func (h *policyRepo) Get() (*policy.Policy, error) {
 func (h *policyRepo) Update(tm *policy.Policy) error {
 	h.log.Debugf("updating the policy")
 	tm.ID = 1
-	err := h.db.Model(tm).Updates(policy.Policy{AllowUnauthenticatedUsers: tm.AllowUnauthenticatedUsers, ShowPoints: tm.ShowPoints}).Error
+	err := h.db.Model(tm).Updates(policy.Policy{AllowUnauthenticatedUsers: tm.AllowUnauthenticatedUsers, ShowPoints: tm.ShowPoints,
+		AllowChangingUsernamesAndPasswords: tm.AllowChangingUsernamesAndPasswords, ShowAddresses: tm.ShowAddresses}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the config, reason : %v", err)
 		return err

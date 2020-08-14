@@ -16,7 +16,7 @@ func NewPolicyController(log logger.LogInfoFormat, serv policy.Serv) *policyCont
 	return &policyController{log, serv}
 }
 
-func (a *policyController) GetPolicy(c *gin.Context) {
+func (a *policyController) GetPolicy(c *gin.Context) { //Todo: Expose policy for everyone. this can help with a better design of front end
 	p, err := a.serv.Get()
 	if err != nil {
 		a.log.Error(err.Error())
