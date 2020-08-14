@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {useState} from "react";
-import AuthService from "../services/auth/auth.service";
+import AuthService from "../../services/auth/auth";
 import { Alert } from '@material-ui/lab';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { useForm } from "react-hook-form";
@@ -48,7 +48,6 @@ const Login = (props) => {
         AuthService.login(values.username, values.password).then(
             () => {
                 props.history.push("/");
-                // window.location.reload();
             },
             (error) => {
                 const resMessage =

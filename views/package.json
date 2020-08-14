@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@nivo/bar": "^0.62.0",
     "@testing-library/jest-dom": "^5.11.3",
     "@testing-library/react": "^10.4.8",
     "@testing-library/user-event": "^12.1.1",
@@ -12,9 +13,11 @@
     "npm-watch": "^0.6.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-full-screen": "^0.3.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.2",
     "react-validation": "^3.0.7",
+    "recharts": "^1.8.5",
     "validator": "^13.1.1",
     "yup": "^0.29.3"
   },
