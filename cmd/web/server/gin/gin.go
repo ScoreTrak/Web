@@ -20,7 +20,6 @@ func NewRouter() *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.Default()
-	router.MaxMultipartMemory = 8 << 20
 	return router
 }
 
