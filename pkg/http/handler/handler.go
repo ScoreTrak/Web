@@ -6,6 +6,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	shandler "github.com/ScoreTrak/ScoreTrak/pkg/api/handler"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
@@ -159,6 +160,7 @@ type ClientStore struct {
 	CheckClient        check.Serv
 	ReportClient       report.Serv
 	PolicyClient       *policy.Client
+	CompetitionClient  competition.Serv
 }
 
 func teamIDFromProperty(c *ClientStore, propertyID uuid.UUID) (teamID uuid.UUID, property *property.Property, err error) {

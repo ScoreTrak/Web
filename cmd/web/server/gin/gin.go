@@ -2,7 +2,9 @@ package gin
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
+	"github.com/ScoreTrak/Web/pkg/competition"
 	"github.com/ScoreTrak/Web/pkg/config"
+	"github.com/ScoreTrak/Web/pkg/di/repo"
 	"github.com/ScoreTrak/Web/pkg/http/handler"
 	"github.com/ScoreTrak/Web/pkg/policy"
 	"github.com/ScoreTrak/Web/pkg/storage/orm/util"
@@ -38,6 +40,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		RoundClient:        client.NewRoundClient(c),
 		CheckClient:        client.NewCheckClient(c),
 		ReportClient:       client.NewReportClient(c),
+		CompetitionClient:  client.NewCompetitionClient(c),
 	}
 
 	authCtrl, err := ds.authBootstrap(cStore)
@@ -203,6 +206,16 @@ func (ds *dserver) MapRoutesAndStart() error {
 			pctrl := handler.NewPolicyController(ds.logger, psvc)
 			policyRoute.GET("/", pctrl.GetPolicy)
 			policyRoute.PATCH("/", pctrl.UpdatePolicy)
+		}
+
+		competitionRoute := api.Group("/competition")
+		{
+
+			competitionServ := competition.NewCompetitionServ(repo.NewStore())
+			hctrl := handler.NewCompetitionController(ds.logger, cStore, competitionServ)
+			competitionRoute.GET("/export_core", hctrl.FetchCoreCompetition)
+			competitionRoute.GET("/export_all", hctrl.FetchEntireCompetition)
+			competitionRoute.POST("/upload", hctrl.LoadCompetition)
 		}
 
 	}
