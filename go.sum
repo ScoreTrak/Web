@@ -44,6 +44,12 @@ github.com/ScoreTrak/ScoreTrak v0.0.0-20200814202217-65fc2d142d9a h1:XNux12pEwkH
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200814202217-65fc2d142d9a/go.mod h1:/1rSMqzTCjqzZjakVE6w1w4NfQNc74nBoilmyfu1Si8=
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200815003832-4c3db933bd20 h1:+QikyDg8FIs3OPRZC4Q/ObtP2D+CgeaEx1bbkcY74U8=
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200815003832-4c3db933bd20/go.mod h1:/1rSMqzTCjqzZjakVE6w1w4NfQNc74nBoilmyfu1Si8=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200815202153-b811c43143d6 h1:DekVjLtr+VAOJrJCxwl2wbYc2rW/3hD3m0vgRx0GxPo=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200815202153-b811c43143d6/go.mod h1:/1rSMqzTCjqzZjakVE6w1w4NfQNc74nBoilmyfu1Si8=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200815211652-5667eea16b09 h1:lAvmahFXH9+cMjmdP8g0Edm/UPd8LPZUcHZDrLzFI/w=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200815211652-5667eea16b09/go.mod h1:/1rSMqzTCjqzZjakVE6w1w4NfQNc74nBoilmyfu1Si8=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200815222337-4e64b2a876a3 h1:63/NnUSzLnCE2uSYwQDIMDhECZepYm0ETuttwA5m8CA=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200815222337-4e64b2a876a3/go.mod h1:/1rSMqzTCjqzZjakVE6w1w4NfQNc74nBoilmyfu1Si8=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/appleboy/gin-jwt/v2 v2.6.3 h1:aK4E3DjihWEBUTjEeRnGkA5nUkmwJPL1CPonMa2usRs=
 github.com/appleboy/gin-jwt/v2 v2.6.3/go.mod h1:MfPYA4ogzvOcVkRwAxT7quHOtQmVKDpTwxyUrC2DNw0=
