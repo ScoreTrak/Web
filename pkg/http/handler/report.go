@@ -55,7 +55,13 @@ func (u *reportController) Get(c *gin.Context) {
 					if t != tID {
 						simpleReport.Teams[t].Hosts[h].Services[s].Err = ""
 						simpleReport.Teams[t].Hosts[h].Services[s].Log = ""
-						simpleReport.Teams[t].Hosts[h].Services[s].Properties = map[string]string{}
+						prop := map[string]string{}
+
+						if port, ok := simpleReport.Teams[t].Hosts[h].Services[s].Properties["Port"]; ok && !*p.ShowAddresses {
+							prop["Port"] = port
+						}
+
+						simpleReport.Teams[t].Hosts[h].Services[s].Properties = prop
 						if !*p.ShowPoints {
 							simpleReport.Teams[t].Hosts[h].Services[s].Points = 0
 							simpleReport.Teams[t].Hosts[h].Services[s].PointsBoost = 0

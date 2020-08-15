@@ -20,12 +20,12 @@ func (u *configController) Get(c *gin.Context) {
 	genericGet(c, "Get", u.client.ConfigClient, u.log)
 }
 
-func (u *configController) ResetCompetition(c *gin.Context) {
-	genericDelete(c, "ResetCompetition", u.client.ConfigClient, u.log)
+func (u *configController) ResetScores(c *gin.Context) {
+	genericDeleteNoID(c, "ResetScores", u.client.ConfigClient, u.log)
 }
 
 func (u *configController) DeleteCompetition(c *gin.Context) {
-	genericDelete(c, "DeleteCompetition", u.client.ConfigClient, u.log)
+	genericDeleteNoID(c, "DeleteCompetition", u.client.ConfigClient, u.log)
 }
 
 func (u *configController) Update(c *gin.Context) {

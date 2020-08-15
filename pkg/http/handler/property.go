@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/gin-gonic/gin"
@@ -27,12 +26,7 @@ func (u *propertyController) Store(c *gin.Context) {
 	}
 	err = u.client.PropertyClient.Store(us)
 	if err != nil {
-		u.log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, u.log, err)
 		return
 	}
 
@@ -92,12 +86,7 @@ func (u *propertyController) Update(c *gin.Context) {
 	us.ID = id
 	err = u.client.PropertyClient.Update(us)
 	if err != nil {
-		u.log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, u.log, err)
 		return
 	}
 }

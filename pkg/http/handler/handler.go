@@ -34,12 +34,7 @@ func genericStore(c *gin.Context, m string, svc interface{}, g interface{}, log 
 	}
 	err = shandler.InvokeNoRetMethod(svc, m, g)
 	if err != nil {
-		log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, log, err)
 		return
 	}
 }
@@ -47,12 +42,7 @@ func genericStore(c *gin.Context, m string, svc interface{}, g interface{}, log 
 func genericGet(c *gin.Context, m string, svc interface{}, log logger.LogInfoFormat) {
 	sg, err := shandler.InvokeRetMethod(svc, m)
 	if err != nil {
-		log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, log, err)
 		return
 	}
 	c.JSON(200, sg)
@@ -72,12 +62,7 @@ func genericGetByID(c *gin.Context, m string, svc interface{}, log logger.LogInf
 	}
 	sg, err := shandler.InvokeRetMethod(svc, m, id)
 	if err != nil {
-		log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, log, err)
 		return
 	}
 	c.JSON(200, sg)
@@ -92,12 +77,15 @@ func genericDelete(c *gin.Context, m string, svc interface{}, log logger.LogInfo
 	}
 	err = shandler.InvokeNoRetMethod(svc, m, id)
 	if err != nil {
-		log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, log, err)
+		return
+	}
+}
+
+func genericDeleteNoID(c *gin.Context, m string, svc interface{}, log logger.LogInfoFormat) {
+	err := shandler.InvokeNoRetMethod(svc, m)
+	if err != nil {
+		ClientErrorHandler(c, log, err)
 		return
 	}
 }
@@ -120,12 +108,7 @@ func genericUpdate(c *gin.Context, m string, svc interface{}, g interface{}, log
 	v.FieldByName("ID").Set(f)
 	err = shandler.InvokeNoRetMethod(svc, m, g)
 	if err != nil {
-		log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, log, err)
 		return
 	}
 }
@@ -138,6 +121,15 @@ func UintResolver(c *gin.Context, param string) (id uint, err error) {
 	id32, err := strconv.ParseUint(idParam, 10, 32)
 	id = uint(id32)
 	return
+}
+
+func ClientErrorHandler(c *gin.Context, log logger.LogInfoFormat, err error) {
+	log.Error(err.Error())
+	if serr, ok := err.(*client.InvalidResponse); ok {
+		c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.ResponseBody})
+	} else {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
 }
 
 func UuidResolver(c *gin.Context, param string) (uuid.UUID, error) {
