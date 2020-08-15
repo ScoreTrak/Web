@@ -30,6 +30,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 	c := client.NewScoretrakClient(&url.URL{Host: conf.ScoreTrak.Host + ":" + conf.ScoreTrak.Port, Scheme: conf.ScoreTrak.Scheme}, conf.ScoreTrak.Token, http.DefaultClient)
 
 	cStore := &handler.ClientStore{
+		StaticConfigClient: client.NewStaticConfigClient(c),
 		ConfigClient:       client.NewConfigClient(c),
 		TeamClient:         client.NewTeamClient(c),
 		HostClient:         client.NewHostClient(c),
@@ -176,6 +177,9 @@ func (ds *dserver) MapRoutesAndStart() error {
 			configRoute.PATCH("/", hctrl.Update)
 			configRoute.DELETE("/reset_competition", hctrl.ResetCompetition)
 			configRoute.DELETE("/delete_competition", hctrl.DeleteCompetition)
+			configRoute.GET("/static_config", hctrl.GetStaticConfig)
+			configRoute.GET("/static_web_config", hctrl.GetStaticWebConfig)
+
 		}
 
 		propertyRoute := api.Group("/property")

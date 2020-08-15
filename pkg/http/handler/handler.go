@@ -149,6 +149,7 @@ func UuidResolver(c *gin.Context, param string) (uuid.UUID, error) {
 }
 
 type ClientStore struct {
+	StaticConfigClient config.StaticServ
 	ConfigClient       config.Serv
 	TeamClient         team.Serv
 	HostClient         host.Serv
