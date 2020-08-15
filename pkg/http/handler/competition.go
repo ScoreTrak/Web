@@ -23,21 +23,17 @@ func (u *competitionController) LoadCompetition(c *gin.Context) {
 	var us = &competition.Web{}
 	file, err := c.FormFile("file")
 	if err != nil {
-		err := c.BindJSON(us)
-		if err != nil {
-			u.log.Error(err.Error())
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-			return
-		}
-	} else {
-		fileContent, _ := file.Open()
-		decoder := json.NewDecoder(fileContent)
-		err := decoder.Decode(us)
-		if err != nil {
-			u.log.Error(err)
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
-			return
-		}
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	fileContent, _ := file.Open()
+	decoder := json.NewDecoder(fileContent)
+	err = decoder.Decode(us)
+	if err != nil {
+		u.log.Error(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 	err = u.serv.LoadCompetition(us)
 	if err != nil {
