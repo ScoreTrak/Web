@@ -50,8 +50,20 @@ func (u *reportController) Get(c *gin.Context) {
 	if r == role.Blue || r == role.Anonymous {
 		p := u.client.PolicyClient.GetPolicy()
 		for t := range simpleReport.Teams {
+			if !simpleReport.Teams[t].Enabled {
+				delete(simpleReport.Teams, t)
+				continue
+			}
 			for h := range simpleReport.Teams[t].Hosts {
+				if !simpleReport.Teams[t].Hosts[h].Enabled {
+					delete(simpleReport.Teams[t].Hosts, h)
+					continue
+				}
 				for s := range simpleReport.Teams[t].Hosts[h].Services {
+					if !simpleReport.Teams[t].Hosts[h].Services[s].Enabled {
+						delete(simpleReport.Teams[t].Hosts[h].Services, s)
+						continue
+					}
 					if t != tID {
 						simpleReport.Teams[t].Hosts[h].Services[s].Err = ""
 						simpleReport.Teams[t].Hosts[h].Services[s].Log = ""

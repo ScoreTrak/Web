@@ -72,7 +72,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 			}
 			usr, err := a.userService.GetByUsername(loginVals.Username)
 			if err != nil {
-				return nil, err
+				return nil, jwt.ErrFailedAuthentication
 			}
 			err = bcrypt.CompareHashAndPassword([]byte(usr.PasswordHash), []byte(loginVals.Password))
 			if err != nil {
