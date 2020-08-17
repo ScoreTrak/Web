@@ -65,9 +65,9 @@ export default function EditableTable(props) {
     if ("Teams" in dt){
         for (let team in dt["Teams"]) {
             if (dt["Teams"].hasOwnProperty(team)) {
+                data[dt["Teams"][team]["Name"]] = {}
                 for (let host in dt.Teams[team]["Hosts"]){
                     if (dt.Teams[team]["Hosts"].hasOwnProperty(host)) {
-                        let serviceAggregator = {}
                         if (Object.keys(dt.Teams[team]["Hosts"][host]["Services"]).length !== 0){
                             for (let service in dt.Teams[team]["Hosts"][host]["Services"]) {
                                 if (dt.Teams[team]["Hosts"][host]["Services"].hasOwnProperty(service)) {
@@ -82,12 +82,12 @@ export default function EditableTable(props) {
                                             keyName = sr["Name"]
                                         }
                                     }
-                                    serviceAggregator[keyName] = sr
+                                    data[dt["Teams"][team]["Name"]][keyName] = sr
+                                    data[dt["Teams"][team]["Name"]][keyName]["Address"]= dt["Teams"][team]["Hosts"][host]["Address"]
                                     dataKeys.add(keyName)
+                                    teamNamesSet.add(dt["Teams"][team]["Name"])
                                 }
                             }
-                            teamNamesSet.add(dt["Teams"][team]["Name"])
-                            data[dt["Teams"][team]["Name"]] = {service: serviceAggregator, Address:dt["Teams"][team]["Hosts"][host]["Address"]}
                         }
                     }
                 }
@@ -129,21 +129,21 @@ export default function EditableTable(props) {
                                     </TableCell>
                                     {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
                                         <TableCell key={name+column} style={(() => {
-                                            if (data[name]["service"][column]) {
-                                                if (data[name]["service"][column]["Passed"]){
+                                            if (data[name][column]) {
+                                                if (data[name][column]["Passed"]){
                                                     return {backgroundColor: "green"}
                                                 }
                                                 return {backgroundColor: "red", color: "white"}
                                             }
                                         })()} align="center"
                                         >
-                                            {!hideAddresses && data[name]["service"][column] && (() => {
+                                            {!hideAddresses && data[name][column] && (() => {
                                                 let msg = ""
-                                                if (data[name]["Address"]) {
-                                                    msg += data[name]["Address"]
-                                                    if (column in data[name]["service"] && "Properties" in data[name]["service"][column]
-                                                        && "Port" in data[name]["service"][column]["Properties"]) {
-                                                        msg += ":" + data[name]["service"][column]["Properties"]["Port"]
+                                                if (data[name][column]["Address"]) {
+                                                    msg += data[name][column]["Address"]
+                                                    if (column in data[name] && "Properties" in data[name][column]
+                                                        && "Port" in data[name][column]["Properties"]) {
+                                                        msg += ":" + data[name][column]["Properties"]["Port"]
                                                     }
                                                 }
                                                 return msg

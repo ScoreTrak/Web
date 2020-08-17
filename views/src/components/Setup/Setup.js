@@ -164,7 +164,7 @@ export default function Setup(props) {
                                { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
                                { title: 'Start Time', field: 'start', type:'datetime' },
                                { title: 'Note', field: 'note' },
-                               { title: 'Error', field: 'error'},
+                               { title: 'Error', field: 'err'},
                                { title: 'Finish Time', field: 'finish', type:'datetime'},
                            ]
                        return Table(props, title, isDependant, columns, false, RoundsService, owningService, fieldForLookup, owningFieldLookup, false)
@@ -195,3 +195,5 @@ export default function Setup(props) {
        </div>
     );
 }
+
+//ToDo: Allow Chaining of the foreign IDs

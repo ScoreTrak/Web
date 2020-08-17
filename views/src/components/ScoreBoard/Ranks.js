@@ -40,9 +40,9 @@ export default function Ranks(props) {
     if ("Teams" in dt){
         for (let team in dt["Teams"]) {
             if (dt["Teams"].hasOwnProperty(team)) {
+                let serviceAggregator = {}
                 for (let host in dt.Teams[team]["Hosts"]){
                     if (dt.Teams[team]["Hosts"].hasOwnProperty(host)) {
-                        let serviceAggregator = {}
                         if (Object.keys(dt.Teams[team]["Hosts"][host]["Services"]).length !== 0){
                             for (let service in dt.Teams[team]["Hosts"][host]["Services"]) {
                                 if (dt.Teams[team]["Hosts"][host]["Services"].hasOwnProperty(service)) {
@@ -66,17 +66,19 @@ export default function Ranks(props) {
                                 }
                             }
 
-                            data.push({
-                                ...serviceAggregator,
-                                teamName: dt["Teams"][team]["Name"],
-                            })
                         }
                     }
+                }
+
+                if (Object.keys(serviceAggregator).length !==0){
+                    data.push({
+                        ...serviceAggregator,
+                        teamName: dt["Teams"][team]["Name"],
+                    })
                 }
             }
         }
     }
-
 
     let theme= {fontSize: "0.875rem"}
     if (props.isDarkTheme){
