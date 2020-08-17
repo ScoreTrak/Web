@@ -46,25 +46,34 @@ func (u *reportController) Get(c *gin.Context) {
 		u.log.Error(err)
 		return
 	}
-
-	if r == role.Blue || r == role.Anonymous {
-		p := u.client.PolicyClient.GetPolicy()
+	//Filter out Disabled Services
+	{
 		for t := range simpleReport.Teams {
 			if !simpleReport.Teams[t].Enabled {
 				delete(simpleReport.Teams, t)
 				continue
 			}
 			for h := range simpleReport.Teams[t].Hosts {
-				if !simpleReport.Teams[t].Hosts[h].Enabled {
+				if !simpleReport.Teams[t].Hosts[h].Enabled || (simpleReport.Teams[t].Hosts[h].HostGroup != nil && !simpleReport.Teams[t].Hosts[h].HostGroup.Enabled) {
 					delete(simpleReport.Teams[t].Hosts, h)
 					continue
 				}
 				for s := range simpleReport.Teams[t].Hosts[h].Services {
-					if !simpleReport.Teams[t].Hosts[h].Services[s].Enabled {
+					if !simpleReport.Teams[t].Hosts[h].Services[s].Enabled || (!simpleReport.Teams[t].Hosts[h].Services[s].SimpleServiceGroup.Enabled) {
 						delete(simpleReport.Teams[t].Hosts[h].Services, s)
 						continue
 					}
 
+				}
+			}
+		}
+	}
+
+	if r == role.Blue || r == role.Anonymous {
+		p := u.client.PolicyClient.GetPolicy()
+		for t := range simpleReport.Teams {
+			for h := range simpleReport.Teams[t].Hosts {
+				for s := range simpleReport.Teams[t].Hosts[h].Services {
 					propFilterHide := map[string]*report.SimpleProperty{}
 					for key, val := range simpleReport.Teams[t].Hosts[h].Services[s].Properties {
 						if val.Status != "Hide" {
