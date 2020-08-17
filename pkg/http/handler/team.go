@@ -86,7 +86,7 @@ func (u *teamController) GetByID(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	t, err := u.client.TeamClient.GetByID(idParam)
+	tScoreTrak, err := u.client.TeamClient.GetByID(idParam)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -96,11 +96,24 @@ func (u *teamController) GetByID(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(200, t)
+
+	tWeb, err := u.serv.GetByID(idParam)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			u.log.Error(err)
+		}
+		return
+	}
+	tWeb.Enabled = tScoreTrak.Enabled
+
+	c.JSON(200, tWeb)
 }
 
 func (u *teamController) GetAll(c *gin.Context) {
-	t, err := u.client.TeamClient.GetAll()
+	tScoreTrak, err := u.client.TeamClient.GetAll()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -110,7 +123,30 @@ func (u *teamController) GetAll(c *gin.Context) {
 		}
 		return
 	}
-	c.JSON(200, t)
+
+	tWeb, err := u.serv.GetAll()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			u.log.Error(err)
+		}
+		return
+	}
+
+	var response []*team.Team
+
+	for i, _ := range tScoreTrak {
+		for j, _ := range tWeb {
+			if tScoreTrak[i].ID == tWeb[j].ID && tWeb[j].Name == "Black Team" {
+				tWeb[j].Enabled = tScoreTrak[i].Enabled
+				response = append(response, tWeb[j])
+			}
+		}
+	}
+
+	c.JSON(200, response)
 }
 
 func (u *teamController) Update(c *gin.Context) {
