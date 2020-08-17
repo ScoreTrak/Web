@@ -72,7 +72,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 			}
 			usr, err := a.userService.GetByUsername(loginVals.Username)
 			if err != nil {
-				return nil, err
+				return nil, jwt.ErrFailedAuthentication
 			}
 			err = bcrypt.CompareHashAndPassword([]byte(usr.PasswordHash), []byte(loginVals.Password))
 			if err != nil {
@@ -148,7 +148,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 							}
 						}
 					}
-				} else if v.Role == role.Anonymous && c.Request.Method == "GET" && c.Request.URL.String() == "/api/report/" {
+				} else if v.Role == role.Anonymous && c.Request.Method == "GET" && (c.Request.URL.String() == "/api/report/" || c.Request.URL.String() == "/api/last_non_elapsing/") {
 					p := a.ClientStore.PolicyClient.GetPolicy()
 					if *p.AllowUnauthenticatedUsers {
 						return true

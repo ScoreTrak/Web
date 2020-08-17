@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/Web/pkg/team"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type teamRepo struct {
@@ -60,9 +61,18 @@ func (h *teamRepo) Store(tm []*team.Team) error {
 	return nil
 }
 
+func (h *teamRepo) Upsert(tm []*team.Team) error {
+	err := h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(tm).Error
+	if err != nil {
+		h.log.Errorf("error while creating the team, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
 func (h *teamRepo) Update(tm *team.Team) error {
 	h.log.Debugf("updating the team, id : %v", tm.ID)
-	err := h.db.Model(tm).Updates(team.Team{Name: tm.Name, Enabled: tm.Enabled}).Error //TODO: Adjust Casbin rules on TeamID, change
+	err := h.db.Model(tm).Updates(team.Team{Name: tm.Name, Enabled: tm.Enabled, Index: tm.Index}).Error //TODO: Adjust Casbin rules on TeamID, change
 	if err != nil {
 		h.log.Errorf("error while updating the team, reason : %v", err)
 		return err

@@ -16,11 +16,11 @@ func NewPolicyController(log logger.LogInfoFormat, serv policy.Serv) *policyCont
 	return &policyController{log, serv}
 }
 
-func (a *policyController) GetPolicy(c *gin.Context) {
+func (a *policyController) GetPolicy(c *gin.Context) { //Todo: Expose policy for everyone. this can help with a better design of front end
 	p, err := a.serv.Get()
 	if err != nil {
 		a.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(200, p)
@@ -31,13 +31,13 @@ func (a *policyController) UpdatePolicy(c *gin.Context) {
 	err := c.BindJSON(p)
 	if err != nil {
 		a.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	err = a.serv.Update(p)
 	if err != nil {
 		a.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 }

@@ -8,5 +8,6 @@ type Repo interface {
 	GetByID(id uuid.UUID) (*User, error)
 	GetByUsername(username string) (*User, error)
 	Store(u []*User) error
+	Upsert(u []*User) error
 	Update(u *User) error
 }

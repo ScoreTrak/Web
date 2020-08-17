@@ -24,6 +24,9 @@ func (a *Client) LazyPolicyLoader() {
 		tempPolicy, _ := a.repo.Get()
 		a.mu.Lock()
 		a.policy.AllowUnauthenticatedUsers = tempPolicy.AllowUnauthenticatedUsers
+		a.policy.ShowAddresses = tempPolicy.ShowAddresses
+		a.policy.ShowPoints = tempPolicy.ShowPoints
+		a.policy.AllowChangingUsernamesAndPasswords = tempPolicy.AllowChangingUsernamesAndPasswords
 		a.mu.Unlock()
 		rounded = rounded.Add(time.Second * time.Duration(a.cnf.PolicyRefreshSeconds))
 		time.Sleep(time.Until(rounded))
@@ -32,7 +35,8 @@ func (a *Client) LazyPolicyLoader() {
 
 func (a *Client) GetPolicy() *Policy {
 	a.mu.RLock()
-	p := &Policy{AllowUnauthenticatedUsers: a.policy.AllowUnauthenticatedUsers, ShowPoints: a.policy.ShowPoints}
+	p := &Policy{AllowUnauthenticatedUsers: a.policy.AllowUnauthenticatedUsers, ShowPoints: a.policy.ShowPoints, AllowChangingUsernamesAndPasswords: a.policy.AllowChangingUsernamesAndPasswords,
+		ShowAddresses: a.policy.ShowAddresses} //Todo: Utilize copier
 	a.mu.RUnlock()
 	return p
 }

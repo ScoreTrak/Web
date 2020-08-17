@@ -12,11 +12,15 @@ type Team struct {
 
 	Name string `json:"name" gorm:"unique;not null" valid:"required,alphanum"`
 
-	TeamIndex *uint `json:"team_index" gorm:"unique"`
+	Index *uint `json:"index" gorm:"unique"`
 
 	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID" json:"-"`
 
 	Enabled *bool `json:"enabled,omitempty" gorm:"-"`
+}
+
+func (Team) TableName() string {
+	return "web_teams"
 }
 
 func (t *Team) BeforeCreate(tx *gorm.DB) (err error) {

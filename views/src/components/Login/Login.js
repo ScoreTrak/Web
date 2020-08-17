@@ -8,10 +8,11 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {useState} from "react";
-import AuthService from "../services/auth/auth.service";
+import AuthService from "../../services/auth/auth";
 import { Alert } from '@material-ui/lab';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { useForm } from "react-hook-form";
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -41,21 +42,20 @@ const Login = (props) => {
     const classes = useStyles();
     const { register, handleSubmit, errors} = useForm();
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
+    const setMessage = props.setMessage
+    const message = props.message
     const handleLogin = (values) => {
         setMessage("");
         setLoading(true);
         AuthService.login(values.username, values.password).then(
             () => {
+                setMessage("")
                 props.history.push("/");
-                // window.location.reload();
             },
             (error) => {
                 const resMessage =
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                    error.message ||
+                    (error.response
+                        && error.response.data && (error.response.data.message || error.response.data.error) ) ||
                     error.toString();
 
                 setLoading(false);

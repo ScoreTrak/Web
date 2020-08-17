@@ -10,7 +10,7 @@ import (
 type User struct {
 	ID           uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 	Username     string    `json:"username" gorm:"unique,not null;default:null" valid:"required,alphanum"`
-	PasswordHash string    `json:"-" gorm:"not null;default: null"`
+	PasswordHash string    `json:"password_hash" gorm:"not null;default: null"`
 	TeamID       uuid.UUID `json:"team_id,omitempty" gorm:"type:uuid"`
 	Password     string    `json:"password,omitempty" gorm:"-"`
 	Role         string    `json:"role" gorm:"default:'blue'"`

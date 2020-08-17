@@ -2,7 +2,9 @@ package gin
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
+	"github.com/ScoreTrak/Web/pkg/competition"
 	"github.com/ScoreTrak/Web/pkg/config"
+	"github.com/ScoreTrak/Web/pkg/di/repo"
 	"github.com/ScoreTrak/Web/pkg/http/handler"
 	"github.com/ScoreTrak/Web/pkg/policy"
 	"github.com/ScoreTrak/Web/pkg/storage/orm/util"
@@ -20,7 +22,6 @@ func NewRouter() *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router := gin.Default()
-	router.MaxMultipartMemory = 8 << 20
 	return router
 }
 
@@ -29,6 +30,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 	c := client.NewScoretrakClient(&url.URL{Host: conf.ScoreTrak.Host + ":" + conf.ScoreTrak.Port, Scheme: conf.ScoreTrak.Scheme}, conf.ScoreTrak.Token, http.DefaultClient)
 
 	cStore := &handler.ClientStore{
+		StaticConfigClient: client.NewStaticConfigClient(c),
 		ConfigClient:       client.NewConfigClient(c),
 		TeamClient:         client.NewTeamClient(c),
 		HostClient:         client.NewHostClient(c),
@@ -39,6 +41,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		RoundClient:        client.NewRoundClient(c),
 		CheckClient:        client.NewCheckClient(c),
 		ReportClient:       client.NewReportClient(c),
+		CompetitionClient:  client.NewCompetitionClient(c),
 	}
 
 	authCtrl, err := ds.authBootstrap(cStore)
@@ -172,8 +175,11 @@ func (ds *dserver) MapRoutesAndStart() error {
 			hctrl := handler.NewConfigController(ds.logger, cStore)
 			configRoute.GET("/", hctrl.Get)
 			configRoute.PATCH("/", hctrl.Update)
-			configRoute.DELETE("/reset_competition", hctrl.ResetCompetition)
+			configRoute.DELETE("/reset_competition", hctrl.ResetScores)
 			configRoute.DELETE("/delete_competition", hctrl.DeleteCompetition)
+			configRoute.GET("/static_config", hctrl.GetStaticConfig)
+			configRoute.GET("/static_web_config", hctrl.GetStaticWebConfig)
+
 		}
 
 		propertyRoute := api.Group("/property")
@@ -191,7 +197,6 @@ func (ds *dserver) MapRoutesAndStart() error {
 			hctrl := handler.NewReportController(ds.logger, cStore)
 			reportRoute.GET("/", hctrl.Get)
 			reportRoute.GET("/:id", hctrl.GetByTeamID)
-			go hctrl.LazyReportLoader(c)
 		}
 		policyRoute := api.Group("/policy")
 		{
@@ -205,6 +210,16 @@ func (ds *dserver) MapRoutesAndStart() error {
 			pctrl := handler.NewPolicyController(ds.logger, psvc)
 			policyRoute.GET("/", pctrl.GetPolicy)
 			policyRoute.PATCH("/", pctrl.UpdatePolicy)
+		}
+
+		competitionRoute := api.Group("/competition")
+		{
+
+			competitionServ := competition.NewCompetitionServ(repo.NewStore())
+			hctrl := handler.NewCompetitionController(ds.logger, cStore, competitionServ)
+			competitionRoute.GET("/export_core", hctrl.FetchCoreCompetition)
+			competitionRoute.GET("/export_all", hctrl.FetchEntireCompetition)
+			competitionRoute.POST("/upload", hctrl.LoadCompetition)
 		}
 
 	}

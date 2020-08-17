@@ -51,5 +51,8 @@ func NewStaticConfig(f string) error {
 	if err != nil {
 		return err
 	}
+	if staticConfig.WebDB.Prefix == "" {
+		staticConfig.WebDB.Prefix = "web_"
+	}
 	return nil
 }
