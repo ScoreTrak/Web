@@ -28,7 +28,7 @@ func (u *userController) Store(c *gin.Context) {
 			return
 		}
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		password := []byte(us[i].Password)
@@ -105,7 +105,7 @@ func (u *userController) Update(c *gin.Context) {
 	err := c.BindJSON(us)
 	if err != nil {
 		u.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if role == "blue" {

@@ -60,6 +60,8 @@ func (u *propertyController) GetAll(c *gin.Context) {
 	genericGet(c, "GetAll", u.client.PropertyClient, u.log)
 }
 
+//ToDo: Ensure that data handled by Users is properly handeled (XSS prevention on this stage)
+
 func (u *propertyController) Update(c *gin.Context) {
 	us := &property.Property{}
 	id, _ := UuidResolver(c, "id")

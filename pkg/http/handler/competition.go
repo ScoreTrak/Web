@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/Web/pkg/competition"
 	"github.com/gin-gonic/gin"
@@ -35,24 +34,15 @@ func (u *competitionController) LoadCompetition(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	err = u.serv.LoadCompetition(us)
 	if err != nil {
-		u.log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, u.log, err)
 		return
 	}
 	err = u.client.CompetitionClient.LoadCompetition(us.Competition)
 	if err != nil {
-		u.log.Error(err.Error())
-		if serr, ok := err.(*client.InvalidResponse); ok {
-			c.AbortWithStatusJSON(serr.ResponseCode, gin.H{"error": serr.Error(), "details": serr.ResponseBody})
-		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		ClientErrorHandler(c, u.log, err)
 		return
 	}
 

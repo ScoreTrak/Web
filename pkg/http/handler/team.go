@@ -24,7 +24,7 @@ func (u *teamController) Store(c *gin.Context) {
 	var us []*team.Team
 	err := c.BindJSON(&us)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		u.log.Error(err)
 		return
 	}
@@ -139,7 +139,7 @@ func (u *teamController) GetAll(c *gin.Context) {
 
 	for i, _ := range tScoreTrak {
 		for j, _ := range tWeb {
-			if tScoreTrak[i].ID == tWeb[j].ID && tWeb[j].Name != "Black Team" {
+			if tScoreTrak[i].ID == tWeb[j].ID {
 				tWeb[j].Enabled = tScoreTrak[i].Enabled
 				response = append(response, tWeb[j])
 			}
@@ -159,7 +159,7 @@ func (u *teamController) Update(c *gin.Context) {
 	us := &team.Team{}
 	err = c.BindJSON(us)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	us.ID = idParam

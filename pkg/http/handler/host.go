@@ -21,7 +21,7 @@ func (u *hostController) Store(c *gin.Context) {
 	err := c.BindJSON(&us)
 	if err != nil {
 		u.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	err = u.client.HostClient.Store(us)
@@ -68,7 +68,7 @@ func (u *hostController) Update(c *gin.Context) {
 	err := c.BindJSON(us)
 	if err != nil {
 		u.log.Error(err.Error())
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if role == "blue" {
