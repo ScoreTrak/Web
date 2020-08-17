@@ -23,8 +23,8 @@ func NewCompetitionServ(str repo.Store) Serv {
 
 func (svc *webServ) LoadCompetition(c *Web) error {
 	var errAgr []error
-	errAgr = append(errAgr, svc.Store.Team.Store(c.Teams))
-	errAgr = append(errAgr, svc.Store.User.Store(c.Users))
+	errAgr = append(errAgr, svc.Store.Team.Upsert(c.Teams))
+	errAgr = append(errAgr, svc.Store.User.Upsert(c.Users))
 	errAgr = append(errAgr, svc.Store.Policy.Update(c.Policy))
 	errStr := ""
 	for i, _ := range errAgr {

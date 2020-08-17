@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/Web/pkg/user"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type userRepo struct {
@@ -64,6 +65,15 @@ func (h *userRepo) GetByUsername(username string) (*user.User, error) {
 
 func (h *userRepo) Store(usr []*user.User) error {
 	err := h.db.Create(usr).Error
+	if err != nil {
+		h.log.Errorf("error while creating the user, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (h *userRepo) Upsert(usr []*user.User) error {
+	err := h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(usr).Error
 	if err != nil {
 		h.log.Errorf("error while creating the user, reason : %v", err)
 		return err

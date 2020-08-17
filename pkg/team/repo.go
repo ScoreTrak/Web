@@ -7,5 +7,6 @@ type Repo interface {
 	GetAll() ([]*Team, error)
 	GetByID(id uuid.UUID) (*Team, error)
 	Store(u []*Team) error
+	Upsert(u []*Team) error
 	Update(u *Team) error
 }
