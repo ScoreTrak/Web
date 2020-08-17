@@ -139,7 +139,7 @@ func (u *teamController) GetAll(c *gin.Context) {
 
 	for i, _ := range tScoreTrak {
 		for j, _ := range tWeb {
-			if tScoreTrak[i].ID == tWeb[j].ID && tWeb[j].Name == "Black Team" {
+			if tScoreTrak[i].ID == tWeb[j].ID && tWeb[j].Name != "Black Team" {
 				tWeb[j].Enabled = tScoreTrak[i].Enabled
 				response = append(response, tWeb[j])
 			}
