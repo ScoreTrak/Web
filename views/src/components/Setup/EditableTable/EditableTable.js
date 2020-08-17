@@ -34,7 +34,6 @@ export default function Setup(props) {
                     }
                     return{...prevState, columns: columns,
                     }})
-                console.log("Got Here!")
                 }
         }
 

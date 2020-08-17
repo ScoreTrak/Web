@@ -59,7 +59,7 @@ export default function EditableTable(props) {
     };
 
     const dt = props.dt
-    let teamNames = []
+    let teamNamesSet = new Set();
     let data = {}
     let dataKeys = new Set();
     if ("Teams" in dt){
@@ -86,7 +86,7 @@ export default function EditableTable(props) {
                                     dataKeys.add(keyName)
                                 }
                             }
-                            teamNames.push(dt["Teams"][team]["Name"])
+                            teamNamesSet.add(dt["Teams"][team]["Name"])
                             data[dt["Teams"][team]["Name"]] = {service: serviceAggregator, Address:dt["Teams"][team]["Hosts"][host]["Address"]}
                         }
                     }
@@ -94,7 +94,8 @@ export default function EditableTable(props) {
             }
         }
     }
-    let dataKeysArray = [...dataKeys]
+    const dataKeysArray = [...dataKeys]
+    const teamNames = [...teamNamesSet]
     return (
         <Paper className={classes.root}>
             <TableContainer className={classes.container}>
