@@ -21,6 +21,7 @@ function App() {
   }
   const [darkState, setDarkState] = useState(isDarkTheme);
   const [authExists, setAuthExists] = useState(AuthService.isAValidToken());
+  const [LoginMessage, setLoginMessage] = useState("");
 
   useEffect(() => {
     if (!authExists){
@@ -53,9 +54,11 @@ function App() {
         {authExists ?
             <Router>
               <Switch>
-                <Route exact path="/login" component={Login} />
+                <Route exact path="/login" render={(props) => (
+                    <Login {...props} message={LoginMessage} setMessage={setLoginMessage} setDarkState={setDarkState} darkState={darkState}/>
+                )} />
                 <Route path="/"   render={(props) => (
-                    <Dashboard {...props} setDarkState={setDarkState} darkState={darkState}/>
+                    <Dashboard {...props} setLoginMessage={setLoginMessage} setDarkState={setDarkState} darkState={darkState}/>
                 )} />
               </Switch>
             </Router>

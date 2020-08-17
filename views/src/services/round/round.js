@@ -1,16 +1,14 @@
-import axios from "axios";
-import authHeader from "../auth/auth-header";
+import generic from "../generic";
 
-export const getLastNonElapsingRound = () => {
-    return axios.get("/api/last_non_elapsing/", {headers: authHeader()}).then( response =>
-        {
-            if (response.data) {
-                return response.data;
-            }
-        }
-    );
+export const GetLastNoneElapsingRound = () => {
+    return generic.GenericGetAll("/api/last_non_elapsing/")
+};
+
+export const GetAll = () => {
+    return generic.GenericGetAll("/api/round/")
 };
 
 export default {
-    getLastNonElapsingRound
+    GetLastNoneElapsingRound,
+    GetAll
 }

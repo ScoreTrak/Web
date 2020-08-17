@@ -14,6 +14,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { useForm } from "react-hook-form";
 
 
+
 const useStyles = makeStyles((theme) => ({
     paper: {
         marginTop: theme.spacing(8),
@@ -41,20 +42,20 @@ const Login = (props) => {
     const classes = useStyles();
     const { register, handleSubmit, errors} = useForm();
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
+    const setMessage = props.setMessage
+    const message = props.message
     const handleLogin = (values) => {
         setMessage("");
         setLoading(true);
         AuthService.login(values.username, values.password).then(
             () => {
+                setMessage("")
                 props.history.push("/");
             },
             (error) => {
                 const resMessage =
-                    (error.response &&
-                        error.response.data &&
-                        error.response.data.message) ||
-                    error.message ||
+                    (error.response
+                        && error.response.data && (error.response.data.message || error.response.data.error) ) ||
                     error.toString();
 
                 setLoading(false);

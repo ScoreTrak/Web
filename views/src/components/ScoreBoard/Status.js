@@ -10,74 +10,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import AuthService from "../../services/auth/auth";
 
-const columns = [
-    // { id: 'name', label: 'Name', minWidth: 170 },
-    { id: 'code', label: 'ISO\u00a0Code', minWidth: 100 },
-    {
-        id: 'population',
-        label: 'Population',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toLocaleString('en-US'),
-    },
-    {
-        id: 'size',
-        label: 'Size\u00a0(km\u00b2)',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toLocaleString('en-US'),
-    },
-    {
-        id: 'density',
-        label: 'Density',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toFixed(2),
-    },
-    {
-        id: 'density',
-        label: 'Density',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toFixed(2),
-    },
-    {
-        id: 'density',
-        label: 'Density',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toFixed(2),
-    },
-    {
-        id: 'density',
-        label: 'Density',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toFixed(2),
-    },
-    {
-        id: 'density',
-        label: 'Density',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toFixed(2),
-    },
-    {
-        id: 'density',
-        label: 'Density',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toFixed(2),
-    },
-    {
-        id: 'density',
-        label: 'Density',
-        minWidth: 170,
-        align: 'right',
-        format: (value) => value.toFixed(2),
-    },
-];
 
 const useStyles = makeStyles({
     root: {
@@ -86,13 +20,22 @@ const useStyles = makeStyles({
     container: {
         maxHeight: 440,
     },
+    tableNavigator:{
+        marginRight: "5vh",
+        marginLeft: "5vh"
+    }
 });
 
-export default function Uptime(props) {
+export default function EditableTable(props) {
     const classes = useStyles();
     const [rowPage, setRowPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [dense, setDense] = React.useState(false);
+    const [hideAddresses, setHideAddresses] = React.useState(false);
+
+    const handleHideAddresses = (event) => {
+        setHideAddresses(event.target.checked);
+    };
     const handleRowChangePage = (event, newPage) => {
         setRowPage(newPage);
     };
@@ -161,13 +104,12 @@ export default function Uptime(props) {
                         <TableRow>
                             <TableCell
                                 key="name"
-                                style={{ minWidth: 170 }}
                             >
                                 Team Name
                             </TableCell>
 
                             {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
-                                <TableCell
+                                <TableCell align="center"
                                     key={column}
                                 >
                                     {column}
@@ -192,9 +134,9 @@ export default function Uptime(props) {
                                                 }
                                                 return {backgroundColor: "red", color: "white"}
                                             }
-                                        })()}
+                                        })()} align="center"
                                         >
-                                            {(() => {
+                                            {!hideAddresses && data[name]["service"][column] && (() => {
                                                 let msg = ""
                                                 if (data[name]["Address"]) {
                                                     msg += data[name]["Address"]
@@ -215,29 +157,36 @@ export default function Uptime(props) {
                 </Table>
                 </div>
             </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 100]}
-                component="div"
-                count={teamNames.length}
-                rowsPerPage={rowsPerPage}
-                page={rowPage}
-                onChangePage={handleRowChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-            <TablePagination
-                labelRowsPerPage="Columns per page"
-                rowsPerPageOptions={[5, 10, 25, 100]}
-                component="div"
-                count={columns.length}
-                rowsPerPage={columnsPerPage}
-                page={columnPage}
-                onChangePage={handleColumnChangePage}
-                onChangeRowsPerPage={handleChangeColumnsPerPage}
-            />
-            <FormControlLabel
-                control={<Switch checked={dense} onChange={handleChangeDense} />}
-                label="Dense padding"
-            />
+            <div style={{display:"flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+                <TablePagination className={classes.tableNavigator}
+                    rowsPerPageOptions={[1, 5, 10, 25, 100]}
+                    component="div"
+                    count={teamNames.length}
+                    rowsPerPage={rowsPerPage}
+                    page={rowPage}
+                    onChangePage={handleRowChangePage}
+                    onChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+                <FormControlLabel className={classes.tableNavigator}
+                                  control={<Switch checked={dense} onChange={handleChangeDense} />}
+                                  label="Dense padding"
+                />
+                <FormControlLabel className={classes.tableNavigator}
+                                  control={<Switch checked={hideAddresses} onChange={handleHideAddresses} />}
+                                  label={"Hide Addresses"}
+                />
+                <TablePagination
+                    labelRowsPerPage="Columns per page"
+                    rowsPerPageOptions={[1, 5, 10, 25, 100]}
+                    component="div"
+                    count={dataKeysArray.length}
+                    rowsPerPage={columnsPerPage}
+                    page={columnPage}
+                    className={classes.tableNavigator}
+                    onChangePage={handleColumnChangePage}
+                    onChangeRowsPerPage={handleChangeColumnsPerPage}
+                />
+            </div>
         </Paper>
     );
 }

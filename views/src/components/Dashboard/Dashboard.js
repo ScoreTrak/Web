@@ -12,22 +12,24 @@ import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { mainListItems } from "./listItems";
+import { mainListItems, adminListItems } from "./listItems";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import ScoreBoard from "../ScoreBoard/ScoreBoard";
 import AuthService from "../../services/auth/auth";
-import {Link} from "react-router-dom";
+import {Link, Route} from "react-router-dom";
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
+import CloseIcon from '@material-ui/icons/Close';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import {Alert} from "@material-ui/lab";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import Settings from "../Admin/Settings";
+import Setup from "../Setup/Setup";
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -104,7 +106,7 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "column"
   },
   fixedHeight: {
-    height: '87vh'
+    height: '85vh'
   },
   fullSizeHeight: {
     height: '100vh'
@@ -119,13 +121,13 @@ export default function Dashboard(props) {
   const setDarkState = props.setDarkState
   const darkState = props.darkState
   const classes = useStyles();
-  const handleThemeChange = () => {
-    if (localStorage.getItem("theme") === "dark"){
-      localStorage.setItem("theme", "light")
-    } else{
+  const handleThemeChange = (e) => {
+    if (e.target.checked){
       localStorage.setItem("theme", "dark")
+    } else{
+      localStorage.setItem("theme", "light")
     }
-    setDarkState(!darkState);
+    setDarkState(e.target.checked);
   };
 
   const handleDrawerOpen = () => {
@@ -136,6 +138,23 @@ export default function Dashboard(props) {
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   const fullSizeHeightPaper = clsx(classes.paper, classes.fullSizeHeight);
+
+  const errorSetter = (error) => {
+    let resMessage =
+        (error.response
+            && error.response.data && ( error.response.data.message || error.response.data.error) ) ||
+        error.toString();
+    if (error.response.status === 403){
+      props.history.push("/login");
+      props.setLoginMessage("You need to Log-in in order to access this resource")
+    } else {
+      if (typeof resMessage != "string"){
+        resMessage = "The request was invalid"
+      }
+      setErrorMessage(resMessage)
+    }
+  }
+
 
   const logout = () => {
     AuthService.logout()
@@ -172,7 +191,20 @@ export default function Dashboard(props) {
             >{Title}
             </Typography>
             {errorMessage && (
-                <Alert severity="error">{errorMessage}</Alert>
+                <Alert severity="error"
+                       action={
+                         <IconButton
+                             aria-label="close"
+                             color="inherit"
+                             size="small"
+                             onClick={() => {
+                               setErrorMessage("");
+                             }}
+                         >
+                           <CloseIcon fontSize="inherit" />
+                         </IconButton>
+                       }
+                >{errorMessage}</Alert>
             )}
           </Toolbar>
         </AppBar>
@@ -193,6 +225,13 @@ export default function Dashboard(props) {
           <List>
             {mainListItems}
           </List>
+          {
+            AuthService.getCurrentRole() === "black" &&
+            <List>
+              <Divider/>
+                {adminListItems}
+            </List>
+          }
           <Divider/>
           {
             !AuthService.isAValidRole() ?
@@ -211,18 +250,26 @@ export default function Dashboard(props) {
 
                 </ListItem>
           }
-
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          <Container maxWidth="100%" className={classes.container}>
+          <Container maxWidth="xl" className={classes.container}>
             <Grid container spacing={3}>
-              <Grid item xs={12} direction="column">
-                  <FullScreen handle={handleFullScreen}>
-                    <Paper className={handleFullScreen.active ? fullSizeHeightPaper : fixedHeightPaper}>
-                      <ScoreBoard isDarkTheme={darkState} setTitle={setTitle} setError={setErrorMessage} handleFullScreen={handleFullScreen}/>
-                    </Paper>
-                  </FullScreen>
+              <Grid item xs={12}>
+                <Route exact path={["/", "/ranks"]} render={() => (
+                    <FullScreen handle={handleFullScreen}>
+
+                        <ScoreBoard errorSetter={errorSetter} isDarkTheme={darkState} setTitle={setTitle} setError={setErrorMessage} handleFullScreen={handleFullScreen} fullSizeHeightPaper={fullSizeHeightPaper} fixedHeightPaper={fixedHeightPaper}/>
+
+                    </FullScreen>
+                )} />
+                <Route exact path="/settings" render={() => (
+                    <Settings errorSetter={errorSetter} isDarkTheme={darkState} setTitle={setTitle} setError={setErrorMessage} classesPaper={classes.paper}/>
+                )} />
+                <Route path="/setup" render={() => (
+                    <Setup errorSetter={errorSetter} isDarkTheme={darkState} setTitle={setTitle} setError={setErrorMessage} classesPaper={classes.paper}/>
+                )} />
+
               </Grid>
             </Grid>
           </Container>

@@ -1,16 +1,11 @@
-import axios from "axios";
-import authHeader from "../auth/auth-header";
+import generic from "../generic";
 
 const API_URL = "/api/report/";
 
-const getReport = () => {
-    return axios.get(API_URL, {headers: authHeader()}).then((response) => {
-        if (response.data) {
-            return response.data;
-        }
-    });
+const Get = () => {
+    return generic.GenericGetAll(API_URL)
 };
 
 export default {
-    getReport
+    Get
 }

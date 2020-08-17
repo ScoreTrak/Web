@@ -1,10 +1,10 @@
 import generic from "../generic"
 
-const API_URL = "/api/user/";
+const API_URL = "/api/service_group/";
 
 
-const Create = (users) => { return generic.GenericCreate(API_URL, users) };
-const Update = (id, user) => { return generic.GenericUpdate(API_URL, id, user) };
+const Create = (service_group) => { return generic.GenericCreate(API_URL, service_group) };
+const Update = (id, service_group) => { return generic.GenericUpdate(API_URL, id, service_group) };
 const GetByID = (id) => { return generic.GenericGetByID(API_URL, id) };
 const GetAll = () => { return generic.GenericGetAll(API_URL) };
 const Delete = (id) => { return generic.GenericDelete(API_URL, id) };
