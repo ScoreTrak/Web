@@ -16,9 +16,7 @@ import AuthService from "../../services/auth/auth";
 const useStyles = makeStyles({
     root: {
         width: '100%',
-    },
-    container: {
-        maxHeight: 440,
+        height: '100%'
     },
     tableNavigator:{
         marginRight: "5vh",
@@ -29,7 +27,7 @@ const useStyles = makeStyles({
 export default function EditableTable(props) {
     const classes = useStyles();
     const [rowPage, setRowPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [rowsPerPage, setRowsPerPage] = React.useState(25);
     const [dense, setDense] = React.useState(false);
     const [hideAddresses, setHideAddresses] = React.useState(false);
 
@@ -98,7 +96,7 @@ export default function EditableTable(props) {
     const teamNames = [...teamNamesSet]
     return (
         <Paper className={classes.root}>
-            <TableContainer className={classes.container}>
+            <TableContainer>
                 <div>
                 <Table stickyHeader aria-label="sticky table" size={dense ? 'small' : 'medium'}>
                     <TableHead>
