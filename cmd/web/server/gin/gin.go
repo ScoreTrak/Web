@@ -135,6 +135,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		}
 
 		serviceGroupRoute := api.Group("/service_group")
+		serviceGroupRedeploy := api.Group("/service_group_redeploy")
 		{
 			sctrl := handler.NewServiceGroupController(ds.logger, cStore)
 			serviceGroupRoute.GET("/", sctrl.GetAll)
@@ -142,6 +143,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 			serviceGroupRoute.GET("/:id", sctrl.GetByID)
 			serviceGroupRoute.PATCH("/:id", sctrl.Update)
 			serviceGroupRoute.DELETE("/:id", sctrl.Delete)
+			serviceGroupRedeploy.GET("/:id", sctrl.Redeploy)
 		}
 
 		hostGroupRoute := api.Group("/host_group")
