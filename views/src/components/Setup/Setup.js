@@ -183,7 +183,7 @@ export default function Setup(props) {
                                { title: 'Service Group Name', field: 'name' },
                                { title: 'Enabled', field: 'enabled', type: 'boolean' },
                                { title: 'Skip Helper(Skips autodeploy of workers)', field: 'skip_helper', type: 'boolean' },
-                               { title: 'Label(Workers would be deployed on nodes with the following label)', field: 'label' },
+                               { title: 'Label(Workers would be deployed on nodes with the following label)', field: 'label', editable: 'onAdd'},
                            ]
                        //ToDo: FigureOut Worker Reload functionality https://material-table.com/#/docs/features/actions
                        //ToDo: Allow Same for Service testing https://material-table.com/#/docs/features/actions
