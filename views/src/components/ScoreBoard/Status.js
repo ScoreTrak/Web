@@ -93,6 +93,7 @@ export default function EditableTable(props) {
     }
     const dataKeysArray = [...dataKeys]
     const teamNames = [...teamNamesSet]
+    teamNames.sort()
     return (
         <Paper className={classes.root}>
             <TableContainer>
