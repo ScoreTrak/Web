@@ -145,7 +145,7 @@ export default function Setup(props) {
                                { title: 'Description', field: 'description'},
                                { title: 'Service ID', field: 'service_id'},
                            ]
-
+                        //ToDo: Show required properties for a given service
                        return Table(props, title, isDependant, columns, false, PropertyService, owningService, fieldForLookup, owningFieldLookup)
                    })()}
                </div>
@@ -197,3 +197,5 @@ export default function Setup(props) {
 }
 
 //ToDo: Allow Chaining of the foreign IDs
+
+//Todo: Add ID propagation all the way to Team Element
