@@ -10,7 +10,6 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-import AuthService from "../../services/auth/auth";
 
 
 const useStyles = makeStyles({
@@ -43,7 +42,7 @@ export default function EditableTable(props) {
     };
     
     const [columnPage, setColumnPage] = React.useState(0);
-    const [columnsPerPage, setColumnsPerPage] = React.useState(10);
+    const [columnsPerPage, setColumnsPerPage] = React.useState(25);
     const handleColumnChangePage = (event, newPage) => {
         setColumnPage(newPage);
     };
