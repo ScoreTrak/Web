@@ -180,9 +180,9 @@ export default function Setup(props) {
                        const columns=
                            [
                                { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-                               { title: 'Service Group Name', field: 'name' },
-                               { title: 'Enabled', field: 'enabled', type: 'boolean' },
-                               { title: 'Skip Helper(Skips autodeploy of workers)', field: 'skip_helper', type: 'boolean' },
+                               { title: 'Service Group Name', field: 'name', editable: 'onAdd' },
+                               { title: 'Enabled', field: 'enabled', type: 'boolean'},
+                               { title: 'Skip Helper(Skips autodeploy of workers)', field: 'skip_helper', type: 'boolean', editable: 'onAdd' },
                                { title: 'Label(Workers would be deployed on nodes with the following label)', field: 'label', editable: 'onAdd'},
                            ]
                        //ToDo: FigureOut Worker Reload functionality https://material-table.com/#/docs/features/actions
