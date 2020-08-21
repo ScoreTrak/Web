@@ -65,3 +65,21 @@ func (u *serviceController) Update(c *gin.Context) {
 	us := &service.Service{}
 	genericUpdate(c, "Update", u.client.ServiceClient, us, u.log)
 }
+
+func (u *serviceController) TestService(c *gin.Context) {
+	id, _ := UuidResolver(c, "id")
+	role := roleResolver(c)
+	TeamID := teamIDResolver(c)
+	if role == "blue" {
+		tID, _, err := teamIDFromService(u.client, id)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if tID != TeamID {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not access this object"})
+			return
+		}
+	}
+	genericGetByID(c, "TestService", u.client.ServiceClient, u.log)
+}

@@ -114,11 +114,14 @@ func (ds *dserver) MapRoutesAndStart() error {
 		}
 
 		serviceRoute := api.Group("/service")
+		serviceTestRoute := api.Group("/service_test")
 		{
 			sctrl := handler.NewServiceController(ds.logger, cStore)
 			serviceRoute.GET("/", sctrl.GetAll)
 			serviceRoute.POST("/", sctrl.Store)
 			serviceRoute.GET("/:id", sctrl.GetByID)
+			serviceTestRoute.GET("/:id", sctrl.TestService)
+
 			serviceRoute.PATCH("/:id", sctrl.Update)
 			serviceRoute.DELETE("/:id", sctrl.Delete)
 		}
