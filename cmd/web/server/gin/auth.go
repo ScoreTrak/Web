@@ -123,6 +123,8 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 								return true
 							case "/api/report/":
 								return true
+							case "/api/policy/":
+								return true
 							}
 						}
 					} else if c.Request.Method == "PATCH" {
@@ -148,9 +150,17 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 							}
 						}
 					}
-				} else if v.Role == role.Anonymous && c.Request.Method == "GET" && (c.Request.URL.String() == "/api/report/" || c.Request.URL.String() == "/api/last_non_elapsing/") {
+				} else if v.Role == role.Anonymous && c.Request.Method == "GET" {
 					p := a.ClientStore.PolicyClient.GetPolicy()
 					if *p.AllowUnauthenticatedUsers {
+						switch c.Request.URL.String() {
+						case "/api/report/":
+							return true
+						case "/api/last_non_elapsing/":
+							return true
+						}
+					}
+					if c.Request.URL.String() == "/api/policy/" {
 						return true
 					}
 				}

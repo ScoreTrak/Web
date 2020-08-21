@@ -62,6 +62,8 @@ github.com/ScoreTrak/ScoreTrak v0.0.0-20200820181624-5d97bbee7b48 h1:my88JGet2/a
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200820181624-5d97bbee7b48/go.mod h1:AXzQKX/d0Yi2iLrPRY6uRDFhcJAcFlfcl4BbZb16/zk=
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200820182114-73037358bdb3 h1:xrX1EitHWMaLF4V4AwNwR4iDhibY3RXLwdUE/u9xUvI=
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200820182114-73037358bdb3/go.mod h1:AXzQKX/d0Yi2iLrPRY6uRDFhcJAcFlfcl4BbZb16/zk=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200821010115-fec5d2e12ad1 h1:LDv59ccyIJYHHlVvxdi+F8mQPmU3/6YHSGUP5lrmQBA=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200821010115-fec5d2e12ad1/go.mod h1:AXzQKX/d0Yi2iLrPRY6uRDFhcJAcFlfcl4BbZb16/zk=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/appleboy/gin-jwt/v2 v2.6.3 h1:aK4E3DjihWEBUTjEeRnGkA5nUkmwJPL1CPonMa2usRs=
 github.com/appleboy/gin-jwt/v2 v2.6.3/go.mod h1:MfPYA4ogzvOcVkRwAxT7quHOtQmVKDpTwxyUrC2DNw0=
