@@ -13,23 +13,6 @@ import SettingsApplicationsIcon from '@material-ui/icons/SettingsApplications';
 import TextFieldsIcon from '@material-ui/icons/TextFields';
 import FlipCameraAndroidIcon from '@material-ui/icons/FlipCameraAndroid';
 
-export const mainListItems = (
-  <div>
-    <ListItem button component={Link} to="/ranks">
-      <ListItemIcon>
-        <BarChartIcon/>
-      </ListItemIcon>
-      <ListItemText primary="Ranks" />
-    </ListItem>
-    <ListItem button component={Link} to="/">
-      <ListItemIcon>
-        <CheckCircleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Status" />
-    </ListItem>
-  </div>
-);
-
 export const adminListItems = (
     <div>
         <ListItem button component={Link} to="/settings">
@@ -88,5 +71,6 @@ export const adminListItems = (
             </ListItemIcon>
             <ListItemText primary="Show Rounds Logs" />
         </ListItem>
+
     </div>
 );

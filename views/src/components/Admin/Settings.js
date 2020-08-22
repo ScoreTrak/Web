@@ -145,7 +145,7 @@ export default function Settings(props) {
         formData.append("file", document.getElementById('file').files[0]);
         CompetitionService.LoadCompetition(formData).then(() => {
             document.getElementById('file').value = ""
-            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter)
+            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter).then(() => {props.setAlert({message: "Success!", severity: "success"})})
             setFileSelected({selected: false, name: ""})
         }, props.errorSetter)
         handleClose()
@@ -450,3 +450,5 @@ export default function Settings(props) {
         </Paper>
     );
 }
+
+//Todo: Delete and reset could be very lengthy, use spinner to indicate that process is ongoing, until request doesn't come back

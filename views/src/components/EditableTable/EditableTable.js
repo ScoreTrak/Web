@@ -61,6 +61,18 @@ export default function Setup(props) {
                         title={props.title}
                         columns={state.columns}
                         data={state.data}
+                        actions={(() => {
+                            let arr = []
+                            for (let i = 0; i < props.additionalActions.length; i++){
+                                arr.push({...props.additionalActions[i], onClick: ((event, rowData) => { return props.additionalActions[i].onFuncClick(event, rowData).then( async () =>{
+                                        reloadSetter()
+                                    }, (error) => {
+                                        reloadSetter()
+                                        props.errorSetter(error)
+                                    })})  })
+                            }
+                            return arr
+                        })()}
                         options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
                         editable={props.editable &&{
                             onRowAdd: (newData) =>
@@ -101,7 +113,9 @@ export default function Setup(props) {
                                                     }
                                                 }
                                             }
-                                            props.service.Update(oldData.id, finalObj).then( async () =>{
+                                            props.service.Update(...props.idFields.map(id => {
+                                                return oldData[id]
+                                            }), finalObj).then( async () =>{
                                                 reloadSetter()
                                             }, (error) => {
                                                 reloadSetter()
@@ -119,7 +133,10 @@ export default function Setup(props) {
                                             data.splice(data.indexOf(oldData), 1);
                                             return { ...prevState, data };
                                         });
-                                        props.service.Delete(oldData.id).then( async () =>{
+
+                                        props.service.Delete(...props.idFields.map(id => {
+                                            return oldData[id]
+                                        })).then( async () =>{
                                             reloadSetter()
                                         }, (error) => {
                                             reloadSetter()

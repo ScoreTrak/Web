@@ -114,11 +114,14 @@ func (ds *dserver) MapRoutesAndStart() error {
 		}
 
 		serviceRoute := api.Group("/service")
+		serviceTestRoute := api.Group("/service_test")
 		{
 			sctrl := handler.NewServiceController(ds.logger, cStore)
 			serviceRoute.GET("/", sctrl.GetAll)
 			serviceRoute.POST("/", sctrl.Store)
 			serviceRoute.GET("/:id", sctrl.GetByID)
+			serviceTestRoute.GET("/:id", sctrl.TestService)
+
 			serviceRoute.PATCH("/:id", sctrl.Update)
 			serviceRoute.DELETE("/:id", sctrl.Delete)
 		}
@@ -135,6 +138,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 		}
 
 		serviceGroupRoute := api.Group("/service_group")
+		serviceGroupRedeploy := api.Group("/service_group_redeploy")
 		{
 			sctrl := handler.NewServiceGroupController(ds.logger, cStore)
 			serviceGroupRoute.GET("/", sctrl.GetAll)
@@ -142,6 +146,7 @@ func (ds *dserver) MapRoutesAndStart() error {
 			serviceGroupRoute.GET("/:id", sctrl.GetByID)
 			serviceGroupRoute.PATCH("/:id", sctrl.Update)
 			serviceGroupRoute.DELETE("/:id", sctrl.Delete)
+			serviceGroupRedeploy.GET("/:id", sctrl.Redeploy)
 		}
 
 		hostGroupRoute := api.Group("/host_group")
@@ -182,14 +187,15 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		}
 
-		propertyRoute := api.Group("/property")
 		{
 			hctrl := handler.NewPropertyController(ds.logger, cStore)
-			propertyRoute.GET("/", hctrl.GetAll)
-			propertyRoute.POST("/", hctrl.Store)
-			propertyRoute.GET("/:id", hctrl.GetByID)
-			propertyRoute.PATCH("/:id", hctrl.Update)
-			propertyRoute.DELETE("/:id", hctrl.Delete)
+
+			api.GET("/properties", hctrl.GetAll)
+			api.GET("/properties/:ServiceID", hctrl.GetAllByServiceID)
+			api.POST("/property", hctrl.Store)
+			api.GET("/property/:ServiceID/:Key", hctrl.GetByServiceIDKey)
+			api.DELETE("/property/:ServiceID/:Key", hctrl.Delete)
+			api.PATCH("/property/:ServiceID/:Key", hctrl.Update)
 		}
 
 		reportRoute := api.Group("/report")

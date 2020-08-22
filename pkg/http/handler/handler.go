@@ -6,17 +6,10 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	shandler "github.com/ScoreTrak/ScoreTrak/pkg/api/handler"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/Web/pkg/policy"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
@@ -140,24 +133,32 @@ func UuidResolver(c *gin.Context, param string) (uuid.UUID, error) {
 	return uuid.FromString(idParam)
 }
 
-type ClientStore struct {
-	StaticConfigClient config.StaticServ
-	ConfigClient       config.Serv
-	TeamClient         team.Serv
-	HostClient         host.Serv
-	ServiceClient      service.Serv
-	ServiceGroupClient service_group.Serv
-	HostGroupClient    host_group.Serv
-	PropertyClient     property.Serv
-	RoundClient        round.Serv
-	CheckClient        check.Serv
-	ReportClient       report.Serv
-	PolicyClient       *policy.Client
-	CompetitionClient  competition.Serv
+func ParamResolver(c *gin.Context, param string) (string, error) {
+	idParam := c.Param(param)
+	if idParam == "" {
+		return "", errors.New(fmt.Sprintf("%s parameter was not identified", param))
+	}
+	return idParam, nil
 }
 
-func teamIDFromProperty(c *ClientStore, propertyID uuid.UUID) (teamID uuid.UUID, property *property.Property, err error) {
-	property, err = c.PropertyClient.GetByID(propertyID)
+type ClientStore struct {
+	StaticConfigClient *client.StaticConfigClient
+	ConfigClient       *client.ConfigClient
+	TeamClient         *client.TeamClient
+	HostClient         *client.HostClient
+	ServiceClient      *client.ServiceClient
+	ServiceGroupClient *client.ServiceGroupClient
+	HostGroupClient    *client.HostGroupClient
+	PropertyClient     *client.PropertyClient
+	RoundClient        *client.RoundClient
+	CheckClient        *client.CheckClient
+	ReportClient       *client.ReportClient
+	PolicyClient       *policy.Client
+	CompetitionClient  *client.CompetitionClient
+}
+
+func teamIDFromProperty(c *ClientStore, propertyID uuid.UUID, key string) (teamID uuid.UUID, property *property.Property, err error) {
+	property, err = c.PropertyClient.GetByServiceIDKey(propertyID, key)
 	if err != nil || property == nil {
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type serviceGroupController struct {
@@ -31,6 +32,20 @@ func (u *serviceGroupController) GetByID(c *gin.Context) {
 
 func (u *serviceGroupController) GetAll(c *gin.Context) {
 	genericGet(c, "GetAll", u.client.ServiceGroupClient, u.log)
+}
+
+func (u *serviceGroupController) Redeploy(c *gin.Context) {
+	id, err := UuidResolver(c, "id")
+	if err != nil {
+		u.log.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err = u.client.ServiceGroupClient.Redeploy(id)
+	if err != nil {
+		ClientErrorHandler(c, u.log, err)
+		return
+	}
 }
 
 func (u *serviceGroupController) Update(c *gin.Context) {

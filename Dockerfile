@@ -11,6 +11,5 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 RUN go mod tidy
 RUN go build -o web cmd/web/main.go
-RUN go build -o jobs cmd/jobs/main.go
-RUN chmod +x web jobs
+RUN chmod +x web
 RUN cd views && npm install && npm run build

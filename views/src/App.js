@@ -11,6 +11,7 @@ import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import {deepOrange, deepPurple, lightBlue, orange} from "@material-ui/core/colors";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AuthService from "./services/auth/auth";
+import PolicyService from "./services/policy/policy";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 
@@ -21,14 +22,28 @@ function App() {
   }
   const [darkState, setDarkState] = useState(isDarkTheme);
   const [authExists, setAuthExists] = useState(AuthService.isAValidToken());
+  const [currentPolicy, setPolicy] = useState(undefined);
   const [LoginMessage, setLoginMessage] = useState("");
 
+  const updatePolicy = () =>{
+    PolicyService.Get().then(response => {
+      setPolicy(response)
+    })
+
+  }
   useEffect(() => {
     if (!authExists){
     AuthService.logAnonymousUser().then(() => {
           setAuthExists(true)
-        },
-    )}
+         updatePolicy()
+        })
+    } else if (!currentPolicy){
+       updatePolicy()
+    }
+    const policyUpdateInterval = setInterval(() => {
+      updatePolicy()
+    }, 60000);
+    return () => clearInterval(policyUpdateInterval);
   }, []);
 
 
@@ -51,14 +66,14 @@ function App() {
     <div className="App">
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        {authExists ?
+        {authExists && currentPolicy ?
             <Router>
               <Switch>
                 <Route exact path="/login" render={(props) => (
                     <Login {...props} message={LoginMessage} setMessage={setLoginMessage} setDarkState={setDarkState} darkState={darkState}/>
                 )} />
                 <Route path="/"   render={(props) => (
-                    <Dashboard {...props} setLoginMessage={setLoginMessage} setDarkState={setDarkState} darkState={darkState}/>
+                    <Dashboard {...props} currentPolicy={currentPolicy} setLoginMessage={setLoginMessage} setDarkState={setDarkState} darkState={darkState}/>
                 )} />
               </Switch>
             </Router>

@@ -63,7 +63,6 @@ func (u *reportController) Get(c *gin.Context) {
 						delete(simpleReport.Teams[t].Hosts[h].Services, s)
 						continue
 					}
-
 				}
 			}
 		}
@@ -81,13 +80,14 @@ func (u *reportController) Get(c *gin.Context) {
 						}
 					}
 					simpleReport.Teams[t].Hosts[h].Services[s].Properties = propFilterHide
-
 					if t != tID {
 						simpleReport.Teams[t].Hosts[h].Services[s].Err = ""
 						simpleReport.Teams[t].Hosts[h].Services[s].Log = ""
 						prop := map[string]*report.SimpleProperty{}
-						if port, ok := simpleReport.Teams[t].Hosts[h].Services[s].Properties["Port"]; ok && !*p.ShowAddresses {
-							prop["Port"] = port
+						if *p.ShowAddresses {
+							if val, ok := simpleReport.Teams[t].Hosts[h].Services[s].Properties["Port"]; ok {
+								prop["Port"] = val
+							}
 						}
 						simpleReport.Teams[t].Hosts[h].Services[s].Properties = prop
 						if !*p.ShowPoints {
@@ -108,6 +108,12 @@ func (u *reportController) Get(c *gin.Context) {
 	c.JSON(200, simpleReport)
 
 }
+
+//Fully rely on Randomness of UUIDs to save some bandwith.  Randomize UUIDs using report.
+
+//AND / OR
+
+//Expose endpoints for bulk query (WHERE CLAUSE)
 
 func (u *reportController) GetByTeamID(c *gin.Context) {
 	lr, err := u.client.ReportClient.Get()

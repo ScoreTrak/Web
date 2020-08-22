@@ -94,15 +94,17 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 					return true
 				} else if v.Role == role.Blue {
 					if c.Request.Method == "GET" {
-						rts := []string{"/api/property/", "/api/service/", "/api/host/", "/api/check/", "/api/last_non_elapsing/", "/api/report/"}
+						rts := []string{"/api/property/", "/api/properties/", "/api/service/", "/api/host/", "/api/check/", "/api/last_non_elapsing/", "/api/report/", "/api/policy/"}
 						pre, ok := containsPrefix(c.Request.URL.String(), rts)
 						if ok {
 							switch pre {
 							case "/api/property/":
-								_, err := handler.UuidResolver(c, "id")
-								if err == nil {
+								_, err := handler.UuidResolver(c, "ServiceID")
+								_, err2 := handler.ParamResolver(c, "Key")
+								if err == nil && err2 == nil {
 									return true
 								}
+
 							case "/api/service/":
 								_, err := handler.UuidResolver(c, "id")
 								if err == nil {
@@ -123,12 +125,20 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 								return true
 							case "/api/report/":
 								return true
+							case "/api/policy/":
+								return true
+							case "/api/properties/":
+								_, err := handler.UuidResolver(c, "ServiceID")
+								if err == nil {
+									return true
+								}
 							}
 						}
 					} else if c.Request.Method == "PATCH" {
 						if strings.HasPrefix(c.Request.URL.String(), "/api/property/") {
-							_, err := handler.UuidResolver(c, "id")
-							if err == nil {
+							_, err := handler.UuidResolver(c, "ServiceID")
+							_, err2 := handler.ParamResolver(c, "Key")
+							if err == nil && err2 == nil {
 								return true
 							}
 						}
@@ -148,9 +158,17 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 							}
 						}
 					}
-				} else if v.Role == role.Anonymous && c.Request.Method == "GET" && (c.Request.URL.String() == "/api/report/" || c.Request.URL.String() == "/api/last_non_elapsing/") {
+				} else if v.Role == role.Anonymous && c.Request.Method == "GET" {
 					p := a.ClientStore.PolicyClient.GetPolicy()
 					if *p.AllowUnauthenticatedUsers {
+						switch c.Request.URL.String() {
+						case "/api/report/":
+							return true
+						case "/api/last_non_elapsing/":
+							return true
+						}
+					}
+					if c.Request.URL.String() == "/api/policy/" {
 						return true
 					}
 				}

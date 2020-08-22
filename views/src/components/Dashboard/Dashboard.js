@@ -27,7 +27,10 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import {Alert} from "@material-ui/lab";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import Settings from "../Admin/Settings";
-import Setup from "../Setup/Setup";
+import Setup from "../Admin/Setup";
+import BarChartIcon from "@material-ui/icons/BarChart";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import DetailsIcon from "@material-ui/icons/Details";
 
 const drawerWidth = 260;
 
@@ -117,7 +120,7 @@ export default function Dashboard(props) {
 
   const [open, setOpen] = useState(false);
   const [Title, setTitle] = useState("ScoreBoard")
-  const [errorMessage, setErrorMessage] = useState("")
+  const [alert, setAlert] = useState({message: "", severity: ""})
   const setDarkState = props.setDarkState
   const darkState = props.darkState
   const classes = useStyles();
@@ -151,7 +154,7 @@ export default function Dashboard(props) {
       if (typeof resMessage != "string"){
         resMessage = "The request was invalid"
       }
-      setErrorMessage(resMessage)
+      setAlert({message: resMessage, severity: "error"})
     }
   }
 
@@ -190,21 +193,21 @@ export default function Dashboard(props) {
               className={classes.title}
             >{Title}
             </Typography>
-            {errorMessage && (
-                <Alert severity="error"
+            {alert.message && (
+                <Alert severity={alert.severity}
                        action={
                          <IconButton
                              aria-label="close"
                              color="inherit"
                              size="small"
                              onClick={() => {
-                               setErrorMessage("");
+                               setAlert({message: "", severity: ""});
                              }}
                          >
                            <CloseIcon fontSize="inherit" />
                          </IconButton>
                        }
-                >{errorMessage}</Alert>
+                >{alert.message}</Alert>
             )}
           </Toolbar>
         </AppBar>
@@ -223,7 +226,30 @@ export default function Dashboard(props) {
           <Switch checked={darkState} onChange={handleThemeChange} />
           <Divider />
           <List>
-            {mainListItems}
+            <div>
+              {!(AuthService.getCurrentRole() !== "black" && !props.currentPolicy["allow_to_see_points"]) &&
+              <ListItem button component={Link} to="/ranks">
+                <ListItemIcon>
+                  <BarChartIcon/>
+                </ListItemIcon>
+                <ListItemText primary="Ranks" />
+              </ListItem>
+              }
+              <ListItem button component={Link} to="/">
+                <ListItemIcon>
+                  <CheckCircleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Status" />
+              </ListItem>
+              { (AuthService.getCurrentRole() === "blue" || AuthService.getCurrentRole() ==="black") &&
+              <ListItem button component={Link} to="/details">
+                <ListItemIcon>
+                  <DetailsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Last Round Details" />
+              </ListItem>
+              }
+            </div>
           </List>
           {
             AuthService.getCurrentRole() === "black" &&
@@ -256,18 +282,16 @@ export default function Dashboard(props) {
           <Container maxWidth="xl" className={classes.container}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Route exact path={["/", "/ranks"]} render={() => (
+                <Route exact path={["/", "/ranks", "/details"]} render={() => (
                     <FullScreen handle={handleFullScreen}>
-
-                        <ScoreBoard errorSetter={errorSetter} isDarkTheme={darkState} setTitle={setTitle} setError={setErrorMessage} handleFullScreen={handleFullScreen} fullSizeHeightPaper={fullSizeHeightPaper} fixedHeightPaper={fixedHeightPaper}/>
-
+                        <ScoreBoard currentPolicy={props.currentPolicy} errorSetter={errorSetter} isDarkTheme={darkState} setTitle={setTitle} handleFullScreen={handleFullScreen} fullSizeHeightPaper={fullSizeHeightPaper} fixedHeightPaper={fixedHeightPaper}/>
                     </FullScreen>
                 )} />
                 <Route exact path="/settings" render={() => (
-                    <Settings errorSetter={errorSetter} isDarkTheme={darkState} setTitle={setTitle} setError={setErrorMessage} classesPaper={classes.paper}/>
+                    <Settings errorSetter={errorSetter} isDarkTheme={darkState} setAlert={setAlert} setTitle={setTitle} classesPaper={classes.paper}/>
                 )} />
                 <Route path="/setup" render={() => (
-                    <Setup errorSetter={errorSetter} isDarkTheme={darkState} setTitle={setTitle} setError={setErrorMessage} classesPaper={classes.paper}/>
+                    <Setup errorSetter={errorSetter} isDarkTheme={darkState} setAlert={setAlert} setTitle={setTitle} classesPaper={classes.paper}/>
                 )} />
 
               </Grid>

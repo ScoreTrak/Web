@@ -12,6 +12,8 @@ import Button from '@material-ui/core/Button';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import {makeStyles} from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
+import AuthService from "../../services/auth/auth";
+import Details from "./Details";
 
 const fullScreenButtonStyle = {
     position: 'absolute',
@@ -77,12 +79,22 @@ export default function ScoreBoard(props) {
             <Box className={classes.alignItemsAndJustifyContent} height="100%" width="100%"  >
                 { !("loader" in dt) && dt.Round !==0 ?
                     <Box m="auto" height="100%" width="100%">
+                        {
+                            (props.currentPolicy["allow_to_see_points"] || AuthService.getCurrentRole() === "black") &&
                         <Route exact path='/ranks' render={() => (
-                            <Ranks isDarkTheme={darkTheme} dt={dt}/>
-                        )} />
+                            <Ranks DarkTheme={darkTheme} dt={dt}/>
+                        )}/>
+
+                        }
                         <Route exact path='/' render={() => (
-                            <Status isDarkTheme={darkTheme} dt={dt}/>
+                            <Status currentPolicy={props.currentPolicy} isDarkTheme={darkTheme} dt={dt}/>
                         )} />
+
+
+                        <Route exact path='/details' render={() => (
+                            <Details isDarkTheme={darkTheme} dt={dt} errorSetter={props.errorSetter}/>
+                        )} />
+
                     </Box>
                         :
                         <div>

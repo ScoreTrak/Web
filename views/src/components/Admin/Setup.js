@@ -9,10 +9,10 @@ import PropertyService from "../../services/property/properties";
 import RoundsService from "../../services/round/round";
 import UserService from "../../services/users/users";
 
-import EditableTable from "./EditableTable/EditableTable";
-function Table(props, title, isDependant, columns, disallowBulkAdd, service, owningService, fieldForLookup, owningFieldLookup=["id"], editable=true){
+import EditableTable from "../EditableTable/EditableTable";
+function Table(props, title, isDependant, columns, disallowBulkAdd, service, owningService, fieldForLookup, owningFieldLookup=["id"], editable=true, additionalActions=[], idFields=["id"]){
     return <EditableTable {...props} title={title} isDependant={isDependant} columns={columns} service={service} disallowBulkAdd={disallowBulkAdd} owningService={owningService}
-                          fieldForLookup={fieldForLookup} owningFieldLookup={owningFieldLookup} editable={editable}
+                          fieldForLookup={fieldForLookup} owningFieldLookup={owningFieldLookup} editable={editable} additionalActions={additionalActions} idFields={idFields}
     />
 }
 
@@ -106,6 +106,18 @@ export default function Setup(props) {
                        const owningService = [ServiceGroupsService, HostsService]
                        const owningFieldLookup = ["name", "address"]
                        const fieldForLookup = ["service_group_id", "host_id"]
+                       const additionalActions = [{icon: "flash_on", tooltip: 'test service', onFuncClick: async (event, rowData) => {
+                               return await ServicesService.TestService(rowData["id"]).then((response) => {
+                                   let severity = "error"
+                                   let message = `Passed: ${response["Passed"]}, Log: ${response["Log"]}`
+                                   if (response["Passed"] && response["Err"] === ""){
+                                       severity = "success"
+                                   } else {
+                                       message += ` Error: ${response["Err"]}`
+                                   }
+                                   props.setAlert({message: message, severity:severity})
+                               })
+                           } }]
                        const columns=
                            [
                                { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
@@ -124,7 +136,7 @@ export default function Setup(props) {
                                { title: 'Round Delay(Shift in frequency)', field: 'round_delay', type: 'numeric', initialEditValue: 0 },
                            ]
 
-                       return Table(props, title, isDependant, columns, false, ServicesService, owningService, fieldForLookup, owningFieldLookup)
+                       return Table(props, title, isDependant, columns, false, ServicesService, owningService, fieldForLookup, owningFieldLookup, true, additionalActions)
                    })()}
                </div>
            )} />
@@ -136,17 +148,17 @@ export default function Setup(props) {
                        const owningService = [ServicesService]
                        const owningFieldLookup = ["id"]
                        const fieldForLookup = ["service_id"]
+                       const idFields = ["service_id", "key"]
                        const columns=
                            [
-                               { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-                               { title: 'Key', field: 'key' },
+                               { title: 'Key', field: 'key', editable: 'onAdd'},
                                { title: 'Value', field: 'value' },
                                { title: 'Status', field: 'status', lookup:{'View': 'View', 'Hide':'Hide', 'Edit':'Edit'}},
                                { title: 'Description', field: 'description'},
-                               { title: 'Service ID', field: 'service_id'},
+                               { title: 'Service ID', field: 'service_id', editable: 'onAdd'},
                            ]
-
-                       return Table(props, title, isDependant, columns, false, PropertyService, owningService, fieldForLookup, owningFieldLookup)
+                        //ToDo: Show required properties for a given service
+                       return Table(props, title, isDependant, columns, false, PropertyService, owningService, fieldForLookup, owningFieldLookup, true, [], idFields)
                    })()}
                </div>
            )} />
@@ -177,18 +189,19 @@ export default function Setup(props) {
                    {(() => {
                        const title = "Service Groups"
                        const isDependant = false
+                       const additionalActions = [{icon: "replay", tooltip: 'redeploy workers', onFuncClick: async (event, rowData) => {
+                               return await ServiceGroupsService.Redeploy(rowData["id"])
+                           } }]
                        const columns=
                            [
                                { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-                               { title: 'Service Group Name', field: 'name' },
-                               { title: 'Enabled', field: 'enabled', type: 'boolean' },
+                               { title: 'Service Group Name', field: 'name', editable: 'onAdd' },
+                               { title: 'Enabled', field: 'enabled', type: 'boolean'},
                                { title: 'Skip Helper(Skips autodeploy of workers)', field: 'skip_helper', type: 'boolean' },
-                               { title: 'Label(Workers would be deployed on nodes with the following label)', field: 'label' },
+                               { title: 'Label(Workers would be deployed on nodes with the following label)', field: 'label', editable: 'onAdd'},
                            ]
-                       //ToDo: FigureOut Worker Reload functionality https://material-table.com/#/docs/features/actions
-                       //ToDo: Allow Same for Service testing https://material-table.com/#/docs/features/actions
 
-                       return Table(props, title, isDependant, columns, true, ServiceGroupsService)
+                       return Table(props, title, isDependant, columns, true, ServiceGroupsService, [], [], [],true,additionalActions)
                    })()}
                </div>
            )} />
@@ -197,3 +210,4 @@ export default function Setup(props) {
 }
 
 //ToDo: Allow Chaining of the foreign IDs
+//Todo: Add ID propagation all the way to Team Element

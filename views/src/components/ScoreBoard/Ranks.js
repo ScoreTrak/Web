@@ -80,6 +80,18 @@ export default function Ranks(props) {
         }
     }
 
+    const serviceSum = (teamObj) => {
+        let sum = 0
+        Object.keys(teamObj).forEach(function(key) {
+            if (key !== "teamName"){
+                sum += teamObj[key];
+            }
+        });
+        return sum
+    }
+
+    data.sort((a, b) => (serviceSum(a) === serviceSum(b)) ? (a.teamName > b.teamName ? 1 : -1) : (serviceSum(a) > serviceSum(b) ? 1 : -1))
+
     let theme= {fontSize: "0.875rem"}
     if (props.isDarkTheme){
         Object.assign(theme, darkTheme);
