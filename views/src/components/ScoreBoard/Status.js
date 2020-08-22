@@ -3,6 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
+import TableFooter from '@material-ui/core/TableFooter';
+
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
@@ -10,6 +12,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import AuthService from "../../services/auth/auth";
 
 
 const useStyles = makeStyles({
@@ -98,7 +101,6 @@ export default function EditableTable(props) {
     return (
         <Paper className={classes.root}>
             <TableContainer>
-                <div>
                 <Table stickyHeader aria-label="sticky table" size={dense ? 'small' : 'medium'}>
                     <TableHead>
                         <TableRow>
@@ -140,9 +142,12 @@ export default function EditableTable(props) {
                                                 let msg = ""
                                                 if (data[name][column]["Address"]) {
                                                     msg += data[name][column]["Address"]
-                                                    if (column in data[name] && "Properties" in data[name][column]
-                                                        && "Port" in data[name][column]["Properties"]) {
-                                                        msg += ":" + data[name][column]["Properties"]["Port"]
+                                                    if (column in data[name] && "Properties" in data[name][column]){
+                                                        Object.keys(data[name][column]["Properties"]).forEach(key =>{
+                                                            if (data[name][column]["Properties"][key]["Key"] === "Port"){
+                                                                msg += ":" + data[name][column]["Properties"][key]["Port"]
+                                                            }
+                                                        })
                                                     }
                                                 }
                                                 return msg
@@ -154,39 +159,46 @@ export default function EditableTable(props) {
                         })}
                         
                     </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TableCell colSpan={dataKeysArray.length+1}>
+                                <div style={{display:"flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+                                <TablePagination className={classes.tableNavigator}
+                                                 rowsPerPageOptions={[1, 5, 10, 25, 100]}
+                                                 component="div"
+                                                 count={teamNames.length}
+                                                 rowsPerPage={rowsPerPage}
+                                                 page={rowPage}
+                                                 onChangePage={handleRowChangePage}
+                                                 onChangeRowsPerPage={handleChangeRowsPerPage}
+                                />
+                                <FormControlLabel className={classes.tableNavigator}
+                                                  control={<Switch checked={dense} onChange={handleChangeDense} />}
+                                                  label="Dense padding"
+                                />
+                                { !(AuthService.getCurrentRole() === "anonymous" && !props.currentPolicy["show_addresses"]) &&
+                                <FormControlLabel className={classes.tableNavigator}
+                                                  control={<Switch checked={hideAddresses} onChange={handleHideAddresses} />}
+                                                  label={"Hide Addresses"}
+                                />
+                                }
+                                <TablePagination
+                                    labelRowsPerPage="Columns per page"
+                                    rowsPerPageOptions={[1, 5, 10, 25, 100]}
+                                    component="div"
+                                    count={dataKeysArray.length}
+                                    rowsPerPage={columnsPerPage}
+                                    page={columnPage}
+                                    className={classes.tableNavigator}
+                                    onChangePage={handleColumnChangePage}
+                                    onChangeRowsPerPage={handleChangeColumnsPerPage}
+                                />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableFooter>
                 </Table>
-                </div>
             </TableContainer>
-            <div style={{display:"flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-                <TablePagination className={classes.tableNavigator}
-                    rowsPerPageOptions={[1, 5, 10, 25, 100]}
-                    component="div"
-                    count={teamNames.length}
-                    rowsPerPage={rowsPerPage}
-                    page={rowPage}
-                    onChangePage={handleRowChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
-                <FormControlLabel className={classes.tableNavigator}
-                                  control={<Switch checked={dense} onChange={handleChangeDense} />}
-                                  label="Dense padding"
-                />
-                <FormControlLabel className={classes.tableNavigator}
-                                  control={<Switch checked={hideAddresses} onChange={handleHideAddresses} />}
-                                  label={"Hide Addresses"}
-                />
-                <TablePagination
-                    labelRowsPerPage="Columns per page"
-                    rowsPerPageOptions={[1, 5, 10, 25, 100]}
-                    component="div"
-                    count={dataKeysArray.length}
-                    rowsPerPage={columnsPerPage}
-                    page={columnPage}
-                    className={classes.tableNavigator}
-                    onChangePage={handleColumnChangePage}
-                    onChangeRowsPerPage={handleChangeColumnsPerPage}
-                />
-            </div>
         </Paper>
     );
 }

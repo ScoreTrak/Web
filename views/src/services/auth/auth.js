@@ -44,11 +44,20 @@ const tokenExists = () =>{
 }
 
 const getDecodedJWT = () => {
-  return jwt_decode(localStorage.getItem("token"))
+  try{
+    return jwt_decode(localStorage.getItem("token"))
+  }
+  catch (err){
+    return {}
+  }
 }
 
 const getCurrentRole = () => {
-  return getDecodedJWT().role
+  return getDecodedJWT()["role"]
+};
+
+const getCurrentTeamID = () => {
+  return getDecodedJWT()["team_id"]
 };
 
 const isAValidRole = () => {
@@ -75,5 +84,6 @@ export default {
   getCurrentRole,
   getDecodedJWT,
   isAValidRole,
-  isAValidToken
+  isAValidToken,
+  getCurrentTeamID
 };
