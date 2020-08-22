@@ -187,14 +187,15 @@ func (ds *dserver) MapRoutesAndStart() error {
 
 		}
 
-		propertyRoute := api.Group("/property")
 		{
 			hctrl := handler.NewPropertyController(ds.logger, cStore)
-			propertyRoute.GET("/", hctrl.GetAll)
-			propertyRoute.POST("/", hctrl.Store)
-			propertyRoute.GET("/:id", hctrl.GetByID)
-			propertyRoute.PATCH("/:id", hctrl.Update)
-			propertyRoute.DELETE("/:id", hctrl.Delete)
+
+			api.GET("/properties", hctrl.GetAll)
+			api.GET("/properties/:ServiceID", hctrl.GetAllByServiceID)
+			api.POST("/property", hctrl.Store)
+			api.GET("/property/:ServiceID/:Key", hctrl.GetByServiceIDKey)
+			api.DELETE("/property/:ServiceID/:Key", hctrl.Delete)
+			api.PATCH("/property/:ServiceID/:Key", hctrl.Update)
 		}
 
 		reportRoute := api.Group("/report")

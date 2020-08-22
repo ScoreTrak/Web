@@ -133,6 +133,14 @@ func UuidResolver(c *gin.Context, param string) (uuid.UUID, error) {
 	return uuid.FromString(idParam)
 }
 
+func ParamResolver(c *gin.Context, param string) (string, error) {
+	idParam := c.Param(param)
+	if idParam == "" {
+		return "", errors.New(fmt.Sprintf("%s parameter was not identified", param))
+	}
+	return idParam, nil
+}
+
 type ClientStore struct {
 	StaticConfigClient *client.StaticConfigClient
 	ConfigClient       *client.ConfigClient
@@ -149,8 +157,8 @@ type ClientStore struct {
 	CompetitionClient  *client.CompetitionClient
 }
 
-func teamIDFromProperty(c *ClientStore, propertyID uuid.UUID) (teamID uuid.UUID, property *property.Property, err error) {
-	property, err = c.PropertyClient.GetByID(propertyID)
+func teamIDFromProperty(c *ClientStore, propertyID uuid.UUID, key string) (teamID uuid.UUID, property *property.Property, err error) {
+	property, err = c.PropertyClient.GetByServiceIDKey(propertyID, key)
 	if err != nil || property == nil {
 		return
 	}
