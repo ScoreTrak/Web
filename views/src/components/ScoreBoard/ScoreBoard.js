@@ -82,19 +82,15 @@ export default function ScoreBoard(props) {
                         {
                             (props.currentPolicy["allow_to_see_points"] || AuthService.getCurrentRole() === "black") &&
                         <Route exact path='/ranks' render={() => (
-                            <Ranks DarkTheme={darkTheme} dt={dt}/>
+                            <Ranks isDarkTheme={darkTheme} dt={dt}/>
                         )}/>
-
                         }
                         <Route exact path='/' render={() => (
                             <Status currentPolicy={props.currentPolicy} isDarkTheme={darkTheme} dt={dt}/>
                         )} />
-
-
                         <Route exact path='/details' render={() => (
                             <Details isDarkTheme={darkTheme} dt={dt} errorSetter={props.errorSetter}/>
                         )} />
-
                     </Box>
                         :
                         <div>
