@@ -116,52 +116,59 @@ export default function Settings(props) {
     }, []);
 
     const handleSetEnabled = (e) => {
+        props.handleLoading()
         setData(prevState => {return{...prevState, config:{...prevState.config, enabled: e.target.checked}}})
         ConfigService.Update({enabled: e.target.checked}).then( async () => {
-                reload().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter)
+                reload().then(newState => { setData(prevState => {return{...prevState, ...newState}}) ; props.cancelLoading()}, props.errorSetter)
         }, props.errorSetter)
     }
 
     const handleSetRoundDuration = (e) => {
         e.preventDefault()
         let val = Number(document.getElementById("round_duration").value)
+        props.handleLoading()
         setData(prevState => {return{...prevState, config:{...prevState.config, round_duration: val}}})
         ConfigService.Update({round_duration: val}).then( async () => {
-            reload().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter)
+            reload().then(newState => { setData(prevState => {return{...prevState, ...newState}}) ; props.cancelLoading()}, props.errorSetter)
         }, props.errorSetter)
+
 
     }
 
 
     const handleSetPolicy = (e) => {
+        props.handleLoading()
         setData(prevState => {return{...prevState, policy:{...prevState.policy, [e.target.value]: e.target.checked}}})
         PolicyService.Update({[e.target.value]: e.target.checked}).then( async () => {
-            reload().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter)
+            reload().then(newState => { setData(prevState => {return{...prevState, ...newState}}) ; props.cancelLoading()}, props.errorSetter)
         }, props.errorSetter)
     }
 
     const handleUpload = () => {
         let formData = new FormData();
         formData.append("file", document.getElementById('file').files[0]);
+        props.handleLoading()
         CompetitionService.LoadCompetition(formData).then(() => {
             document.getElementById('file').value = ""
-            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter).then(() => {props.setAlert({message: "Success!", severity: "success"})})
+            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}}) ; props.handleSuccess()}, props.errorSetter)
             setFileSelected({selected: false, name: ""})
         }, props.errorSetter)
         handleClose()
     }
 
     const handleResetCompetition = () => {
+        props.handleLoading()
         ConfigService.ResetCompetition().then(() => {
-            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter)
+            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}}) ; props.handleSuccess()}, props.errorSetter)
             setFileSelected({selected: false, name: ""})
         }, props.errorSetter)
         handleClose()
     }
 
     const handleDeleteCompetition = () => {
+        props.handleLoading()
         ConfigService.DeleteCompetition().then(() => {
-            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}})}, props.errorSetter)
+            loadAll().then(newState => { setData(prevState => {return{...prevState, ...newState}}) ; props.handleSuccess()}, props.errorSetter)
             setFileSelected({selected: false, name: ""})
         }, props.errorSetter)
         handleClose()
@@ -450,5 +457,3 @@ export default function Settings(props) {
         </Paper>
     );
 }
-
-//Todo: Delete and reset could be very lengthy, use spinner to indicate that process is ongoing, until request doesn't come back

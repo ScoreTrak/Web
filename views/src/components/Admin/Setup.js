@@ -107,7 +107,8 @@ export default function Setup(props) {
                        const owningFieldLookup = ["name", "address"]
                        const fieldForLookup = ["service_group_id", "host_id"]
                        const additionalActions = [{icon: "flash_on", tooltip: 'test service', onFuncClick: async (event, rowData) => {
-                               return await ServicesService.TestService(rowData["id"]).then((response) => {
+                           props.handleLoading()
+                           return await ServicesService.TestService(rowData["id"]).then((response) => {
                                    let severity = "error"
                                    let message = `Passed: ${response["Passed"]}, Log: ${response["Log"]}`
                                    if (response["Passed"] && response["Err"] === ""){
@@ -190,7 +191,11 @@ export default function Setup(props) {
                        const title = "Service Groups"
                        const isDependant = false
                        const additionalActions = [{icon: "replay", tooltip: 'redeploy workers', onFuncClick: async (event, rowData) => {
-                               return await ServiceGroupsService.Redeploy(rowData["id"])
+                           props.handleLoading()
+                               return await ServiceGroupsService.Redeploy(rowData["id"]).then(() => {
+                                  props.handleSuccess("Workers were deployed! Please make sure they are in a healthy state before enabling the service group.")
+                               })
+
                            } }]
                        const columns=
                            [

@@ -31,6 +31,13 @@ import Setup from "../Admin/Setup";
 import BarChartIcon from "@material-ui/icons/BarChart";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import DetailsIcon from "@material-ui/icons/Details";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Button from "@material-ui/core/Button";
+import DialogActions from "@material-ui/core/DialogActions";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
 
 const drawerWidth = 260;
 
@@ -39,6 +46,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex"
   },
   toolbar: {
+    position: "relative",
     paddingRight: 24
   },
   toolbarIcon: {
@@ -120,10 +128,35 @@ export default function Dashboard(props) {
 
   const [open, setOpen] = useState(false);
   const [Title, setTitle] = useState("ScoreBoard")
-  const [alert, setAlert] = useState({message: "", severity: ""})
+  const [alert, setAlert] = useState({message: "", severity: "", loader: false, openDialogue: false})
   const setDarkState = props.setDarkState
   const darkState = props.darkState
   const classes = useStyles();
+
+  const handleOpenDialogue = () =>{
+    setAlert(prevState => {return {...prevState, openDialogue: true}})
+  }
+
+  const handleCloseAlertDialogue = () =>{
+    setAlert({message: "", severity: "", loader: false, openDialogue: false})
+  }
+
+  const handleCancelDialogue = () =>{
+    setAlert(prevState => {return {...prevState, openDialogue: false}})
+  }
+
+  const handleSuccess = (msg = "Success") => {
+    setAlert({message: msg, severity: "success", loader: false})
+  }
+  const handleLoading = () => {
+    setAlert({message: "", severity: "warning", loader: true})
+  }
+
+  const cancelLoading = () => {
+    setAlert({message: "", severity: "", loader: false})
+  }
+
+
   const handleThemeChange = (e) => {
     if (e.target.checked){
       localStorage.setItem("theme", "dark")
@@ -154,7 +187,7 @@ export default function Dashboard(props) {
       if (typeof resMessage != "string"){
         resMessage = "The request was invalid"
       }
-      setAlert({message: resMessage, severity: "error"})
+      setAlert({message: resMessage, severity: "error", loader: false})
     }
   }
 
@@ -193,22 +226,65 @@ export default function Dashboard(props) {
               className={classes.title}
             >{Title}
             </Typography>
-            {alert.message && (
-                <Alert severity={alert.severity}
-                       action={
-                         <IconButton
-                             aria-label="close"
-                             color="inherit"
-                             size="small"
-                             onClick={() => {
-                               setAlert({message: "", severity: ""});
-                             }}
-                         >
-                           <CloseIcon fontSize="inherit" />
-                         </IconButton>
-                       }
-                >{alert.message}</Alert>
-            )}
+            <div style={{position: "absolute", "right": "10px"}}>
+              {
+                alert.message === "" && alert.loader &&
+                <CircularProgress color="secondary" />
+              }
+              {alert.message && (
+                  <Alert severity={alert.severity}
+                         action={
+                           <IconButton
+                               aria-label="close"
+                               color="inherit"
+                               size="small"
+                               onClick={() => {
+                                 setAlert({message: "", severity: "", loader: false, openDialogue: false});
+                               }}
+                           >
+                             <CloseIcon fontSize="inherit" />
+                           </IconButton>
+                         }
+                  >{(() => {
+                    const maxLen = 80
+                    return (alert.message.length > maxLen) ?
+                        <div>
+                          {alert.message.substr(0, maxLen-1) + '...'}
+                          <Button color="primary" onClick={handleOpenDialogue} style={{marginLeft:"20px"}} size="small">
+                            Open Details
+                          </Button>
+                          <Dialog
+                              open={alert.openDialogue}
+                              onClose={handleCancelDialogue}
+                              aria-labelledby="alert-dialog-title"
+                              aria-describedby="alert-dialog-description"
+                          >
+                            <DialogTitle id="alert-dialog-title">Alert Details</DialogTitle>
+                            <DialogContent>
+                              <DialogContentText id="alert-dialog-description">
+                                {alert.message.split("\n").map(text => {
+                                  return (
+                                      <Typography>
+                                        {text}
+                                      </Typography>
+                                  )
+                                })}
+                              </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                              <Button onClick={handleCancelDialogue} color="primary">
+                                Close Dialogue
+                              </Button>
+                              <Button onClick={handleCloseAlertDialogue} color="primary" autoFocus>
+                                Close Alert
+                              </Button>
+                            </DialogActions>
+                          </Dialog>
+                        </div>
+                        : alert.message;
+                  })()}</Alert>
+              )}
+            </div>
           </Toolbar>
         </AppBar>
         <Drawer
@@ -288,10 +364,10 @@ export default function Dashboard(props) {
                     </FullScreen>
                 )} />
                 <Route exact path="/settings" render={() => (
-                    <Settings errorSetter={errorSetter} isDarkTheme={darkState} setAlert={setAlert} setTitle={setTitle} classesPaper={classes.paper}/>
+                    <Settings errorSetter={errorSetter} isDarkTheme={darkState} cancelLoading={cancelLoading} handleSuccess={handleSuccess} handleLoading={handleLoading} setAlert={setAlert} setTitle={setTitle} classesPaper={classes.paper}/>
                 )} />
                 <Route path="/setup" render={() => (
-                    <Setup errorSetter={errorSetter} isDarkTheme={darkState} setAlert={setAlert} setTitle={setTitle} classesPaper={classes.paper}/>
+                    <Setup  errorSetter={errorSetter} isDarkTheme={darkState} cancelLoading={cancelLoading} handleSuccess={handleSuccess} handleLoading={handleLoading}  setAlert={setAlert} setTitle={setTitle} classesPaper={classes.paper}/>
                 )} />
 
               </Grid>
