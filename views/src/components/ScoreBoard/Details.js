@@ -26,6 +26,9 @@ export default function Details(props) {
                 team_name: dt["Teams"][team_id]["Name"],
             })
         })
+
+        data.sort((a, b) => (a.team_name > b.team_name) ? 1 : -1)
+
         return (
 
             <TableContainer component={Paper}>

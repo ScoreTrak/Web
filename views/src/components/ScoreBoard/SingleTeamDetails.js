@@ -73,32 +73,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SingleTeamDetails(props) {
     const classes = useStyles();
-    async function reloadProperties(service) {
-        const results = await PropertyService.GetAllByServiceID(service)
-        if ((!!results) && (results.constructor === Object)){
-            return []
-        }
-        return [...results]
-    }
+
 
     const [data, setData] = useState([]);
     const [expanded, setExpanded] = React.useState(false);
-
-    function reloadSetter(service_id, sr) {
-        reloadProperties(service_id).then( results => {
-            let d = []
-            for (const [key, property] of Object.entries(sr["Properties"])) {
-                let obj = {key: key, value_used: property["Value"], service_id: key}
-                    results.forEach(res => {
-                        if (key === res["key"] && res["status"] === "Edit"){
-                            obj.value = res["value"]
-                        }
-                    })
-                d.push(obj)
-            }
-            setData(d)
-        })
-    }
 
     const handleChange = (panel, service_id, service) => (event, isExpanded) => {
         setData([])
@@ -106,7 +84,6 @@ export default function SingleTeamDetails(props) {
             setExpanded(false)
         } else {
             setExpanded(panel);
-            reloadSetter(service_id, service)
         }
     };
 
@@ -142,7 +119,7 @@ export default function SingleTeamDetails(props) {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {expanded === keyName &&
-                                        <SingleTeamDetailsAccordionDetailsBox {...props} teamID={teamID} host_id={host} service_id={service_id} sr={sr} data={data} setData={setData} reloadSetter={reloadSetter}/>
+                                        <SingleTeamDetailsAccordionDetailsBox {...props} teamID={teamID} host_id={host} service_id={service_id} sr={sr} data={data} setData={setData} />
                                     }
                                 </AccordionDetails>
                             </Accordion>
@@ -159,7 +136,6 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
     const data = props.data
     const classes = useStyles();
     const setData = props.setData
-    const reloadSetter = props.reloadSetter
 
     const service_id = props.service_id
     const teamID = props.teamID
@@ -204,6 +180,30 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
     }
 
 
+    async function reloadProperties(service) {
+        const results = await PropertyService.GetAllByServiceID(service)
+        if ((!!results) && (results.constructor === Object)){
+            return []
+        }
+        return [...results]
+    }
+
+    function reloadSetter(service_id, sr) {
+        reloadProperties(service_id).then( results => {
+            let d = []
+            for (const [key, property] of Object.entries(sr["Properties"])) {
+                let obj = {key: key, value_used: property["Value"], service_id: key}
+                results.forEach(res => {
+                    if (key === res["key"] && res["status"] === "Edit"){
+                        obj.value = res["value"]
+                    }
+                })
+                d.push(obj)
+            }
+            setData(d)
+        })
+    }
+
     useEffect(() => {
         reloadPreviousChecks(service_id).then( results => {
             let d = []
@@ -212,12 +212,14 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                     d.push({service_id: service_id, round_id: res["round_id"], passed: res["passed"], log: res["log"], err: res["err"]})
                 }
             })
-            console.log(prevDT)
-            console.log(props.dt)
-            console.log(history)
-            console.log("Setting History inside USEFEECT INITIAL")
             setHistory(d)
         })
+        reloadSetter(service_id, sr)
+        const roundReload = setInterval(() => {
+            reloadSetter(service_id, sr)
+        }, 10000);
+        return () => clearInterval(roundReload);
+
     }, []);
 
     useEffect(() => {
