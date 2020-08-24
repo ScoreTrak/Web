@@ -18,14 +18,6 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 export default function Details(props) {
     const dt=props.dt
 
-    const [currentRound, setState] = React.useState({
-        isLastRound: true, round: dt.Round
-    });
-
-    const handleChangeRound = (value) => {
-        setState({isLastRound: false, round: value})
-    }
-
     function BlackTeamPanel() {
         let data = []
         Object.keys(dt["Teams"]).forEach(team_id =>{
@@ -47,7 +39,7 @@ export default function Details(props) {
                     </TableHead>
                     <TableBody>
                         {data.map((row) => (
-                            <CustomRow key={row.team_id} {...props} row={row} currentRound={currentRound} />
+                            <CustomRow key={row.team_id} {...props} row={row} />
                         ))}
                     </TableBody>
                 </Table>
@@ -64,7 +56,7 @@ export default function Details(props) {
 
 
             {
-                AuthService.getCurrentRole() === "blue" ? <SingleTeamDetails {...props} currentRound={currentRound} teamID={AuthService.getCurrentTeamID()}/> :
+                AuthService.getCurrentRole() === "blue" ? <SingleTeamDetails {...props} teamID={AuthService.getCurrentTeamID()}/> :
                     BlackTeamPanel()
             }
         </div>
@@ -100,7 +92,7 @@ function CustomRow(props) {
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box margin={1}>
-                            <SingleTeamDetails {...props} teamID={row.team_id} currentRound={props.currentRound} />
+                            <SingleTeamDetails {...props} teamID={row.team_id} />
                         </Box>
                     </Collapse>
                 </TableCell>

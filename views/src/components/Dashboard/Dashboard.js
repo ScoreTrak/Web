@@ -14,7 +14,7 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { mainListItems, adminListItems } from "./listItems";
+import { adminListItems } from "./listItems";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -146,14 +146,14 @@ export default function Dashboard(props) {
   }
 
   const handleSuccess = (msg = "Success") => {
-    setAlert({message: msg, severity: "success", loader: false})
+    setAlert(prevState => {return { ...prevState, message: msg, severity: "success", loader: false}})
   }
   const handleLoading = () => {
-    setAlert({message: "", severity: "warning", loader: true})
+    setAlert(prevState => {return { ...prevState, message: "", severity: "warning", loader: true}})
   }
 
   const cancelLoading = () => {
-    setAlert({message: "", severity: "", loader: false})
+    setAlert(prevState => {return { ...prevState, message: "", severity: "", loader: false}})
   }
 
 
@@ -322,7 +322,7 @@ export default function Dashboard(props) {
                 <ListItemIcon>
                   <DetailsIcon />
                 </ListItemIcon>
-                <ListItemText primary="Last Round Details" />
+                <ListItemText primary="Details" />
               </ListItem>
               }
             </div>
