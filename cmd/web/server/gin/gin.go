@@ -172,7 +172,8 @@ func (ds *dserver) MapRoutesAndStart() error {
 		{
 			hctrl := handler.NewCheckController(ds.logger, cStore)
 			api.GET("/check/:RoundID/:ServiceID", hctrl.GetByRoundServiceID)
-			api.GET("/check_all/:id", hctrl.GetAllByRoundID)
+			api.GET("/check_round/:id", hctrl.GetAllByRoundID)
+			api.GET("/check_service/:id", hctrl.GetAllByServiceID)
 		}
 
 		configRoute := api.Group("/config")

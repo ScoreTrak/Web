@@ -74,6 +74,8 @@ github.com/ScoreTrak/ScoreTrak v0.0.0-20200822114723-789e5036df93 h1:u2LfP8pWGeV
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200822114723-789e5036df93/go.mod h1:MkXjjby3+JhK22grQmKL+XxdRE2iY7tf+d64B4JY+fY=
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200822225147-c6d7373997e0 h1:zN87+iYA9OJr6GQNlo52RKd5VBiztR/KqTsrncz876M=
 github.com/ScoreTrak/ScoreTrak v0.0.0-20200822225147-c6d7373997e0/go.mod h1:MkXjjby3+JhK22grQmKL+XxdRE2iY7tf+d64B4JY+fY=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200824045808-1ef2b61d5e7f h1:uPHMDArbfGSfweU2Xgsv7Inw06fFeRFYw89XhyIxWhQ=
+github.com/ScoreTrak/ScoreTrak v0.0.0-20200824045808-1ef2b61d5e7f/go.mod h1:8x6/HB+9vO/cXM0ocbi2HznObDwI4qxksoDjrR4Hd+c=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/appleboy/gin-jwt/v2 v2.6.3 h1:aK4E3DjihWEBUTjEeRnGkA5nUkmwJPL1CPonMa2usRs=
 github.com/appleboy/gin-jwt/v2 v2.6.3/go.mod h1:MfPYA4ogzvOcVkRwAxT7quHOtQmVKDpTwxyUrC2DNw0=
@@ -661,6 +663,8 @@ gorm.io/gorm v0.2.26 h1:+GoQpJGwCmKkI8f6yIuSUrG6+cG4EobQeH28gcqTZdM=
 gorm.io/gorm v0.2.26/go.mod h1:0HFTzE/SqkGTzK6TlDPPQbAYCluiVvhzoA1+aVyzenw=
 gorm.io/gorm v0.2.29 h1:GJzNNL3opWSVO6bcLEerqJX7MW9rDuA1nI3/Ou1nPp8=
 gorm.io/gorm v0.2.29/go.mod h1:0HFTzE/SqkGTzK6TlDPPQbAYCluiVvhzoA1+aVyzenw=
+gorm.io/gorm v0.2.36 h1:mxqXJo5SET3VzKCilIqLL6ua4BtpReu/0PieEkEBu5M=
+gorm.io/gorm v0.2.36/go.mod h1:0HFTzE/SqkGTzK6TlDPPQbAYCluiVvhzoA1+aVyzenw=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
