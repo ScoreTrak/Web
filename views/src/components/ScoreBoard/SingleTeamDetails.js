@@ -152,7 +152,7 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
     ]
 
     const columnsPreviousRounds = [
-        { title: 'Passed Image', render: rowData => <div> {rowData.passed ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>}  </div> },
+        { render: rowData => <div> {rowData.passed ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>}  </div> },
         { title: 'Round', field: 'round_id', defaultSort: "desc"},
         { title: 'Passed', field: 'passed', hidden: true},
         { title: 'Service ID', field: 'service_id', hidden: true},
@@ -207,7 +207,7 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
         reloadPreviousChecks(service_id).then( results => {
             let d = []
             results.forEach(res => {
-                if (res["round_id"] !== props.dt.Round){
+                if (res["round_id"] < props.dt.Round){
                     d.push({service_id: service_id, round_id: res["round_id"], passed: res["passed"], log: res["log"], err: res["err"]})
                 }
             })
@@ -223,19 +223,15 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
 
     useEffect(() => {
         if (prevDT){
-            console.log(prevDT)
-            console.log(props.dt)
-            console.log(history)
-            console.log("Setting History inside USEFEECT SECONDARY")
-            setHistory(prevState => {return [...prevState,
-                {
+            setHistory(prevState => {
+                return [...prevState, {
                     service_id: service_id["service_id"],
                     passed: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Passed"],
                     err: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Err"],
                     log: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Log"],
                     round_id: prevDT["Round"],
-                }
-            ]})
+                }]
+            })
         }
     }, [props.dt]);
 
