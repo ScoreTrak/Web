@@ -182,5 +182,3 @@ func (u *teamController) Update(c *gin.Context) {
 		return
 	}
 }
-
-//ToDo: Research about alternative approaches of handling the bad requests. Aka, what happens if after deleting a team from scoretrak, we then encounter an error deleting it on web backend
