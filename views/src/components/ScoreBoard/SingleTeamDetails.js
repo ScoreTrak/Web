@@ -98,26 +98,36 @@ export default function SingleTeamDetails(props) {
             setHistory(prevState => {
                 let nextState = {}
                 Object.keys(prevState).forEach(cached_service_id => {
-                    nextState[cached_service_id] = [...prevState[cached_service_id],
-                        {
-                            service_id: cached_service_id["service_id"],
-                            host_id: prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"],
-                            passed: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Passed"],
-                            err: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Err"],
-                            log: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Log"],
-                            round_id: prevDT["Round"],
-                        }
-                    ]
+                    if (prevState[cached_service_id].length !== 0) {
+                        nextState[cached_service_id] = [...prevState[cached_service_id],
+                            {
+                                service_id: cached_service_id["service_id"],
+                                host_id: prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"],
+                                passed: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Passed"],
+                                err: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Err"],
+                                log: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Log"],
+                                round_id: prevDT["Round"],
+                            }
+                        ]
+                    } else {
+                        Object.keys(props.dt["Teams"][teamID]["Hosts"]).forEach((host) => {
+                            let currentHost = props.dt["Teams"][teamID]["Hosts"][host]
+                            Object.keys(currentHost["Services"]).forEach((service_id) => {
+                                if (cached_service_id === service_id){
+                                    nextState[service_id] = [{
+                                        service_id: service_id,
+                                        host_id: host,
+                                        passed: prevDT["Teams"][teamID]["Hosts"][host]["Services"][service_id]["Passed"],
+                                        err: prevDT["Teams"][teamID]["Hosts"][host]["Services"][service_id]["Err"],
+                                        log: prevDT["Teams"][teamID]["Hosts"][host]["Services"][service_id]["Log"],
+                                        round_id: prevDT["Round"],
+                                    }]
+                                }
+                            })
+                        })
+                    }
                 })
                 return {...nextState}
-
-                // return [...prevState, {
-                //     service_id: service_id["service_id"],
-                //     passed: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Passed"],
-                //     err: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Err"],
-                //     log: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Log"],
-                //     round_id: prevDT["Round"],
-                // }]
             })
         }
     }, [props.dt]);
@@ -155,7 +165,7 @@ export default function SingleTeamDetails(props) {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {expanded === keyName &&
-                                        <SingleTeamDetailsAccordionDetailsBox {...props} history={history} setHistory={setHistory} teamID={teamID} host_id={host} service_id={service_id} sr={sr} PropertiesData={PropertiesData} setPropertiesData={setPropertiesData} />
+                                        <SingleTeamDetailsAccordionDetailsBox {...props} history={history} prevDT={prevDT} setHistory={setHistory} teamID={teamID} host_id={host} service_id={service_id} sr={sr} PropertiesData={PropertiesData} setPropertiesData={setPropertiesData} />
                                     }
                                 </AccordionDetails>
                             </Accordion>
@@ -176,12 +186,9 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
     const service_id = props.service_id
 
     const history = props.history
-    console.log(history)
     const setHistory = props.setHistory
 
     const host_id = props.host_id
-
-
 
     const columns = [
         { title: 'Key', field: 'key', editable: "never"},
@@ -267,7 +274,7 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                 </Grid>
                 <Grid item xs={6}>
                     <MaterialTable
-                        options={{pageSizeOptions: [5,10,20,50,100], pageSize:3}}
+                        options={{pageSizeOptions: [3, 5,10,20,50,100], pageSize:3}}
                         title="Properties"
                         columns={columns}
                         data={PropertiesData}
