@@ -73,19 +73,56 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SingleTeamDetails(props) {
     const classes = useStyles();
-
-
-    const [data, setData] = useState([]);
+    const [PropertiesData, setPropertiesData] = useState([]);
     const [expanded, setExpanded] = React.useState(false);
-
-    const handleChange = (panel, service_id, service) => (event, isExpanded) => {
-        setData([])
+    const [history, setHistory] = React.useState({});
+    const handleChange = (panel) => (event, isExpanded) => {
+        setPropertiesData([])
         if (!isExpanded){
             setExpanded(false)
         } else {
             setExpanded(panel);
         }
     };
+    function usePreviousDT(value) {
+        const ref = useRef();
+        useEffect(() => {
+            ref.current = value;
+        });
+        return ref.current;
+    }
+    const prevDT = usePreviousDT({...props.dt});
+
+    useEffect(() => {
+        if (prevDT){
+            setHistory(prevState => {
+                let nextState = {}
+                Object.keys(prevState).forEach(cached_service_id => {
+                    nextState[cached_service_id] = [...prevState[cached_service_id],
+                        {
+                            service_id: cached_service_id["service_id"],
+                            host_id: prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"],
+                            passed: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Passed"],
+                            err: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Err"],
+                            log: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Log"],
+                            round_id: prevDT["Round"],
+                        }
+                    ]
+                })
+                return {...nextState}
+
+                // return [...prevState, {
+                //     service_id: service_id["service_id"],
+                //     passed: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Passed"],
+                //     err: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Err"],
+                //     log: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Log"],
+                //     round_id: prevDT["Round"],
+                // }]
+            })
+        }
+    }, [props.dt]);
+
+
 
     const teamID = props.teamID
     return (
@@ -105,7 +142,7 @@ export default function SingleTeamDetails(props) {
                             }
                         }
                         return (
-                            <Accordion expanded={expanded === keyName} onChange={handleChange(keyName, service_id, sr)} className={sr["Passed"] ? classes.customAccordionSuccessHeader: classes.customAccordionErrorHeader}>
+                            <Accordion expanded={expanded === keyName} onChange={handleChange(keyName)} className={sr["Passed"] ? classes.customAccordionSuccessHeader: classes.customAccordionErrorHeader}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls={`${keyName}bh-content`}
@@ -118,7 +155,7 @@ export default function SingleTeamDetails(props) {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {expanded === keyName &&
-                                        <SingleTeamDetailsAccordionDetailsBox {...props} teamID={teamID} host_id={host} service_id={service_id} sr={sr} data={data} setData={setData} />
+                                        <SingleTeamDetailsAccordionDetailsBox {...props} history={history} setHistory={setHistory} teamID={teamID} host_id={host} service_id={service_id} sr={sr} PropertiesData={PropertiesData} setPropertiesData={setPropertiesData} />
                                     }
                                 </AccordionDetails>
                             </Accordion>
@@ -132,16 +169,17 @@ export default function SingleTeamDetails(props) {
 
 function SingleTeamDetailsAccordionDetailsBox(props) {
     const sr = props.sr
-    const data = props.data
+    const PropertiesData = props.PropertiesData
     const classes = useStyles();
-    const setData = props.setData
+    const setPropertiesData = props.setPropertiesData
 
     const service_id = props.service_id
-    const teamID = props.teamID
+
+    const history = props.history
+    console.log(history)
+    const setHistory = props.setHistory
+
     const host_id = props.host_id
-
-
-    const [history, setHistory] = React.useState([]);
 
 
 
@@ -155,12 +193,11 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
         { render: rowData => <div> {rowData.passed ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>}  </div> },
         { title: 'Round', field: 'round_id', defaultSort: "desc"},
         { title: 'Passed', field: 'passed', hidden: true},
+        { title: 'Parent Host ID', field: 'host_id', hidden: true},
         { title: 'Service ID', field: 'service_id', hidden: true},
         { title: 'Response', field: 'log' },
         { title: 'Error Details', field: 'err' },
     ]
-
-    const prevDT = usePreviousDT({...props.dt});
 
     async function reloadPreviousChecks(service) {
         const results = await CheckService.GetByServiceID(service)
@@ -168,14 +205,6 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
             return []
         }
         return [...results]
-    }
-
-    function usePreviousDT(value) {
-        const ref = useRef();
-        useEffect(() => {
-            ref.current = value;
-        });
-        return ref.current;
     }
 
 
@@ -187,7 +216,7 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
         return [...results]
     }
 
-    function reloadSetter(service_id, sr) {
+    function reloadPropertiesSetter(service_id, sr) {
         reloadProperties(service_id).then( results => {
             let d = []
             for (const [key, property] of Object.entries(sr["Properties"])) {
@@ -199,41 +228,24 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                 })
                 d.push(obj)
             }
-            setData(d)
+            setPropertiesData(d)
         })
     }
 
     useEffect(() => {
-        reloadPreviousChecks(service_id).then( results => {
-            let d = []
-            results.forEach(res => {
-                if (res["round_id"] < props.dt.Round){
-                    d.push({service_id: service_id, round_id: res["round_id"], passed: res["passed"], log: res["log"], err: res["err"]})
-                }
-            })
-            setHistory(d)
-        })
-        reloadSetter(service_id, sr)
-        // const roundReload = setInterval(() => {
-        //     reloadSetter(service_id, sr)
-        // }, 10000);
-        // return () => clearInterval(roundReload);
-
-    }, []);
-
-    useEffect(() => {
-        if (prevDT){
-            setHistory(prevState => {
-                return [...prevState, {
-                    service_id: service_id["service_id"],
-                    passed: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Passed"],
-                    err: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Err"],
-                    log: prevDT["Teams"][teamID]["Hosts"][host_id]["Services"][service_id]["Log"],
-                    round_id: prevDT["Round"],
-                }]
+        if (!history[service_id]){
+            reloadPreviousChecks(service_id).then( results => {
+                let d = []
+                results.forEach(res => {
+                    if (res["round_id"] < props.dt.Round){
+                        d.push({service_id: service_id, round_id: res["round_id"], passed: res["passed"], log: res["log"], err: res["err"], host_id: host_id})
+                    }
+                })
+                setHistory(prevState => {return {...prevState, [service_id]: d }})
             })
         }
-    }, [props.dt]);
+        reloadPropertiesSetter(service_id, sr)
+    }, []);
 
     return (
         <Box width="100%" bgcolor="background.paper">
@@ -255,16 +267,16 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                 </Grid>
                 <Grid item xs={6}>
                     <MaterialTable
-                        options={{pageSizeOptions: [5,10,20,50,100], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5,10,20,50,100], pageSize:3}}
                         title="Properties"
                         columns={columns}
-                        data={data}
+                        data={PropertiesData}
                         cellEditable={{
                             onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
                                 return new Promise((resolve) => {
                                     setTimeout(() => {
                                         resolve();
-                                        setData((prevState) => {
+                                        setPropertiesData((prevState) => {
                                             return prevState.map(property => {
                                                 if (property["key"] === rowData["key"]) {
                                                     return {...rowData, value: newValue}
@@ -273,7 +285,7 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                                             })
                                         });
                                         PropertyService.Update(service_id, rowData["key"],{'value': newValue}).then( async () =>{
-                                            reloadSetter(service_id, sr)
+                                            reloadPropertiesSetter(service_id, sr)
                                         }, (error) => {
                                             props.errorSetter(error)
                                         })
@@ -291,7 +303,7 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                         options={{pageSizeOptions: [5,10,20,50,100], pageSize:5}}
                         title="Previous Rounds"
                         columns={columnsPreviousRounds}
-                        data={history}
+                        data={history[service_id]}
                     />
                 </Grid>
             </Grid>
