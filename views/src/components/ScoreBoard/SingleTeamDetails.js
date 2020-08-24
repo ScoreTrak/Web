@@ -113,8 +113,7 @@ export default function SingleTeamDetails(props) {
                                 >
                                     {sr["Passed"] ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>}
                                     <Typography className=  {classes.heading}>{keyName}</Typography>
-                                    <Typography className={classes.secondaryHeading}>{}</Typography>
-                                    {/*ToDo: Show which host*/}
+                                    <Typography className={classes.secondaryHeading}>Host: {currentHost["Address"]}</Typography>
 
                                 </AccordionSummary>
                                 <AccordionDetails>
