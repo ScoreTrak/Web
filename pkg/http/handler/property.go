@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	role2 "github.com/ScoreTrak/Web/pkg/role"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -67,7 +68,7 @@ func (u *propertyController) GetByServiceIDKey(c *gin.Context) {
 	}
 	role := roleResolver(c)
 	TeamID := teamIDResolver(c)
-	if role == "blue" {
+	if role == role2.Blue {
 		tID, prop, err := teamIDFromProperty(u.client, sID, key)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -87,7 +88,7 @@ func (u *propertyController) GetAllByServiceID(c *gin.Context) {
 	id, _ := UuidResolver(c, "ServiceID")
 	role := roleResolver(c)
 	TeamID := teamIDResolver(c)
-	if role == "blue" {
+	if role == role2.Blue {
 		tID, _, err := teamIDFromService(u.client, id)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -148,7 +149,7 @@ func (u *propertyController) Update(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	if role == "blue" {
+	if role == role2.Blue {
 		tID, prop, err := teamIDFromProperty(u.client, sID, key)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
