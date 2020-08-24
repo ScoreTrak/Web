@@ -214,10 +214,10 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
             setHistory(d)
         })
         reloadSetter(service_id, sr)
-        const roundReload = setInterval(() => {
-            reloadSetter(service_id, sr)
-        }, 10000);
-        return () => clearInterval(roundReload);
+        // const roundReload = setInterval(() => {
+        //     reloadSetter(service_id, sr)
+        // }, 10000);
+        // return () => clearInterval(roundReload);
 
     }, []);
 
