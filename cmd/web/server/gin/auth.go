@@ -94,7 +94,7 @@ func (a *authController) JWTMiddleware() (*jwt.GinJWTMiddleware, error) {
 					return true
 				} else if v.Role == role.Blue {
 					if c.Request.Method == "GET" {
-						rts := []string{"/api/property/", "/api/properties/", "/api/service/", "/api/host/", "/api/check", "/api/last_non_elapsing/", "/api/report/", "/api/policy/"}
+						rts := []string{"/api/property/", "/api/properties/", "/api/service/", "/api/host/", "/api/check/", "/api/check_service/", "/api/last_non_elapsing/", "/api/report/", "/api/policy/"}
 						pre, ok := containsPrefix(c.Request.URL.String(), rts)
 						if ok {
 							switch pre {
