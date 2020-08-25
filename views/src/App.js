@@ -32,6 +32,7 @@ function App() {
 
   }
   useEffect(() => {
+    document.title = "ScoreTrak"
     if (!authExists){
     AuthService.logAnonymousUser().then(() => {
           setAuthExists(true)
