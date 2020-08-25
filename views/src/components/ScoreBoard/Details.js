@@ -93,7 +93,7 @@ function CustomRow(props) {
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <Collapse in={open} timeout="auto" unmountOnExit>
+                    <Collapse in={open} timeout="auto">
                         <Box margin={1}>
                             <SingleTeamDetails {...props} teamID={row.team_id} />
                         </Box>
