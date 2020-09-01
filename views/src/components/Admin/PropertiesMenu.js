@@ -15,6 +15,7 @@ import HostsService from "../../services/host/hosts";
 import ServiceGroupsService from "../../services/service_group/service_groups";
 import ServicesService from "../../services/service/serivces";
 import PropertyService from "../../services/property/properties";
+import PropertiesCreate from "./QuickCreate/Properties";
 
 
 function getSteps() {
@@ -40,7 +41,7 @@ function getStepContent(step, props) {
                 ]
             return Table(props, title, isDependant, columns, false, PropertyService, owningService, fieldForLookup, owningFieldLookup, true, [], idFields)
         case 1:
-            return <HostCreate {...props} />;
+            return <PropertiesCreate {...props} />;
         default:
             return 'Unknown step';
     }

@@ -39,7 +39,7 @@ function getStepContent(step, props) {
 
             return Table(props, title, isDependant, columns, false, HostsService, owningService, fieldForLookup, owningFieldLookup)
         case 1:
-            return <ServiceCreate {...props} />;
+            return <HostCreate {...props} />;
         default:
             return 'Unknown step';
     }

@@ -65,7 +65,7 @@ export default function Setup(props) {
                <ServiceMenu {...props} />
            )} />
            <Route exact path="/setup/properties" render={() => (
-               <PropertiesMenu />
+               <PropertiesMenu {...props}/>
            )} />
 
            <Route exact path="/setup/rounds" render={() => (

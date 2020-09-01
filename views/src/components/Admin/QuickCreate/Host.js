@@ -48,7 +48,6 @@ const HostCreate = forwardRef((props, ref) => {
                         team_id: team_id,
                         host_group_id: host_group_id,
                         address: rowsData[team_hostGrp_id],
-                        enabled: true
                     })
                 }
             })
