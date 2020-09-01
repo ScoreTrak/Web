@@ -2,42 +2,24 @@ import React from "react";
 import {Route} from "react-router-dom";
 import TeamService from "../../services/team/teams";
 import ServiceGroupsService from "../../services/service_group/service_groups";
-import ServicesService from "../../services/service/serivces";
 import HostGroupsService from "../../services/host_group/host_groups";
-import HostsService from "../../services/host/hosts";
-import PropertyService from "../../services/property/properties";
 import RoundsService from "../../services/round/round";
 import UserService from "../../services/users/users";
-
-import EditableTable from "../EditableTable/EditableTable";
-function Table(props, title, isDependant, columns, disallowBulkAdd, service, owningService, fieldForLookup, owningFieldLookup=["id"], editable=true, additionalActions=[], idFields=["id"]){
-    return <EditableTable {...props} title={title} isDependant={isDependant} columns={columns} service={service} disallowBulkAdd={disallowBulkAdd} owningService={owningService}
-                          fieldForLookup={fieldForLookup} owningFieldLookup={owningFieldLookup} editable={editable} additionalActions={additionalActions} idFields={idFields}
-    />
-}
+import {Table} from "./TableInterface"
+import TeamMenu from "./TeamMenu";
+import Paper from "@material-ui/core/Paper";
+import HostMenu from "./HostMenu";
+import ServiceMenu from "./ServiceMenu";
+import PropertiesMenu from "./PropertiesMenu";
 
 export default function Setup(props) {
     return (
-       <div>
+        <Paper className={props.classesPaper} style={{minHeight: "85vh"}}>
            <Route exact path="/setup/teams" render={() => (
-               <div>
-                   {(() => {
-                       const title = "Teams"
-                       const isDependant = false
-                       const columns=
-                           [
-                               { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-                               { title: 'Team Name', field: 'name' },
-                               { title: 'Index', field: 'index', type: 'numeric' },
-                               { title: 'Enabled', field: 'enabled', type: 'boolean' },
-                           ]
-
-                       return Table(props, title, isDependant, columns, false, TeamService)
-                   })()}
-               </div>
+               <TeamMenu {...props} />
            )} />
            <Route exact path="/setup/host_groups" render={() => (
-               <div>
+               <React.Fragment>
                    {(() => {
                        const title = "Host Groups"
                        const isDependant = false
@@ -50,10 +32,10 @@ export default function Setup(props) {
 
                        return Table(props, title, isDependant, columns, false, HostGroupsService)
                    })()}
-               </div>
+               </React.Fragment>
            )} />
            <Route exact path="/setup/users" render={() => (
-               <div>
+               <React.Fragment>
                    {(() => {
                        const title = "Users"
                        const isDependant = true
@@ -72,95 +54,18 @@ export default function Setup(props) {
 
                        return Table(props, title, isDependant, columns, false, UserService, owningService, fieldForLookup, owningFieldLookup)
                    })()}
-               </div>
+               </React.Fragment>
            )} />
 
            <Route exact path="/setup/hosts" render={() => (
-               <div>
-                   {(() => {
-                       const title = "Hosts"
-                       const isDependant = true
-                       const owningService = [TeamService, HostGroupsService]
-                       const owningFieldLookup = ["name", "name"]
-                       const fieldForLookup = ["team_id", "host_group_id"]
-                       const columns=
-                           [
-                               { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-                               { title: 'Address', field: 'address' },
-                               { title: 'Host Group ID', field: 'host_group_id' },
-                               { title: 'Team ID', field: 'team_id' },
-                               { title: 'Enabled', field: 'enabled', type: 'boolean' },
-                               { title: 'Edit Host(Allow users to change Addresses)', field: 'edit_host', type: 'boolean' },
-                           ]
-
-                       return Table(props, title, isDependant, columns, false, HostsService, owningService, fieldForLookup, owningFieldLookup)
-                   })()}
-               </div>
+               <HostMenu {...props} />
            )} />
 
            <Route exact path="/setup/services" render={() => (
-               <div>
-                   {(() => {
-                       const title = "Services"
-                       const isDependant = true
-                       const owningService = [ServiceGroupsService, HostsService]
-                       const owningFieldLookup = ["name", "address"]
-                       const fieldForLookup = ["service_group_id", "host_id"]
-                       const additionalActions = [{icon: "flash_on", tooltip: 'test service', onFuncClick: async (event, rowData) => {
-                               return await ServicesService.TestService(rowData["id"]).then((response) => {
-                                   let severity = "error"
-                                   let message = `Passed: ${response["Passed"]}, Log: ${response["Log"]}`
-                                   if (response["Passed"] && response["Err"] === ""){
-                                       severity = "success"
-                                   } else {
-                                       message += ` Error: ${response["Err"]}`
-                                   }
-                                   props.setAlert({message: message, severity:severity})
-                               })
-                           } }]
-                       const columns=
-                           [
-                               { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-                               { title: 'Name', field: 'name', lookup: {
-                                   'PING': 'PING', 'DNS':'DNS', 'FTP':'FTP', 'LDAP':'LDAP',
-                                       'HTTP': 'HTTP', 'IMAP': 'IMAP', 'SMB': 'SMB', 'SSH': 'SSH',
-                                       'WINRM': 'WINRM'
-                               }},
-                               { title: 'Display Name(Columns on Status page)', field: 'display_name' },
-                               { title: 'Points(Points per successful check)', field: 'points', type: 'numeric', },
-                               { title: 'Points Boost', field: 'points_boost', type: 'numeric', initialEditValue: 0},
-                               { title: 'Enabled', field: 'enabled', type: 'boolean' },
-                               { title: 'Service Group ID', field: 'service_group_id' },
-                               { title: 'Host ID', field: 'host_id' },
-                               { title: 'Round Units(Frequency)', field: 'round_units', type: 'numeric', initialEditValue: 1},
-                               { title: 'Round Delay(Shift in frequency)', field: 'round_delay', type: 'numeric', initialEditValue: 0 },
-                           ]
-
-                       return Table(props, title, isDependant, columns, false, ServicesService, owningService, fieldForLookup, owningFieldLookup, true, additionalActions)
-                   })()}
-               </div>
+               <ServiceMenu {...props} />
            )} />
            <Route exact path="/setup/properties" render={() => (
-               <div>
-                   {(() => {
-                       const title = "Properties"
-                       const isDependant = true
-                       const owningService = [ServicesService]
-                       const owningFieldLookup = ["id"]
-                       const fieldForLookup = ["service_id"]
-                       const idFields = ["service_id", "key"]
-                       const columns=
-                           [
-                               { title: 'Key', field: 'key', editable: 'onAdd'},
-                               { title: 'Value', field: 'value' },
-                               { title: 'Status', field: 'status', lookup:{'View': 'View', 'Hide':'Hide', 'Edit':'Edit'}},
-                               { title: 'Description', field: 'description'},
-                               { title: 'Service ID', field: 'service_id', editable: 'onAdd'},
-                           ]
-                        //ToDo: Show required properties for a given service
-                       return Table(props, title, isDependant, columns, false, PropertyService, owningService, fieldForLookup, owningFieldLookup, true, [], idFields)
-                   })()}
-               </div>
+               <PropertiesMenu {...props}/>
            )} />
 
            <Route exact path="/setup/rounds" render={() => (
@@ -190,7 +95,11 @@ export default function Setup(props) {
                        const title = "Service Groups"
                        const isDependant = false
                        const additionalActions = [{icon: "replay", tooltip: 'redeploy workers', onFuncClick: async (event, rowData) => {
-                               return await ServiceGroupsService.Redeploy(rowData["id"])
+                           props.handleLoading()
+                               return await ServiceGroupsService.Redeploy(rowData["id"]).then(() => {
+                                  props.handleSuccess("Workers were deployed! Please make sure they are in a healthy state before enabling the service group.")
+                               })
+
                            } }]
                        const columns=
                            [
@@ -205,7 +114,7 @@ export default function Setup(props) {
                    })()}
                </div>
            )} />
-       </div>
+        </Paper>
     );
 }
 

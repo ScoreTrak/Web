@@ -17,6 +17,7 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 export default function Details(props) {
     const dt=props.dt
+
     function BlackTeamPanel() {
         let data = []
         Object.keys(dt["Teams"]).forEach(team_id =>{
@@ -25,6 +26,9 @@ export default function Details(props) {
                 team_name: dt["Teams"][team_id]["Name"],
             })
         })
+
+        data.sort((a, b) => (a.team_name > b.team_name) ? 1 : -1)
+
         return (
 
             <TableContainer component={Paper}>
@@ -38,7 +42,7 @@ export default function Details(props) {
                     </TableHead>
                     <TableBody>
                         {data.map((row) => (
-                            <Row key={row.team_id} {...props} row={row} />
+                            <CustomRow key={row.team_id} {...props} row={row} />
                         ))}
                     </TableBody>
                 </Table>
@@ -52,9 +56,11 @@ export default function Details(props) {
                 rel="stylesheet"
                 href="https://fonts.googleapis.com/icon?family=Material+Icons"
             />
+
+
             {
                 AuthService.getCurrentRole() === "blue" ? <SingleTeamDetails {...props} teamID={AuthService.getCurrentTeamID()}/> :
-                    BlackTeamPanel() //ToDo: Fix issue with autoclosing of table on data update
+                    BlackTeamPanel()
             }
         </div>
     );
@@ -70,7 +76,7 @@ const useRowStyles = makeStyles({
 
 
 
-function Row(props) {
+function CustomRow(props) {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
     const classes = useRowStyles();
@@ -87,9 +93,9 @@ function Row(props) {
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <Collapse in={open} timeout="auto" unmountOnExit>
+                    <Collapse in={open} timeout="auto">
                         <Box margin={1}>
-                            <SingleTeamDetails {...props} teamID={row.team_id}/>
+                            <SingleTeamDetails {...props} teamID={row.team_id} />
                         </Box>
                     </Collapse>
                 </TableCell>

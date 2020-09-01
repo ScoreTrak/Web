@@ -157,8 +157,8 @@ type ClientStore struct {
 	CompetitionClient  *client.CompetitionClient
 }
 
-func teamIDFromProperty(c *ClientStore, propertyID uuid.UUID, key string) (teamID uuid.UUID, property *property.Property, err error) {
-	property, err = c.PropertyClient.GetByServiceIDKey(propertyID, key)
+func teamIDFromProperty(c *ClientStore, serviceID uuid.UUID, key string) (teamID uuid.UUID, property *property.Property, err error) {
+	property, err = c.PropertyClient.GetByServiceIDKey(serviceID, key)
 	if err != nil || property == nil {
 		return
 	}
