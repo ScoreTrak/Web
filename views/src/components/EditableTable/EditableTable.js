@@ -1,5 +1,4 @@
 import React, {useEffect} from "react";
-import Paper from "@material-ui/core/Paper";
 import Box from '@material-ui/core/Box';
 import CircularProgress from "@material-ui/core/CircularProgress";
 import MaterialTable from "material-table";
@@ -7,7 +6,6 @@ import MaterialTable from "material-table";
 
 export default function Setup(props) {
     const setTitle = props.setTitle
-    const classesPaper = props.classesPaper
     setTitle(props.title)
 
     const [state, setState] = React.useState({
@@ -50,7 +48,7 @@ export default function Setup(props) {
     }, []);
 
     return (
-        <Paper className={classesPaper} style={{minHeight: "85vh"}}>
+        <React.Fragment>
             <link
                 rel="stylesheet"
                 href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -152,7 +150,6 @@ export default function Setup(props) {
                     <CircularProgress  />
                 </Box>
             }
-
-        </Paper>
+        </React.Fragment>
     );
 }

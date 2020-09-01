@@ -316,5 +316,6 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
             </Grid>
         </Box>
     )
-
 }
+
+//Todo: Allow changing hostname if editable.
