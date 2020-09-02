@@ -22,7 +22,7 @@ function getStepContent(step, props) {
                     { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
                     { title: 'Team Name', field: 'name' },
                     { title: 'Index', field: 'index', type: 'numeric' },
-                    { title: 'Enabled', field: 'enabled', type: 'boolean' },
+                    { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
                 ]
             return Table(props, "Teams", false, columns, false, TeamService)
         case 1:

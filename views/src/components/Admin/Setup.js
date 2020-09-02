@@ -27,7 +27,7 @@ export default function Setup(props) {
                            [
                                { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
                                { title: 'Host Group Name', field: 'name' },
-                               { title: 'Enabled', field: 'enabled', type: 'boolean' },
+                               { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
                            ]
 
                        return Table(props, title, isDependant, columns, false, HostGroupsService)

@@ -33,7 +33,7 @@ function getStepContent(step, props) {
                     { title: 'Address', field: 'address' },
                     { title: 'Host Group ID', field: 'host_group_id' },
                     { title: 'Team ID', field: 'team_id' },
-                    { title: 'Enabled', field: 'enabled', type: 'boolean' },
+                    { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
                     { title: 'Edit Host(Allow users to change Addresses)', field: 'edit_host', type: 'boolean' },
                 ]
 
