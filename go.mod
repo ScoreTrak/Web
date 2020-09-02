@@ -11,9 +11,8 @@ require (
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/jackc/pgconn v1.6.4
 	github.com/jinzhu/configor v1.2.0
-	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a // indirect
 	github.com/tidwall/pretty v1.0.1 // indirect
 	go.uber.org/dig v1.10.0
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
-	gorm.io/gorm v0.2.36
+	gorm.io/gorm v0.2.38
 )
