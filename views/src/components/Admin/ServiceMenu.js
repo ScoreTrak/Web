@@ -53,7 +53,7 @@ function getStepContent(step, props) {
                     { title: 'Display Name(Columns on Status page)', field: 'display_name' },
                     { title: 'Points(Points per successful check)', field: 'points', type: 'numeric', },
                     { title: 'Points Boost', field: 'points_boost', type: 'numeric', initialEditValue: 0},
-                    { title: 'Enabled', field: 'enabled', type: 'boolean' },
+                    { title: 'Enabled', field: 'enabled', type: 'boolean' , initialEditValue: true},
                     { title: 'Service Group ID', field: 'service_group_id' },
                     { title: 'Host ID', field: 'host_id' },
                     { title: 'Round Units(Frequency)', field: 'round_units', type: 'numeric', initialEditValue: 1},
