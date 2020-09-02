@@ -14,6 +14,13 @@ import Grid from "@material-ui/core/Grid";
 import MaterialTable from "material-table";
 import PropertyService from "../../services/property/properties";
 import CheckService from "../../services/check/check";
+import HostService from "../../services/host/hosts";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Input from "@material-ui/core/Input";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import Button from "@material-ui/core/Button";
+import ConfigService from "../../services/config/config";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -74,10 +81,12 @@ const useStyles = makeStyles((theme) => ({
 export default function SingleTeamDetails(props) {
     const classes = useStyles();
     const [PropertiesData, setPropertiesData] = useState([]);
-    const [expanded, setExpanded] = React.useState(false);
-    const [history, setHistory] = React.useState({});
+    const [HostData, setHostData] = useState({});
+    const [expanded, setExpanded] = useState(false);
+    const [history, setHistory] = useState({});
     const handleChange = (panel) => (event, isExpanded) => {
         setPropertiesData([])
+        setHostData({})
         if (!isExpanded){
             setExpanded(false)
         } else {
@@ -160,12 +169,12 @@ export default function SingleTeamDetails(props) {
                                 >
                                     {sr["Passed"] ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>}
                                     <Typography className=  {classes.heading}>{keyName}</Typography>
-                                    <Typography className={classes.secondaryHeading}>Host: {currentHost["Address"]}</Typography>
+                                    <Typography className={classes.secondaryHeading}>Host used for last round: {currentHost["Address"]}</Typography>
 
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     {expanded === keyName &&
-                                        <SingleTeamDetailsAccordionDetailsBox {...props} history={history} prevDT={prevDT} setHistory={setHistory} teamID={teamID} host_id={host} service_id={service_id} sr={sr} PropertiesData={PropertiesData} setPropertiesData={setPropertiesData} />
+                                        <SingleTeamDetailsAccordionDetailsBox {...props} history={history} prevDT={prevDT} setHistory={setHistory} teamID={teamID} host_id={host} service_id={service_id} sr={sr} setHostData={setHostData} HostData={HostData}  PropertiesData={PropertiesData} setPropertiesData={setPropertiesData} />
                                     }
                                 </AccordionDetails>
                             </Accordion>
@@ -182,7 +191,6 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
     const PropertiesData = props.PropertiesData
     const classes = useStyles();
     const setPropertiesData = props.setPropertiesData
-
     const service_id = props.service_id
 
     const history = props.history
@@ -223,6 +231,11 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
         return [...results]
     }
 
+    async function reloadHost(hostID) {
+        const results = await HostService.GetByID(hostID)
+        return {...results}
+    }
+
     function reloadPropertiesSetter(service_id, sr) {
         reloadProperties(service_id).then( results => {
             let d = []
@@ -239,6 +252,21 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
         })
     }
 
+    const handleSetHostAddress = (e, hstID) => {
+        e.preventDefault()
+        let val = document.getElementById(`host_address_${hstID}`).value
+        props.setHostData(prevState => {return{...prevState, address: val}})
+        HostService.Update(host_id, {address: val}).then( async () => {
+            reloadHostSetter(hstID)
+        }, props.errorSetter)
+    }
+
+    function reloadHostSetter(host_id) {
+        reloadHost(host_id).then( results => {
+            props.setHostData(results)
+        })
+    }
+
     useEffect(() => {
         if (!history[service_id]){
             reloadPreviousChecks(service_id).then( results => {
@@ -251,6 +279,7 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                 setHistory(prevState => {return {...prevState, [service_id]: d }})
             })
         }
+        reloadHostSetter(host_id)
         reloadPropertiesSetter(service_id, sr)
     }, []);
 
@@ -301,7 +330,21 @@ function SingleTeamDetailsAccordionDetailsBox(props) {
                             }
                         }}
                     />
-
+                    {
+                        props.HostData["edit_host"] &&
+                        <form style={{width: "100%", marginTop: "1vh"}} onSubmit={e => {handleSetHostAddress(e, host_id) }}>
+                            <FormControl style={{ display: 'flex', flexDirection: 'row', width: "100%"}}>
+                                <div>
+                                    <InputLabel htmlFor="host_address">Host (Current: {props.HostData["address"]})</InputLabel>
+                                    <Input id={`host_address_${host_id}`} aria-describedby="my-helper-text" />
+                                    <FormHelperText id="my-helper-text">Set the address of the remote machine</FormHelperText>
+                                </div>
+                                <Button type="submit" variant="outlined" color="primary" style={{width: "10vh", height: "3vh", marginLeft: "3vh", marginTop: "auto", marginBottom:"auto"}}>
+                                    Set
+                                </Button >
+                            </FormControl>
+                        </form>
+                    }
                 </Grid>
             </Grid>
             <Grid container spacing={3}>
