@@ -48,7 +48,7 @@ function getStepContent(step, props) {
                     { title: 'Name', field: 'name', lookup: {
                             'PING': 'PING', 'DNS':'DNS', 'FTP':'FTP', 'LDAP':'LDAP',
                             'HTTP': 'HTTP', 'IMAP': 'IMAP', 'SMB': 'SMB', 'SSH': 'SSH',
-                            'WINRM': 'WINRM'
+                            'WINRM': 'WINRM', "SQL": "SQL"
                         }},
                     { title: 'Display Name(Columns on Status page)', field: 'display_name' },
                     { title: 'Points(Points per successful check)', field: 'points', type: 'numeric', },
