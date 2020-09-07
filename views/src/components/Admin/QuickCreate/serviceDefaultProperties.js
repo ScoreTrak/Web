@@ -76,6 +76,18 @@ const dns = {
     ExpectedOutput: {name: 'Expected Output', type: 'field', },
 }
 
+const sql = {
+    Username: {name: 'Username', type: 'field'},
+    Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
+    Port: {name: 'Port', type: 'field', defaultValue: '3306'},
+    DBType: {name: 'Database Type', type: 'select', options: ["mysql", "postgres"]},
+    DBName: {name: 'Database Name', type: 'field'},
+    Command: {name: 'Command', type: 'field', defaultValue: '' },
+    MinExpectedRows: {name: 'Minimum Expected Rows', type: 'field'},
+    MaxExpectedRows: {name: 'Maximum Expected Rows', type: 'field' },
+}
+
+
 export default {
-    winrm, http, ssh, smb, dns, ftp, imap, ldap, ping
+    winrm, http, ssh, smb, dns, ftp, imap, ldap, ping, sql
 }
