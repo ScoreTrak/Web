@@ -1,4 +1,4 @@
-const winrm = {
+const WINRM = {
     Username: {name: 'Username', type: 'field', },
     Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
     Port: {name: 'Port', type: 'field', defaultValue: '5985'},
@@ -8,7 +8,7 @@ const winrm = {
     ClientType: {name: 'Client Type', type: 'select', defaultValue: 'NTLM', options: ["NTLM"]},
 }
 
-const ssh = {
+const SSH = {
     Username: {name: 'Username', type: 'field', },
     Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
     Port: {name: 'Port', type: 'field', defaultValue: '22'},
@@ -16,7 +16,7 @@ const ssh = {
     ExpectedOutput: {name: 'Expected Output', type: 'field', },
 }
 
-const smb = {
+const SMB = {
     Username: {name: 'Username', type: 'field', },
     Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
     Domain: {name: 'Domain', type: 'field', },
@@ -29,12 +29,12 @@ const smb = {
     ExpectedOutput: {name: 'Expected Output', type: 'field', },
 }
 
-const ping = {
+const PING = {
     Protocol: {name: 'Protocol', type: 'select', options:["ipv4", "ipv6"], defaultValue: 'ipv4' },
     Attempts: {name: 'Attempts', type: 'field', defaultValue: '1'},
 }
 
-const ldap = {
+const LDAP = {
     Username: {name: 'Username', type: 'field', },
     Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
     Domain: {name: 'Domain', type: 'field', },
@@ -46,14 +46,14 @@ const ldap = {
     Attributes: {name: 'Attributes', type: 'field', defaultValue: 'dn,cn' }
 }
 
-const imap = {
+const IMAP = {
     Username: {name: 'Username', type: 'field', },
     Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
     Port: {name: 'Port', type: 'field', defaultValue: '143'},
     Scheme: {name: 'Scheme', type: 'select', defaultValue: 'imap', options: ["imap", "tls"]},
 }
 
-const http = {
+const HTTP = {
     Port: {name: 'Port', type: 'field', defaultValue: '80'},
     ExpectedOutput: {name: 'Expected Output', type: 'field', },
     Scheme: {name: 'Scheme', type: 'select', defaultValue: 'http', options: ["http", "https"]},
@@ -61,7 +61,7 @@ const http = {
     Subdomain: {name: 'Subdomain', type: 'field', }
 }
 
-const ftp = {
+const FTP = {
     Username: {name: 'Username', type: 'field', },
     Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
     Port: {name: 'Port', type: 'field', defaultValue: '21'},
@@ -71,12 +71,12 @@ const ftp = {
     ExpectedOutput: {name: 'Expected Output', type: 'field', },
 }
 
-const dns = {
+const DNS = {
     Lookup: {name: 'Lookup', type: 'field', }, 
     ExpectedOutput: {name: 'Expected Output', type: 'field', },
 }
 
-const sql = {
+const SQL = {
     Username: {name: 'Username', type: 'field'},
     Password: {name: 'Password', type: 'field',  defaultStatus: 'Edit'},
     Port: {name: 'Port', type: 'field', defaultValue: '3306'},
@@ -89,5 +89,5 @@ const sql = {
 
 
 export default {
-    winrm, http, ssh, smb, dns, ftp, imap, ldap, ping, sql
+    WINRM, HTTP, SSH, SMB, DNS, FTP, IMAP, LDAP, PING, SQL
 }
