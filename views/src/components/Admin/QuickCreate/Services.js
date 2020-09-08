@@ -36,7 +36,7 @@ const ServiceCreate = forwardRef((props, ref) => {
     const defaultVals = {
         name: '',
         display_name: '',
-        points: '1',
+        points: 1,
         'points_boost': 0,
         'round_units': 1,
         'round_units_delay': 0,
