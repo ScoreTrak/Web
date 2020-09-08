@@ -49,6 +49,7 @@ const ServiceCreate = forwardRef((props, ref) => {
             let rowdt = {}
             respHostGroup.forEach(hstGrp => {
                 counter[hstGrp.id] = 0
+                rowdt[hstGrp.id] = {}
             })
             setCounter({...counter})
             setData({loader: false, hosts: respHost, hostGroups: respHostGroup, serviceGroups: respServiceGrp})
