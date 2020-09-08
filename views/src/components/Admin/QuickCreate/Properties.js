@@ -32,11 +32,11 @@ const PropertiesCreate = forwardRef((props, ref) => {
                     displayNames.add(serv.display_name)
                     if (!(serv.display_name in rowdt)){
                         rowdt[serv.display_name] = {enableProcessingProperty: false}
-                        Object.keys(PropertiesDefaults[serv.name.toLowerCase()]).forEach(key => {
+                        Object.keys(PropertiesDefaults[serv.name]).forEach(key => {
                             rowdt[serv.display_name][key] = {
-                                ...PropertiesDefaults[serv.name.toLowerCase()][key],
-                                value: 'defaultValue' in PropertiesDefaults[serv.name.toLowerCase()][key] ? PropertiesDefaults[serv.name.toLowerCase()][key].defaultValue : '',
-                                status: 'defaultStatus' in PropertiesDefaults[serv.name.toLowerCase()][key] ? PropertiesDefaults[serv.name.toLowerCase()][key].defaultStatus : 'View',
+                                ...PropertiesDefaults[serv.name][key],
+                                value: 'defaultValue' in PropertiesDefaults[serv.name][key] ? PropertiesDefaults[serv.name][key].defaultValue : '',
+                                status: 'defaultStatus' in PropertiesDefaults[serv.name][key] ? PropertiesDefaults[serv.name][key].defaultStatus : 'View',
                             }
                         })
                     }
