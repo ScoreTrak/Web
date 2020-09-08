@@ -31,7 +31,7 @@ const PropertiesCreate = forwardRef((props, ref) => {
                 if (serv.display_name){
                     displayNames.add(serv.display_name)
                     if (!(serv.display_name in rowdt)){
-                        rowdt[serv.display_name] = {enableProcessingProperty: true}
+                        rowdt[serv.display_name] = {enableProcessingProperty: false}
                         Object.keys(PropertiesDefaults[serv.name.toLowerCase()]).forEach(key => {
                             rowdt[serv.display_name][key] = {
                                 ...PropertiesDefaults[serv.name.toLowerCase()][key],
