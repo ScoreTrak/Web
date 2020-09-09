@@ -1,18 +1,9 @@
 import React from "react";
 import {Table} from "./TableInterface";
-import TeamService from "../../services/team/teams";
-import TeamCreate from "./QuickCreate/Team";
 import Box from "@material-ui/core/Box";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepButton from "@material-ui/core/StepButton";
-import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
-import HostCreate from "./QuickCreate/Host";
-import UserService from "../../services/users/users";
-import HostGroupsService from "../../services/host_group/host_groups";
-import HostsService from "../../services/host/hosts";
-import ServiceGroupsService from "../../services/service_group/service_groups";
 import ServicesService from "../../services/service/serivces";
 import PropertyService from "../../services/property/properties";
 import PropertiesCreate from "./QuickCreate/Properties";
@@ -36,7 +27,6 @@ function getStepContent(step, props) {
                     { title: 'Key', field: 'key', editable: 'onAdd'},
                     { title: 'Value', field: 'value' },
                     { title: 'Status', field: 'status', lookup:{'View': 'View', 'Hide':'Hide', 'Edit':'Edit'}},
-                    { title: 'Description', field: 'description'},
                     { title: 'Service ID', field: 'service_id', editable: 'onAdd'},
                 ]
             return Table(props, title, isDependant, columns, false, PropertyService, owningService, fieldForLookup, owningFieldLookup, true, [], idFields)
