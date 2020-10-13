@@ -14,7 +14,7 @@ type Team struct {
 
 	Index *uint `json:"index" gorm:"unique"`
 
-	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID" json:"-"`
+	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID;constraint:OnUpdate:RESTRICT,OnDelete:CASCADE" json:"-"`
 
 	Enabled *bool `json:"enabled,omitempty" gorm:"-"`
 }
