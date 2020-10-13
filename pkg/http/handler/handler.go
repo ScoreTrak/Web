@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	shandler "github.com/ScoreTrak/ScoreTrak/pkg/api/handler"
@@ -109,7 +108,7 @@ func genericUpdate(c *gin.Context, m string, svc interface{}, g interface{}, log
 func UintResolver(c *gin.Context, param string) (id uint, err error) {
 	idParam := c.Param(param)
 	if idParam == "" {
-		return 0, errors.New(fmt.Sprintf("%s parameter was not identified", param))
+		return 0, fmt.Errorf("%s parameter was not identified", param)
 	}
 	id32, err := strconv.ParseUint(idParam, 10, 32)
 	id = uint(id32)
@@ -128,7 +127,7 @@ func ClientErrorHandler(c *gin.Context, log logger.LogInfoFormat, err error) {
 func UuidResolver(c *gin.Context, param string) (uuid.UUID, error) {
 	idParam := c.Param(param)
 	if idParam == "" {
-		return uuid.Nil, errors.New(fmt.Sprintf("%s parameter was not identified", param))
+		return uuid.Nil, fmt.Errorf("%s parameter was not identified", param)
 	}
 	return uuid.FromString(idParam)
 }
@@ -136,7 +135,7 @@ func UuidResolver(c *gin.Context, param string) (uuid.UUID, error) {
 func ParamResolver(c *gin.Context, param string) (string, error) {
 	idParam := c.Param(param)
 	if idParam == "" {
-		return "", errors.New(fmt.Sprintf("%s parameter was not identified", param))
+		return "", fmt.Errorf("%s parameter was not identified", param)
 	}
 	return idParam, nil
 }
