@@ -77,7 +77,7 @@ func (u *hostController) Update(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		if tID != TeamID || prop.EditHost != nil && *prop.EditHost == true {
+		if tID != TeamID || prop.EditHost != nil && *prop.EditHost {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You can not edit this object"})
 			return
 		}

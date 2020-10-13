@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -19,7 +18,6 @@ type authController struct {
 	log         logger.LogInfoFormat
 	userService user.Serv
 	ClientStore *handler.ClientStore
-	db          *gorm.DB
 }
 
 func NewAuthController(l logger.LogInfoFormat, u user.Serv, c *handler.ClientStore) *authController {

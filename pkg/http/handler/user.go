@@ -22,7 +22,7 @@ func NewUserController(log logger.LogInfoFormat, svc user.Serv) *userController 
 func (u *userController) Store(c *gin.Context) {
 	var us []*user.User
 	err := c.BindJSON(&us)
-	for i, _ := range us {
+	for i := range us {
 		if us[i].Password == "" {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Password is required"})
 			return

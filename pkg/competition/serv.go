@@ -27,7 +27,7 @@ func (svc *webServ) LoadCompetition(c *Web) error {
 	errAgr = append(errAgr, svc.Store.User.Upsert(c.Users))
 	errAgr = append(errAgr, svc.Store.Policy.Update(c.Policy))
 	errStr := ""
-	for i, _ := range errAgr {
+	for i := range errAgr {
 		if errAgr[i] != nil {
 			serr, ok := errAgr[i].(*pgconn.PgError)
 			if !ok || serr.Code != "23505" {

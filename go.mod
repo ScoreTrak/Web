@@ -3,7 +3,7 @@ module github.com/ScoreTrak/Web
 go 1.14
 
 require (
-	github.com/ScoreTrak/ScoreTrak v0.0.0-20201013053001-376ea73e8ef6
+	github.com/ScoreTrak/ScoreTrak v0.0.0-20201013082517-ba8dbfb19adc
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.6.3
@@ -13,6 +13,6 @@ require (
 	github.com/jinzhu/configor v1.2.0
 	github.com/tidwall/pretty v1.0.1 // indirect
 	go.uber.org/dig v1.10.0
-	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
+	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee
 	gorm.io/gorm v1.20.0
 )

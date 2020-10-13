@@ -37,12 +37,12 @@ func (u *teamController) Store(c *gin.Context) {
 	}
 
 	var usCopy []*sTeam.Team
-	for i, _ := range us {
+	for i := range us {
 		usCopy = append(usCopy, &sTeam.Team{ID: us[i].ID, Name: us[i].Name, Enabled: us[i].Enabled})
 	}
 	err = u.client.TeamClient.Store(usCopy)
 	if err != nil {
-		for i, _ := range us {
+		for i := range us {
 			_ = u.serv.Delete(us[i].ID)
 		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -137,8 +137,8 @@ func (u *teamController) GetAll(c *gin.Context) {
 
 	var response []*team.Team
 
-	for i, _ := range tScoreTrak {
-		for j, _ := range tWeb {
+	for i := range tScoreTrak {
+		for j := range tWeb {
 			if tScoreTrak[i].ID == tWeb[j].ID {
 				tWeb[j].Enabled = tScoreTrak[i].Enabled
 				response = append(response, tWeb[j])
