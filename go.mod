@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/gofrs/uuid v3.3.0+incompatible
-	github.com/jackc/pgconn v1.6.4
+	github.com/jackc/pgconn v1.7.1
 	github.com/jinzhu/configor v1.2.0
 	github.com/tidwall/pretty v1.0.1 // indirect
 	go.uber.org/dig v1.10.0
